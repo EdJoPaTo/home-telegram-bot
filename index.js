@@ -82,16 +82,24 @@ async function notifyWhenNeeded() {
 
 bot.command('start', ctx => {
   const id = ctx.chat.id
+  try {
+    chats = JSON.parse(fs.readFileSync('chats.json', 'utf8'))
+  } catch (err) {}
   if (chats.indexOf(id) < 0) {
     chats.push(id)
     console.log('chats add', chats)
+    fs.writeFileSync('chats.json', JSON.stringify(chats, null, 2), 'utf8')
   }
   return ctx.reply(`Hi ${ctx.from.first_name}!\n\nDu wirst von mir benachrichtigt, wenn es draußen wärmer wird als drinnen. Wenn du das nicht mehr willst, nutze /stop.`)
 })
 
 bot.command('stop', ctx => {
+  try {
+    chats = JSON.parse(fs.readFileSync('chats.json', 'utf8'))
+  } catch (err) {}
   chats = chats.filter(i => i !== ctx.chat.id)
   console.log('chats remove', chats)
+  fs.writeFileSync('chats.json', JSON.stringify(chats, null, 2), 'utf8')
   return ctx.reply('Du wirst nicht mehr benachrichtigt')
 })
 
