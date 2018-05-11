@@ -2,18 +2,16 @@ const fs = require('fs')
 const MQTT = require('async-mqtt')
 const Telegraf = require('telegraf')
 
-const { Extra, Markup } = Telegraf
+const { Extra } = Telegraf
 
 let chats = []
-let temp = {}
-let hum = {}
+const last = {}
 
-const token = fs.readFileSync(process.env.npm_package_config_tokenpath, 'utf8')
+const token = fs.readFileSync(process.env.npm_package_config_tokenpath, 'utf8').trim()
 const bot = new Telegraf(token)
 
 const client = MQTT.connect('tcp://etoPiServer:1883')
 
-// WHen passing async functions as event listeners, make sure to have a try catch block
 client.on('connect', async () => {
   console.log('start mqtt connection')
   try {
@@ -25,16 +23,70 @@ client.on('connect', async () => {
   }
 })
 
+client.on('message', (topic, message) => {
+  const msgStr = message.toString()
+  // console.log('incoming message', topic, msgStr)
+  const position = topic.split('/')[3]
+  const type = topic.split('/')[4]
+  const value = Number(msgStr)
+
+  const newVal = {
+    time: Date.now(),
+    value: value
+  }
+
+  if (!last[position]) {
+    last[position] = {}
+  }
+
+  last[position][type] = newVal
+
+  if (type === 'temp') {
+    notifyWhenNeeded()
+  }
+})
+
+let lastNotifyWasOpen = false
+
+async function notifyWhenNeeded() {
+  if (!last.bude || !last.bude.temp || !last.bed || !last.bed.temp) {
+    console.log('notifyWhenNeeded is still waiting for init')
+    return
+  }
+
+  const outdoor = last.bude.temp.value
+  const indoor = last.bed.temp.value
+  const diff = outdoor - indoor
+  // console.log('notifyWhenNeeded diff', diff)
+
+  if (lastNotifyWasOpen) {
+    if (diff < -2) {
+      lastNotifyWasOpen = false
+      const text = `Es ist draußen (${outdoor} °C) *kälter* als drinnen (${indoor} °C). Man könnte die Fenster aufmachen.`
+
+      await chats.map(chat => {
+        bot.telegram.sendMessage(chat, text, Extra.markdown())
+      })
+    }
+  } else {
+    if (diff > -2) {
+      lastNotifyWasOpen = true
+      const text = `Es wird draußen (${outdoor} °C) *wärmer* als drinnen (${indoor} °C). Sind alle Fenster zu?`
+
+      await chats.map(chat => {
+        bot.telegram.sendMessage(chat, text, Extra.markdown())
+      })
+    }
+  }
+}
 
 bot.command('start', ctx => {
   const id = ctx.chat.id
-  if (chats.indexOf(id) >= 0) {
-    return ctx.reply('Du bist bereits aktiv')
-  } else {
+  if (chats.indexOf(id) < 0) {
     chats.push(id)
     console.log('chats add', chats)
-    return ctx.reply(`Hi ${ctx.from.first_name}!`)
   }
+  return ctx.reply(`Hi ${ctx.from.first_name}!\n\nDu wirst von mir benachrichtigt, wenn es draußen wärmer wird als drinnen. Wenn du das nicht mehr willst, nutze /stop.`)
 })
 
 bot.command('stop', ctx => {
@@ -44,19 +96,23 @@ bot.command('stop', ctx => {
 })
 
 bot.command('status', ctx => {
+  // console.log(last)
 
+  const positions = Object.keys(last)
+  const lines = positions.map(position => {
+    const types = Object.keys(last[position])
 
-  return ctx.reply('TODO', Extra.markdown())
-})
+    const timestamps = types.map(type => last[position][type].time)
+    const lastInfo = Math.min.apply(null, timestamps)
+    const millisecondsAgo = Date.now() - lastInfo
+    const secondsAgo = Math.round(millisecondsAgo / 100) / 10
 
-client.on('message', (topic, message) => {
-  const msgStr = message.toString()
-  console.log('incoming message', topic, msgStr)
-  return Promise.all(
-    chats.map(chat => {
-      bot.telegram.sendMessage(chat, `*${topic}*\n${msgStr}`, Extra.markdown())
-    })
-  )
+    return `*${position}* ` + types.map(type =>
+      `${last[position][type].value} ${type === 'temp' ? '°C' : '%'}`
+    ).join(', ') + ` _${secondsAgo} seconds ago_`
+  })
+
+  return ctx.reply(lines.join('\n'), Extra.markdown())
 })
 
 bot.catch(err => {
@@ -64,4 +120,4 @@ bot.catch(err => {
   console.error(err)
 })
 
-// bot.startPolling()
+bot.startPolling()
