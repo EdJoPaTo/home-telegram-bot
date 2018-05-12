@@ -71,7 +71,7 @@ async function notifyWhenNeeded() {
     }
   } else {
     // next close
-    if (diff > -2) {
+    if (diff > -1) {
       nextNotifyIsCloseWindows = false
       const text = `Es wird draußen *wärmer* als drinnen. Sind alle Fenster zu?\n\n${generateStatusText()}`
 
