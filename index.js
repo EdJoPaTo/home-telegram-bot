@@ -104,6 +104,10 @@ bot.command('stop', ctx => {
 })
 
 bot.command('status', ctx => {
+  return ctx.reply(generateStatusText(), Extra.markdown())
+})
+
+function generateStatusText() {
   // console.log(last)
 
   const positions = Object.keys(last)
@@ -120,8 +124,8 @@ bot.command('status', ctx => {
     ).join(', ') + ` _${secondsAgo} seconds ago_`
   })
 
-  return ctx.reply(lines.join('\n'), Extra.markdown())
-})
+  return lines.join('\n')
+}
 
 bot.catch(err => {
   if (err.description === 'Bad Request: message is not modified') return
