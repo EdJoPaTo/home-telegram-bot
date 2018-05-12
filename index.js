@@ -51,7 +51,7 @@ client.on('message', (topic, message) => {
   doStatusUpdates()
 })
 
-let nextNotifyIsCloseWindows = false // assume windows are closed
+let nextNotifyIsCloseWindows = true // assume windows are open -> its more important after a restart to close windows than open them
 let attemptToChange = 0
 const ATTEMPTS_NEEDED_TO_CHANGE = 3
 
