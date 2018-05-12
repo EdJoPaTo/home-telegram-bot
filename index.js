@@ -122,11 +122,21 @@ function generateStatusText() {
     const secondsAgo = Math.round(millisecondsAgo / 100) / 10
 
     return `*${position}* ` + types.map(type =>
-      `${last[position][type].value} ${type === 'temp' ? '°C' : '%'}`
+      formatTypeValue(type, last[position][type].value)
     ).join(', ') + ` _${secondsAgo} seconds ago_`
   })
 
   return lines.join('\n')
+}
+
+function formatTypeValue(type, value) {
+  if (type === 'temp') {
+    return `${value} °C`
+  } else if (type === 'hum') {
+    return `${value}%`
+  } else {
+    return `${value} (${type})`
+  }
 }
 
 bot.catch(err => {
