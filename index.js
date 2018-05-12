@@ -133,13 +133,11 @@ function generateStatusText() {
     const types = Object.keys(last[position])
 
     const timestamps = types.map(type => last[position][type].time)
-    const lastInfo = Math.min.apply(null, timestamps)
-    const millisecondsAgo = Date.now() - lastInfo
-    const secondsAgo = Math.round(millisecondsAgo / 100) / 10
+    const age = timestamps.map(t => Math.round((Date.now() - t) / 100) / 10).join('/')
 
     return `*${position}* ` + types.map(type =>
       formatTypeValue(type, last[position][type].value)
-    ).join(', ') + ` _${secondsAgo} seconds ago_`
+    ).join(', ') + ` _${age} seconds ago_`
   })
 
   return lines.join('\n')
