@@ -44,6 +44,7 @@ client.on('message', (topic, message) => {
   if (type === 'temp' && position === 'bude') {
     notifyWhenNeeded()
   }
+  doStatusUpdates()
 })
 
 let nextNotifyIsCloseWindows = false // assume windows are closed
@@ -121,8 +122,15 @@ bot.command('stop', ctx => {
   return ctx.reply('Du wirst nicht mehr benachrichtigt')
 })
 
-bot.command('status', ctx => {
-  return ctx.reply(generateStatusText(), Extra.markdown())
+bot.command('status', async ctx => {
+  const msgSend = await ctx.reply(generateStatusText(), Extra.markdown())
+
+  statusUpdatesNeeded.push({
+    chat: msgSend.chat.id,
+    date: msgSend.date * 1000,
+    lastUpdate: msgSend.date * 1000,
+    message_id: msgSend.message_id
+  })
 })
 
 function generateStatusText() {
@@ -151,6 +159,25 @@ function formatTypeValue(type, value) {
   } else {
     return `${value} (${type})`
   }
+}
+
+let statusUpdatesNeeded = []
+
+function doStatusUpdates() {
+  const newStatus = generateStatusText()
+
+  statusUpdatesNeeded.forEach(task => {
+    const lastUpdateAgo = (Date.now() - task.lastUpdate) / 1000
+    // const dateAgo = (Date.now() - task.date) / 1000
+    // console.log('doStatusUpdates', task, Math.round(dateAgo), 'seconds ago', lastUpdateAgo, 'seconds ago')
+
+    if (lastUpdateAgo > 1) { // only update less often than all 1 seconds
+      bot.telegram.editMessageText(task.chat, task.message_id, undefined, newStatus, Extra.markdown())
+      task.lastUpdate = Date.now()
+    }
+  })
+
+  statusUpdatesNeeded = statusUpdatesNeeded.filter(o => Date.now() - o.date < 20 * 1000) // update message for 20 seconds
 }
 
 bot.catch(err => {
