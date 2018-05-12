@@ -59,7 +59,7 @@ async function notifyWhenNeeded() {
   const outdoor = last.bude.temp.value
   const indoor = last.bed.temp.value
   const diff = outdoor - indoor
-  // console.log('notifyWhenNeeded diff', outdoor, indoor, diff, nextNotifyIsCloseWindows ? 'next close' : 'next open', attemptToChange)
+  // console.log('notifyWhenNeeded diff', outdoor, indoor, Math.round(diff * 10) / 10, nextNotifyIsCloseWindows ? 'next close' : 'next open', attemptToChange)
 
   if (!nextNotifyIsCloseWindows) {
     // next open
