@@ -4,7 +4,7 @@ const Telegraf = require('telegraf')
 
 const { Extra } = Telegraf
 
-let chats = []
+let chats = JSON.parse(fs.readFileSync('chats.json', 'utf8'))
 const last = {}
 
 const token = fs.readFileSync(process.env.npm_package_config_tokenpath, 'utf8').trim()
