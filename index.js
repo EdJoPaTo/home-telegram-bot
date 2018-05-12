@@ -41,12 +41,14 @@ client.on('message', (topic, message) => {
 
   last[position][type] = newVal
 
-  if (type === 'temp') {
+  if (type === 'temp' && position === 'bude') {
     notifyWhenNeeded()
   }
 })
 
 let nextNotifyIsCloseWindows = false // assume windows are closed
+let attemptToChange = 0
+const ATTEMPTS_NEEDED_TO_CHANGE = 3
 
 async function notifyWhenNeeded() {
   if (!last.bude || !last.bude.temp || !last.bed || !last.bed.temp) {
@@ -57,27 +59,41 @@ async function notifyWhenNeeded() {
   const outdoor = last.bude.temp.value
   const indoor = last.bed.temp.value
   const diff = outdoor - indoor
-  // console.log('notifyWhenNeeded diff', outdoor, indoor, diff, nextNotifyIsCloseWindows ? 'next close' : 'next open')
+  // console.log('notifyWhenNeeded diff', outdoor, indoor, diff, nextNotifyIsCloseWindows ? 'next close' : 'next open', attemptToChange)
 
   if (!nextNotifyIsCloseWindows) {
     // next open
     if (diff < -2) {
-      nextNotifyIsCloseWindows = true
-      const text = `Es ist draußen *kälter* als drinnen. Man könnte die Fenster aufmachen.\n\n${generateStatusText()}`
+      attemptToChange++
 
-      await chats.map(chat => {
-        bot.telegram.sendMessage(chat, text, Extra.markdown())
-      })
+      if (attemptToChange >= ATTEMPTS_NEEDED_TO_CHANGE) {
+        nextNotifyIsCloseWindows = true
+        attemptToChange = 0
+        const text = `Es ist draußen *kälter* als drinnen. Man könnte die Fenster aufmachen.\n\n${generateStatusText()}`
+
+        await chats.map(chat => {
+          bot.telegram.sendMessage(chat, text, Extra.markdown())
+        })
+      }
+    } else {
+      attemptToChange = 0
     }
   } else {
     // next close
     if (diff > -1) {
-      nextNotifyIsCloseWindows = false
-      const text = `Es wird draußen *wärmer* als drinnen. Sind alle Fenster zu?\n\n${generateStatusText()}`
+      attemptToChange++
 
-      await chats.map(chat => {
-        bot.telegram.sendMessage(chat, text, Extra.markdown())
-      })
+      if (attemptToChange >= ATTEMPTS_NEEDED_TO_CHANGE) {
+        nextNotifyIsCloseWindows = false
+        attemptToChange = 0
+        const text = `Es wird draußen *wärmer* als drinnen. Sind alle Fenster zu?\n\n${generateStatusText()}`
+
+        await chats.map(chat => {
+          bot.telegram.sendMessage(chat, text, Extra.markdown())
+        })
+      }
+    } else {
+      attemptToChange = 0
     }
   }
 }
