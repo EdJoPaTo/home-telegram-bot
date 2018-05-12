@@ -46,7 +46,7 @@ client.on('message', (topic, message) => {
   }
 })
 
-let lastNotifyWasOpen = false
+let nextNotifyIsCloseWindows = false // assume windows are closed
 
 async function notifyWhenNeeded() {
   if (!last.bude || !last.bude.temp || !last.bed || !last.bed.temp) {
@@ -57,21 +57,23 @@ async function notifyWhenNeeded() {
   const outdoor = last.bude.temp.value
   const indoor = last.bed.temp.value
   const diff = outdoor - indoor
-  // console.log('notifyWhenNeeded diff', outdoor, indoor, diff, lastNotifyWasOpen ? 'next close' : 'next open')
+  // console.log('notifyWhenNeeded diff', outdoor, indoor, diff, nextNotifyIsCloseWindows ? 'next close' : 'next open')
 
-  if (lastNotifyWasOpen) {
+  if (!nextNotifyIsCloseWindows) {
+    // next open
     if (diff < -2) {
-      lastNotifyWasOpen = false
-      const text = `Es ist draußen (${outdoor} °C) *kälter* als drinnen (${indoor} °C). Man könnte die Fenster aufmachen.`
+      nextNotifyIsCloseWindows = true
+      const text = `Es ist draußen *kälter* als drinnen. Man könnte die Fenster aufmachen.\n\n${generateStatusText()}`
 
       await chats.map(chat => {
         bot.telegram.sendMessage(chat, text, Extra.markdown())
       })
     }
   } else {
+    // next close
     if (diff > -2) {
-      lastNotifyWasOpen = true
-      const text = `Es wird draußen (${outdoor} °C) *wärmer* als drinnen (${indoor} °C). Sind alle Fenster zu?`
+      nextNotifyIsCloseWindows = false
+      const text = `Es wird draußen *wärmer* als drinnen. Sind alle Fenster zu?\n\n${generateStatusText()}`
 
       await chats.map(chat => {
         bot.telegram.sendMessage(chat, text, Extra.markdown())
