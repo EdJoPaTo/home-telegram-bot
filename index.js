@@ -4,8 +4,12 @@ const Telegraf = require('telegraf')
 
 const { Extra } = Telegraf
 
+const TEMP_SENSOR_INDOOR = 'bed'
+const TEMP_SENSOR_OUTDOOR = 'bude'
+
 let chats = JSON.parse(fs.readFileSync('chats.json', 'utf8'))
 const last = {}
+let statusUpdatesNeeded = []
 
 const token = fs.readFileSync(process.env.npm_package_config_tokenpath, 'utf8').trim()
 const bot = new Telegraf(token)
@@ -41,7 +45,7 @@ client.on('message', (topic, message) => {
 
   last[position][type] = newVal
 
-  if (type === 'temp' && position === 'bude') {
+  if (type === 'temp' && position === TEMP_SENSOR_OUTDOOR) {
     notifyWhenNeeded()
   }
   doStatusUpdates()
@@ -52,13 +56,13 @@ let attemptToChange = 0
 const ATTEMPTS_NEEDED_TO_CHANGE = 3
 
 async function notifyWhenNeeded() {
-  if (!last.bude || !last.bude.temp || !last.bed || !last.bed.temp) {
+  if (!last[TEMP_SENSOR_OUTDOOR] || !last[TEMP_SENSOR_OUTDOOR].temp || !last[TEMP_SENSOR_INDOOR] || !last[TEMP_SENSOR_INDOOR].temp) {
     console.log('notifyWhenNeeded is still waiting for init')
     return
   }
 
-  const outdoor = last.bude.temp.value
-  const indoor = last.bed.temp.value
+  const outdoor = last[TEMP_SENSOR_OUTDOOR].temp.value
+  const indoor = last[TEMP_SENSOR_INDOOR].temp.value
   const diff = outdoor - indoor
   // console.log('notifyWhenNeeded diff', outdoor, indoor, Math.round(diff * 10) / 10, nextNotifyIsCloseWindows ? 'next close' : 'next open', attemptToChange)
 
@@ -160,8 +164,6 @@ function formatTypeValue(type, value) {
     return `${value} (${type})`
   }
 }
-
-let statusUpdatesNeeded = []
 
 function doStatusUpdates() {
   const newStatus = generateStatusText()
