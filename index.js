@@ -13,7 +13,7 @@ const bot = new Telegraf(token)
 const client = MQTT.connect('tcp://etoPiServer:1883')
 
 client.on('connect', async () => {
-  console.log('start mqtt connection')
+  console.log('connected to mqtt server')
   try {
     await client.subscribe('+/status/temp/#')
   } catch (e) {
