@@ -145,7 +145,7 @@ function generateStatusText() {
     const types = Object.keys(last[position])
 
     const timestamps = types.map(type => last[position][type].time)
-    const age = timestamps.map(t => Math.round((Date.now() - t) / 100) / 10).join('/')
+    const age = timestamps.map(t => formatAge(t, Date.now())).join('/')
 
     return `*${position}* ` + types.map(type =>
       formatTypeValue(type, last[position][type].value)
@@ -153,6 +153,16 @@ function generateStatusText() {
   })
 
   return lines.join('\n')
+}
+
+function formatAge(oldDate, currentDate) {
+  const msAgo = currentDate - oldDate
+
+  if (msAgo > 5 * 60 * 1000) { // older than 5 minutes (sensors should at least update every minute)
+    return '✝'
+  }
+
+  return Math.round(msAgo / 100) / 10
 }
 
 function formatTypeValue(type, value) {
