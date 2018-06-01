@@ -193,17 +193,22 @@ function formatTypeValue(type, value) {
 }
 
 function doStatusUpdates() {
+  const todoUpdates = statusUpdatesNeeded.filter(task => {
+    const lastUpdateAgo = (Date.now() - task.lastUpdate) / 1000
+    // only update less often than every second
+    return lastUpdateAgo > 1
+  })
+
+  if (todoUpdates.length === 0) {
+    // nothing to do -> skip
+    return
+  }
+
   const newStatus = generateStatusText()
 
-  statusUpdatesNeeded.forEach(task => {
-    const lastUpdateAgo = (Date.now() - task.lastUpdate) / 1000
-    // const dateAgo = (Date.now() - task.date) / 1000
-    // console.log('doStatusUpdates', task, Math.round(dateAgo), 'seconds ago', lastUpdateAgo, 'seconds ago')
-
-    if (lastUpdateAgo > 1) { // only update less often than all 1 seconds
-      bot.telegram.editMessageText(task.chat, task.message_id, undefined, newStatus, Extra.markdown())
-      task.lastUpdate = Date.now()
-    }
+  todoUpdates.forEach(task => {
+    bot.telegram.editMessageText(task.chat, task.message_id, undefined, newStatus, Extra.markdown())
+    task.lastUpdate = Date.now()
   })
 
   statusUpdatesNeeded = statusUpdatesNeeded.filter(o => Date.now() - o.date < 20 * 1000) // update message for 20 seconds
