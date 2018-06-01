@@ -140,7 +140,16 @@ bot.command('status', async ctx => {
 function generateStatusText() {
   // console.log(last)
 
-  const positions = Object.keys(last)
+  const positionsUnsorted = Object.keys(last)
+  const positions = positionsUnsorted.filter(o => o !== TEMP_SENSOR_OUTDOOR && o !== TEMP_SENSOR_INDOOR)
+  positions.sort()
+  if (positionsUnsorted.indexOf(TEMP_SENSOR_INDOOR) >= 0) {
+    positions.unshift(TEMP_SENSOR_INDOOR)
+  }
+  if (positionsUnsorted.indexOf(TEMP_SENSOR_OUTDOOR) >= 0) {
+    positions.unshift(TEMP_SENSOR_OUTDOOR)
+  }
+
   const lines = positions.map(position => {
     const types = Object.keys(last[position])
 
