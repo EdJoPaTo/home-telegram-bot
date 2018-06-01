@@ -154,12 +154,19 @@ function generateStatusText() {
     const types = Object.keys(last[position])
 
     const timestamps = types.map(type => last[position][type].time)
+    const minTimestamp = Date.now() - Math.min(...timestamps)
+
+    if (minTimestamp > 5 * 60 * 60 * 1000) { // older than 5h
+      return '' // will be filtered out
+    }
+
     const age = timestamps.map(t => formatAge(t, Date.now())).join('/')
 
     return `*${position}* ` + types.map(type =>
       formatTypeValue(type, last[position][type].value)
     ).join(', ') + ` _${age} seconds ago_`
   })
+    .filter(o => o !== '')
 
   return lines.join('\n')
 }
