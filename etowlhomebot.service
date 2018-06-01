@@ -1,0 +1,14 @@
+[Unit]
+Description=Run Telegram Bot etoWLHomeBot
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/npm start
+WorkingDirectory=
+User=
+Group=
+
+[Install]
+RequiredBy=multi-user.target
