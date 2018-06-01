@@ -4,8 +4,8 @@ const Telegraf = require('telegraf')
 
 const { Extra } = Telegraf
 
-const TEMP_SENSOR_INDOOR = 'bed'
-const TEMP_SENSOR_OUTDOOR = 'bude'
+const TEMP_SENSOR_INDOOR = process.env.npm_package_config_temp_sensor_indoor
+const TEMP_SENSOR_OUTDOOR = process.env.npm_package_config_temp_sensor_outdoor
 
 let chats = JSON.parse(fs.readFileSync('chats.json', 'utf8'))
 const last = {}
