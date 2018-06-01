@@ -9,7 +9,6 @@ const TEMP_SENSOR_OUTDOOR = process.env.npm_package_config_temp_sensor_outdoor
 
 let chats = JSON.parse(fs.readFileSync('chats.json', 'utf8'))
 const last = {}
-let statusUpdatesNeeded = []
 
 const token = fs.readFileSync(process.env.npm_package_config_tokenpath, 'utf8').trim()
 const bot = new Telegraf(token)
@@ -48,7 +47,6 @@ client.on('message', (topic, message) => {
   if (type === 'temp' && position === TEMP_SENSOR_OUTDOOR) {
     notifyWhenNeeded()
   }
-  doStatusUpdates()
 })
 
 let nextNotifyIsCloseWindows = true // assume windows are open -> its more important after a restart to close windows than open them
@@ -129,13 +127,19 @@ bot.command('stop', ctx => {
 bot.command('status', async ctx => {
   const msgSend = await ctx.reply(generateStatusText(), Extra.markdown())
 
-  statusUpdatesNeeded.push({
-    chat: msgSend.chat.id,
-    date: msgSend.date * 1000,
-    lastUpdate: msgSend.date * 1000,
-    message_id: msgSend.message_id
-  })
+  setInterval(doStatusUpdates, 2000, msgSend.chat.id, msgSend.message_id, msgSend.date * 1000)
 })
+
+function doStatusUpdates(chatID, messageID, initialMessageDate) {
+  const secondsSinceInitialMessage = Math.round((Date.now() - initialMessageDate) / 1000)
+  if (secondsSinceInitialMessage > 30) { // stop updating after 30 seconds
+    clearInterval(this)
+    return
+  }
+
+  const newStatus = generateStatusText()
+  bot.telegram.editMessageText(chatID, messageID, undefined, newStatus, Extra.markdown())
+}
 
 function generateStatusText() {
   // console.log(last)
@@ -190,28 +194,6 @@ function formatTypeValue(type, value) {
   } else {
     return `${value} (${type})`
   }
-}
-
-function doStatusUpdates() {
-  const todoUpdates = statusUpdatesNeeded.filter(task => {
-    const lastUpdateAgo = (Date.now() - task.lastUpdate) / 1000
-    // only update less often than every second
-    return lastUpdateAgo > 1
-  })
-
-  if (todoUpdates.length === 0) {
-    // nothing to do -> skip
-    return
-  }
-
-  const newStatus = generateStatusText()
-
-  todoUpdates.forEach(task => {
-    bot.telegram.editMessageText(task.chat, task.message_id, undefined, newStatus, Extra.markdown())
-    task.lastUpdate = Date.now()
-  })
-
-  statusUpdatesNeeded = statusUpdatesNeeded.filter(o => Date.now() - o.date < 20 * 1000) // update message for 20 seconds
 }
 
 bot.catch(err => {
