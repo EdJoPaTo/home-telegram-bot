@@ -191,6 +191,8 @@ function formatTypeValue(type, value) {
     return `${value} °C`
   } else if (type === 'hum') {
     return `${value}%`
+  } else if (type === 'rssi') {
+    return `${value} dBm`
   } else {
     return `${value} (${type})`
   }
