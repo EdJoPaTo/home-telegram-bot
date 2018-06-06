@@ -190,7 +190,7 @@ function formatAge(oldDate, currentDate) {
     // return '✝' // Emoji variant
   }
 
-  return Math.round(msAgo / 100) / 10
+  return (msAgo / 1000).toFixed(1)
 }
 
 function formatTypeValue(type, value) {
