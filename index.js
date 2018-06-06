@@ -127,7 +127,7 @@ bot.command('stop', ctx => {
 bot.command('status', async ctx => {
   const msgSend = await ctx.reply(generateStatusText(), Extra.markdown())
 
-  setInterval(doStatusUpdates, 2000, msgSend.chat.id, msgSend.message_id, msgSend.date * 1000)
+  setInterval(doStatusUpdates, 5000, msgSend.chat.id, msgSend.message_id, msgSend.date * 1000)
 })
 
 function doStatusUpdates(chatID, messageID, initialMessageDate) {
