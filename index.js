@@ -164,7 +164,13 @@ function generateStatusText() {
       return '' // will be filtered out
     }
 
-    const age = timestamps.map(t => formatAge(t, Date.now())).join('/')
+    const ages = timestamps.map(t => formatAge(t, Date.now()))
+    let age
+    if (ages.filter(o => o !== ages[0]).length > 0) {
+      age = ages.join('/')
+    } else {
+      age = ages[0]
+    }
 
     return `*${position}* ` + types.map(type =>
       formatTypeValue(type, last[position][type].value)
