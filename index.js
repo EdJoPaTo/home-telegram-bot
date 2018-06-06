@@ -185,7 +185,8 @@ function formatAge(oldDate, currentDate) {
   const msAgo = currentDate - oldDate
 
   if (msAgo > 5 * 60 * 1000) { // older than 5 minutes (sensors should at least update every minute)
-    return '†'
+    return '⚠️'
+    // return '†' // letter variant
     // return '✝' // Emoji variant
   }
 
