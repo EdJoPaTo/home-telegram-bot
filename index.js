@@ -7,6 +7,10 @@ const { Extra } = Telegraf
 const TEMP_SENSOR_INDOOR = process.env.npm_package_config_temp_sensor_indoor
 const TEMP_SENSOR_OUTDOOR = process.env.npm_package_config_temp_sensor_outdoor
 
+const DATA_AGE_HINT = 10 * 1000 // 10 s
+const DATA_AGE_WARNING = 2 * 60 * 1000 // 2 min
+const DATA_AGE_HIDE = 3 * 60 * 60 * 1000 // 3h
+
 let chats = JSON.parse(fs.readFileSync('chats.json', 'utf8'))
 const last = {}
 
@@ -159,38 +163,43 @@ function generateStatusText() {
 
     const timestamps = types.map(type => last[position][type].time)
     const minTimestamp = Date.now() - Math.min(...timestamps)
+    const maxTimestamp = Date.now() - Math.max(...timestamps)
 
-    if (minTimestamp > 5 * 60 * 60 * 1000) { // older than 5h
+    if (minTimestamp > DATA_AGE_HIDE) {
       return '' // will be filtered out
     }
 
-    const ages = timestamps.map(t => formatAge(t, Date.now()))
-    let age
-    if (ages.filter(o => o !== ages[0]).length > 0) {
-      age = ages.join('/')
-    } else {
-      age = ages[0]
-    }
+    let lines = ''
 
-    return `*${position}* ` + types.map(type =>
-      formatTypeValue(type, last[position][type].value)
-    ).join(', ') + ` _${age} seconds ago_`
+    if (maxTimestamp < DATA_AGE_HINT) {
+      lines += `*${position}*`
+    } else {
+      lines += `${position}`
+    }
+    lines += ' '
+    lines += types.map(type =>
+      formatBasedOnAge(last[position][type].time, Date.now(),
+        formatTypeValue(type, last[position][type].value)
+      )
+    ).join(', ')
+
+    return lines
   })
     .filter(o => o !== '')
 
   return lines.join('\n')
 }
 
-function formatAge(oldDate, currentDate) {
+function formatBasedOnAge(oldDate, currentDate, value) {
   const msAgo = currentDate - oldDate
 
-  if (msAgo > 5 * 60 * 1000) { // older than 5 minutes (sensors should at least update every minute)
-    return '⚠️'
-    // return '†' // letter variant
-    // return '✝' // Emoji variant
+  if (msAgo > DATA_AGE_WARNING) {
+    return '⚠️ _' + value + '_'
+  } else if (msAgo > DATA_AGE_HINT) {
+    return '_' + value + '_'
+  } else {
+    return value
   }
-
-  return (msAgo / 1000).toFixed(1)
 }
 
 function formatTypeValue(type, value) {
