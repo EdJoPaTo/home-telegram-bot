@@ -169,21 +169,21 @@ function generateStatusText() {
       return '' // will be filtered out
     }
 
-    let lines = ''
+    let parts = ''
 
     if (maxTimestamp < DATA_AGE_HINT) {
-      lines += `*${position}*`
+      parts += `*${position}*`
     } else {
-      lines += `${position}`
+      parts += `${position}`
     }
-    lines += ' '
-    lines += types.map(type =>
+    parts += ' '
+    parts += types.map(type =>
       formatBasedOnAge(last[position][type].time, Date.now(),
         formatTypeValue(type, last[position][type].value)
       )
     ).join(', ')
 
-    return lines
+    return parts
   })
     .filter(o => o !== '')
 
