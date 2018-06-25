@@ -254,7 +254,7 @@ bot.command('graph', async ctx => {
 
   await Promise.all(types.map(o => exec(`${gnuplotPrefix} ${o}.gnuplot`)))
 
-  const mediaArr = types.map(o => ({caption: 'test', media: { source: `${DATA_PLOT_DIR}${o}.png` }, type: 'photo'}))
+  const mediaArr = types.map(o => ({media: { source: `${DATA_PLOT_DIR}${o}.png` }, type: 'photo'}))
 
   // return ctx.replyWithPhoto({source: `${DATA_PLOT_DIR}temp.png`})
   return ctx.replyWithMediaGroup(mediaArr)
