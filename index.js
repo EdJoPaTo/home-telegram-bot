@@ -244,7 +244,7 @@ function formatTypeValue(type, value) {
 }
 
 bot.command('graph', async ctx => {
-  await ctx.replyWithChatAction('upload_photo')
+  ctx.replyWithChatAction('upload_photo')
 
   const positions = getSortedPositions()
   const positionsString = positions.join(' ')
