@@ -146,9 +146,7 @@ function doStatusUpdates(chatID, messageID, initialMessageDate) {
   bot.telegram.editMessageText(chatID, messageID, undefined, newStatus, Extra.markdown())
 }
 
-function generateStatusText() {
-  // console.log(last)
-
+function getSortedPositions() {
   const positionsUnsorted = Object.keys(last)
   const positions = positionsUnsorted.filter(o => o !== TEMP_SENSOR_OUTDOOR && o !== TEMP_SENSOR_INDOOR)
   positions.sort()
@@ -158,6 +156,13 @@ function generateStatusText() {
   if (positionsUnsorted.indexOf(TEMP_SENSOR_OUTDOOR) >= 0) {
     positions.unshift(TEMP_SENSOR_OUTDOOR)
   }
+  return positions
+}
+
+function generateStatusText() {
+  // console.log(last)
+
+  const positions = getSortedPositions()
 
   const lines = positions.map(position => {
     const types = Object.keys(last[position])
