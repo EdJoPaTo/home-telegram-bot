@@ -31,6 +31,7 @@ client.on('connect', async () => {
 })
 
 client.on('message', (topic, message) => {
+  const time = Date.now()
   const msgStr = message.toString()
   // console.log('incoming message', topic, msgStr)
   const position = topic.split('/')[3]
@@ -38,7 +39,7 @@ client.on('message', (topic, message) => {
   const value = Number(msgStr)
 
   const newVal = {
-    time: Date.now(),
+    time: time,
     value: value
   }
 
