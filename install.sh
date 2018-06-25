@@ -12,3 +12,5 @@ sudo cp -uv *.service /etc/systemd/system
 
 # reload systemd
 sudo systemctl daemon-reload
+
+echo Make sure gnuplot is installed
