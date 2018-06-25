@@ -1,5 +1,7 @@
 token.txt
 chats.json
+data/
+tmp/
 
 # node
 node_modules

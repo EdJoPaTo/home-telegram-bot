@@ -1,6 +1,10 @@
 const fs = require('fs')
 const MQTT = require('async-mqtt')
 const Telegraf = require('telegraf')
+const util = require('util')
+
+const appendFile = util.promisify(fs.appendFile)
+const exec = util.promisify(require('child_process').exec)
 
 const { Extra } = Telegraf
 
@@ -10,6 +14,15 @@ const TEMP_SENSOR_OUTDOOR = process.env.npm_package_config_temp_sensor_outdoor
 const DATA_AGE_HINT = 10 * 1000 // 10 s
 const DATA_AGE_WARNING = 2 * 60 * 1000 // 2 min
 const DATA_AGE_HIDE = 3 * 60 * 60 * 1000 // 3h
+const DATA_LOG_DIR = './data/'
+const DATA_PLOT_DIR = './tmp/'
+
+const folders = [DATA_LOG_DIR, DATA_PLOT_DIR]
+for (const folder of folders) {
+  if (!fs.existsSync(folder)) {
+    fs.mkdirSync(folder)
+  }
+}
 
 let chats = JSON.parse(fs.readFileSync('chats.json', 'utf8'))
 const last = {}
@@ -38,6 +51,8 @@ client.on('message', (topic, message) => {
   const type = topic.split('/')[4]
   const value = Number(msgStr)
 
+  logNewValue(position, type, time, value)
+
   const newVal = {
     time: time,
     value: value
@@ -53,6 +68,14 @@ client.on('message', (topic, message) => {
     notifyWhenNeeded()
   }
 })
+
+async function logNewValue(position, type, time, value) {
+  const unixTime = Math.round(time / 1000)
+
+  const filename = DATA_LOG_DIR + `${position}-${type}.log`
+  const content = `${unixTime},${value}\n`
+  await appendFile(filename, content, 'utf8')
+}
 
 let nextNotifyIsCloseWindows = true // assume windows are open -> its more important after a restart to close windows than open them
 let attemptToChange = 0
@@ -219,6 +242,23 @@ function formatTypeValue(type, value) {
     return `${value} (${type})`
   }
 }
+
+bot.command('graph', async ctx => {
+  await ctx.replyWithChatAction('upload_photo')
+
+  const positions = getSortedPositions()
+  const positionsString = positions.join(' ')
+
+  const gnuplotPrefix = `gnuplot -e "files='${positionsString}'"`
+  const types = ['temp', 'hum', 'rssi']
+
+  await Promise.all(types.map(o => exec(`${gnuplotPrefix} ${o}.gnuplot`)))
+
+  const mediaArr = types.map(o => ({caption: 'test', media: { source: `${DATA_PLOT_DIR}${o}.png` }, type: 'photo'}))
+
+  // return ctx.replyWithPhoto({source: `${DATA_PLOT_DIR}temp.png`})
+  return ctx.replyWithMediaGroup(mediaArr)
+})
 
 bot.catch(err => {
   if (err.description === 'Bad Request: message is not modified') return
