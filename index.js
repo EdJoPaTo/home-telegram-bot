@@ -240,6 +240,10 @@ function formatTypeValue(type, value) {
 }
 
 const gnuplotSettings = {
+  temp: {
+    label: 'Temperature',
+    unit: '°C'
+  },
   hum: {
     label: 'Humidity',
     unit: '%%'
@@ -247,10 +251,6 @@ const gnuplotSettings = {
   rssi: {
     label: 'RSSI',
     unit: ' dBm'
-  },
-  temp: {
-    label: 'Temperature',
-    unit: '°C'
   }
 }
 
@@ -270,7 +270,7 @@ bot.command('graph', async ctx => {
   ctx.replyWithChatAction('upload_photo')
 
   const positions = getSortedPositions()
-  const types = ['temp', 'hum', 'rssi']
+  const types = Object.keys(gnuplotSettings)
 
   await Promise.all(types.map(o => exec(createGnuplotCommandLine(o, positions))))
   const mediaArr = types.map(o => ({media: { source: `${DATA_PLOT_DIR}${o}.png` }, type: 'photo'}))
