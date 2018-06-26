@@ -14,6 +14,6 @@ set grid
 set style data lines
 set format x "%d. %b %H:%M"
 set ytics format "%1.0f %%"
-set xtics 3600
+set xtics 60 * 60 * 6
 
 plot for [i=1:words(files)] "data/".word(files, i)."-hum.log" using 1:2 title word(files,i) linewidth 2
