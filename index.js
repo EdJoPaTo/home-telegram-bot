@@ -239,20 +239,41 @@ function formatTypeValue(type, value) {
   }
 }
 
+const gnuplotSettings = {
+  hum: {
+    label: 'Humidity',
+    unit: '%%'
+  },
+  rssi: {
+    label: 'RSSI',
+    unit: ' dBm'
+  },
+  temp: {
+    label: 'Temperature',
+    unit: '°C'
+  }
+}
+
+function createGnuplotCommandLine(type, positions) {
+  const settings = gnuplotSettings[type]
+
+  const gnuplotParams = []
+  gnuplotParams.push(`files='${positions.join(' ')}'`)
+  gnuplotParams.push(`set ylabel '${settings.label}'`)
+  gnuplotParams.push(`unit='${settings.unit}'`)
+  gnuplotParams.push(`type='${type}'`)
+
+  return `gnuplot -e "${gnuplotParams.join(';')}" graph.gnuplot`
+}
+
 bot.command('graph', async ctx => {
   ctx.replyWithChatAction('upload_photo')
 
   const positions = getSortedPositions()
-  const positionsString = positions.join(' ')
-
-  const gnuplotPrefix = `gnuplot -e "files='${positionsString}'"`
   const types = ['temp', 'hum', 'rssi']
 
-  await Promise.all(types.map(o => exec(`${gnuplotPrefix} ${o}.gnuplot`)))
-
+  await Promise.all(types.map(o => exec(createGnuplotCommandLine(o, positions))))
   const mediaArr = types.map(o => ({media: { source: `${DATA_PLOT_DIR}${o}.png` }, type: 'photo'}))
-
-  // return ctx.replyWithPhoto({source: `${DATA_PLOT_DIR}temp.png`})
   return ctx.replyWithMediaGroup(mediaArr)
 })
 
