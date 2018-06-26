@@ -78,8 +78,8 @@ async function logNewValue(position, type, time, value) {
 }
 
 let nextNotifyIsCloseWindows = true // assume windows are open -> its more important after a restart to close windows than open them
-let attemptToChange = 0
-const ATTEMPTS_NEEDED_TO_CHANGE = 3
+let attemptToChange = Date.now()
+const MILLISECONDS_NEEDED_CONSTANT_FOR_CHANGE = 1000 * 60 // one Minute constantly on right temp in order to notify
 
 async function notifyWhenNeeded() {
   if (!last[TEMP_SENSOR_OUTDOOR] || !last[TEMP_SENSOR_OUTDOOR].temp || !last[TEMP_SENSOR_INDOOR] || !last[TEMP_SENSOR_INDOOR].temp) {
@@ -90,16 +90,14 @@ async function notifyWhenNeeded() {
   const outdoor = last[TEMP_SENSOR_OUTDOOR].temp.value
   const indoor = last[TEMP_SENSOR_INDOOR].temp.value
   const diff = outdoor - indoor
-  // console.log('notifyWhenNeeded diff', outdoor, indoor, Math.round(diff * 10) / 10, nextNotifyIsCloseWindows ? 'next close' : 'next open', attemptToChange)
+  // console.log('notifyWhenNeeded diff', outdoor, indoor, Math.round(diff * 10) / 10, nextNotifyIsCloseWindows ? 'next close' : 'next open', Date.now() - attemptToChange, '>', MILLISECONDS_NEEDED_CONSTANT_FOR_CHANGE)
 
   if (!nextNotifyIsCloseWindows) {
     // next open
     if (diff < -2) {
-      attemptToChange++
-
-      if (attemptToChange >= ATTEMPTS_NEEDED_TO_CHANGE) {
+      if (attemptToChange + MILLISECONDS_NEEDED_CONSTANT_FOR_CHANGE <= Date.now()) {
         nextNotifyIsCloseWindows = true
-        attemptToChange = 0
+        attemptToChange = Date.now()
         const text = `Es ist draußen *kälter* als drinnen. Man könnte die Fenster aufmachen.\n\n${generateStatusText()}`
 
         await chats.map(chat => {
@@ -107,16 +105,14 @@ async function notifyWhenNeeded() {
         })
       }
     } else {
-      attemptToChange = 0
+      attemptToChange = Date.now()
     }
   } else {
     // next close
     if (diff > -1) {
-      attemptToChange++
-
-      if (attemptToChange >= ATTEMPTS_NEEDED_TO_CHANGE) {
+      if (attemptToChange + MILLISECONDS_NEEDED_CONSTANT_FOR_CHANGE <= Date.now()) {
         nextNotifyIsCloseWindows = false
-        attemptToChange = 0
+        attemptToChange = Date.now()
         const text = `Es wird draußen *wärmer* als drinnen. Sind alle Fenster zu?\n\n${generateStatusText()}`
 
         await chats.map(chat => {
@@ -124,7 +120,7 @@ async function notifyWhenNeeded() {
         })
       }
     } else {
-      attemptToChange = 0
+      attemptToChange = Date.now()
     }
   }
 }
