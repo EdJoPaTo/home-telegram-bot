@@ -8,7 +8,9 @@ set output "tmp/".type.".png"
 set title "Temperature Sensors"
 set xlabel "Time (UTC)"
 
-set grid
+set style line 100 lc rgb "black" lw 1 dashtype 3
+set style line 101 lc rgb "dark-gray" lw 1 dashtype 3
+set grid xtics mxtics ytics linestyle 100, linestyle 101
 set style data lines
 set format x "%d. %b"
 set ytics format "%1.0f".unit
