@@ -1,3 +1,5 @@
+#!/usr/bin/env gnuplot
+
 set datafile separator ","
 set xdata time
 set timefmt "%s"
