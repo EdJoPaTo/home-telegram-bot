@@ -1,23 +1,15 @@
 const fs = require('fs')
 const MQTT = require('async-mqtt')
 const Telegraf = require('telegraf')
-const util = require('util')
-
-const appendFile = util.promisify(fs.appendFile)
 
 const lastData = require('./lib/lastData.js')
 
 const partGraph = require('./parts/graph.js')
+const partLog = require('./parts/log.js')
 const partNotify = require('./parts/notify.js')
 const partStatus = require('./parts/status.js')
 
 const TEMP_SENSOR_OUTDOOR = process.env.npm_package_config_temp_sensor_outdoor
-
-const DATA_LOG_DIR = './data/'
-
-if (!fs.existsSync(DATA_LOG_DIR)) {
-  fs.mkdirSync(DATA_LOG_DIR)
-}
 
 const token = fs.readFileSync(process.env.npm_package_config_tokenpath, 'utf8').trim()
 const bot = new Telegraf(token)
@@ -43,7 +35,7 @@ client.on('message', (topic, message) => {
   const type = topic.split('/')[4]
   const value = Number(msgStr)
 
-  logNewValue(position, type, time, value)
+  partLog.logValue(position, type, time, value)
 
   const newVal = {
     time: time,
@@ -56,14 +48,6 @@ client.on('message', (topic, message) => {
     partNotify.notifyWhenNeeded(bot.telegram)
   }
 })
-
-async function logNewValue(position, type, time, value) {
-  const unixTime = Math.round(time / 1000)
-
-  const filename = DATA_LOG_DIR + `${position}-${type}.log`
-  const content = `${unixTime},${value}\n`
-  await appendFile(filename, content, 'utf8')
-}
 
 bot.use(partGraph)
 bot.use(partNotify.bot)
