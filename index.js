@@ -53,6 +53,10 @@ bot.use(partGraph)
 bot.use(partNotify.bot)
 bot.use(partStatus)
 
+bot.command('start', ctx => {
+  ctx.reply(`Hi ${ctx.from.first_name}!\n\nWenn du den Status der aktuellen Sensoren sehen willst, nutze /status oder /graph.\nWenn du eine Benachrichtigung haben möchtest, wenn es draußen wärmer wird als drinnen, nutze /notify.`)
+})
+
 bot.catch(err => {
   if (err.description === 'Bad Request: message is not modified') return
   console.error(err)

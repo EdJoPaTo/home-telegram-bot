@@ -22,7 +22,6 @@
     "test": "npm run eslint"
   },
   "config": {
-    "temp_sensor_indoor": "bed",
     "temp_sensor_outdoor": "bude",
     "tokenpath": "token.txt"
   },
