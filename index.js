@@ -8,12 +8,13 @@ const exec = util.promisify(require('child_process').exec)
 
 const { Extra } = Telegraf
 
+const lastData = require('./lib/lastData.js')
+
+const partStatus = require('./parts/status.js')
+
 const TEMP_SENSOR_INDOOR = process.env.npm_package_config_temp_sensor_indoor
 const TEMP_SENSOR_OUTDOOR = process.env.npm_package_config_temp_sensor_outdoor
 
-const DATA_AGE_HINT = 10 * 1000 // 10 s
-const DATA_AGE_WARNING = 2 * 60 * 1000 // 2 min
-const DATA_AGE_HIDE = 3 * 60 * 60 * 1000 // 3h
 const DATA_LOG_DIR = './data/'
 const DATA_PLOT_DIR = './tmp/'
 
@@ -25,7 +26,6 @@ for (const folder of folders) {
 }
 
 let chats = JSON.parse(fs.readFileSync('chats.json', 'utf8'))
-const last = {}
 
 const token = fs.readFileSync(process.env.npm_package_config_tokenpath, 'utf8').trim()
 const bot = new Telegraf(token)
@@ -58,11 +58,7 @@ client.on('message', (topic, message) => {
     value: value
   }
 
-  if (!last[position]) {
-    last[position] = {}
-  }
-
-  last[position][type] = newVal
+  lastData.setSensorValue(position, type, newVal)
 
   if (type === 'temp' && position === TEMP_SENSOR_OUTDOOR) {
     notifyWhenNeeded()
@@ -82,15 +78,16 @@ let attemptToChange = Date.now()
 const MILLISECONDS_NEEDED_CONSTANT_FOR_CHANGE = 1000 * 60 // one Minute constantly on right temp in order to notify
 
 async function notifyWhenNeeded() {
-  if (!last[TEMP_SENSOR_OUTDOOR] || !last[TEMP_SENSOR_OUTDOOR].temp || !last[TEMP_SENSOR_INDOOR] || !last[TEMP_SENSOR_INDOOR].temp) {
+  const outdoor = lastData.getSensorValue(TEMP_SENSOR_OUTDOOR, 'temp')
+  const indoor = lastData.getSensorValue(TEMP_SENSOR_INDOOR, 'temp')
+
+  if (!outdoor || !indoor) {
     console.log('notifyWhenNeeded is still waiting for init')
     return
   }
 
-  const outdoor = last[TEMP_SENSOR_OUTDOOR].temp.value
-  const indoor = last[TEMP_SENSOR_INDOOR].temp.value
-  const diff = outdoor - indoor
-  // console.log('notifyWhenNeeded diff', outdoor, indoor, Math.round(diff * 10) / 10, nextNotifyIsCloseWindows ? 'next close' : 'next open', Date.now() - attemptToChange, '>', MILLISECONDS_NEEDED_CONSTANT_FOR_CHANGE)
+  const diff = outdoor.value - indoor.value
+  // console.log('notifyWhenNeeded diff', outdoor.value, indoor.value, Math.round(diff * 10) / 10, nextNotifyIsCloseWindows ? 'next close' : 'next open', Date.now() - attemptToChange, '>', MILLISECONDS_NEEDED_CONSTANT_FOR_CHANGE)
 
   if (!nextNotifyIsCloseWindows) {
     // next open
@@ -98,7 +95,7 @@ async function notifyWhenNeeded() {
       if (attemptToChange + MILLISECONDS_NEEDED_CONSTANT_FOR_CHANGE <= Date.now()) {
         nextNotifyIsCloseWindows = true
         attemptToChange = Date.now()
-        const text = `Es ist draußen *kälter* als drinnen. Man könnte die Fenster aufmachen.\n\n${generateStatusText()}`
+        const text = `Es ist draußen *kälter* als drinnen. Man könnte die Fenster aufmachen.\n\nBenutzte /status oder /graph für weitere Infos.`
 
         await chats.map(chat => {
           bot.telegram.sendMessage(chat, text, Extra.markdown())
@@ -113,7 +110,7 @@ async function notifyWhenNeeded() {
       if (attemptToChange + MILLISECONDS_NEEDED_CONSTANT_FOR_CHANGE <= Date.now()) {
         nextNotifyIsCloseWindows = false
         attemptToChange = Date.now()
-        const text = `Es wird draußen *wärmer* als drinnen. Sind alle Fenster zu?\n\n${generateStatusText()}`
+        const text = `Es wird draußen *wärmer* als drinnen. Sind alle Fenster zu?\n\nBenutzte /status oder /graph für weitere Infos.`
 
         await chats.map(chat => {
           bot.telegram.sendMessage(chat, text, Extra.markdown())
@@ -148,96 +145,7 @@ bot.command('stop', ctx => {
   return ctx.reply('Du wirst nicht mehr benachrichtigt')
 })
 
-bot.command('status', async ctx => {
-  const msgSend = await ctx.reply(generateStatusText(), Extra.markdown())
-
-  setInterval(doStatusUpdates, 5000, msgSend.chat.id, msgSend.message_id, msgSend.date * 1000)
-})
-
-function doStatusUpdates(chatID, messageID, initialMessageDate) {
-  const secondsSinceInitialMessage = Math.round((Date.now() - initialMessageDate) / 1000)
-  if (secondsSinceInitialMessage > 30) { // stop updating after 30 seconds
-    clearInterval(this)
-    return
-  }
-
-  const newStatus = generateStatusText()
-  bot.telegram.editMessageText(chatID, messageID, undefined, newStatus, Extra.markdown())
-}
-
-function getSortedPositions() {
-  const positionsUnsorted = Object.keys(last)
-  const positions = positionsUnsorted.filter(o => o !== TEMP_SENSOR_OUTDOOR && o !== TEMP_SENSOR_INDOOR)
-  positions.sort()
-  if (positionsUnsorted.indexOf(TEMP_SENSOR_INDOOR) >= 0) {
-    positions.unshift(TEMP_SENSOR_INDOOR)
-  }
-  if (positionsUnsorted.indexOf(TEMP_SENSOR_OUTDOOR) >= 0) {
-    positions.unshift(TEMP_SENSOR_OUTDOOR)
-  }
-  return positions
-}
-
-function generateStatusText() {
-  // console.log(last)
-
-  const positions = getSortedPositions()
-
-  const lines = positions.map(position => {
-    const types = Object.keys(last[position])
-
-    const timestamps = types.map(type => last[position][type].time)
-    const minTimestamp = Date.now() - Math.min(...timestamps)
-    const maxTimestamp = Date.now() - Math.max(...timestamps)
-
-    if (minTimestamp > DATA_AGE_HIDE) {
-      return '' // will be filtered out
-    }
-
-    let parts = ''
-
-    if (maxTimestamp < DATA_AGE_HINT) {
-      parts += `*${position}*`
-    } else {
-      parts += `${position}`
-    }
-    parts += ' '
-    parts += types.map(type =>
-      formatBasedOnAge(last[position][type].time, Date.now(),
-        formatTypeValue(type, last[position][type].value)
-      )
-    ).join(', ')
-
-    return parts
-  })
-    .filter(o => o !== '')
-
-  return lines.join('\n')
-}
-
-function formatBasedOnAge(oldDate, currentDate, value) {
-  const msAgo = currentDate - oldDate
-
-  if (msAgo > DATA_AGE_WARNING) {
-    return '⚠️ _' + value + '_'
-  } else if (msAgo > DATA_AGE_HINT) {
-    return '_' + value + '_'
-  } else {
-    return value
-  }
-}
-
-function formatTypeValue(type, value) {
-  if (type === 'temp') {
-    return `${value} °C`
-  } else if (type === 'hum') {
-    return `${value}%`
-  } else if (type === 'rssi') {
-    return `${value} dBm`
-  } else {
-    return `${value} (${type})`
-  }
-}
+bot.use(partStatus)
 
 const gnuplotSettings = {
   temp: {
@@ -269,7 +177,7 @@ function createGnuplotCommandLine(type, positions) {
 bot.command('graph', async ctx => {
   ctx.replyWithChatAction('upload_photo')
 
-  const positions = getSortedPositions()
+  const positions = lastData.getPositions()
   const types = Object.keys(gnuplotSettings)
 
   await Promise.all(types.map(o => exec(createGnuplotCommandLine(o, positions))))
