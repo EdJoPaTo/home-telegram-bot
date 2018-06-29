@@ -4,25 +4,21 @@ const Telegraf = require('telegraf')
 const util = require('util')
 
 const appendFile = util.promisify(fs.appendFile)
-const exec = util.promisify(require('child_process').exec)
 
 const { Extra } = Telegraf
 
 const lastData = require('./lib/lastData.js')
 
+const partGraph = require('./parts/graph.js')
 const partStatus = require('./parts/status.js')
 
 const TEMP_SENSOR_INDOOR = process.env.npm_package_config_temp_sensor_indoor
 const TEMP_SENSOR_OUTDOOR = process.env.npm_package_config_temp_sensor_outdoor
 
 const DATA_LOG_DIR = './data/'
-const DATA_PLOT_DIR = './tmp/'
 
-const folders = [DATA_LOG_DIR, DATA_PLOT_DIR]
-for (const folder of folders) {
-  if (!fs.existsSync(folder)) {
-    fs.mkdirSync(folder)
-  }
+if (!fs.existsSync(DATA_LOG_DIR)) {
+  fs.mkdirSync(DATA_LOG_DIR)
 }
 
 let chats = JSON.parse(fs.readFileSync('chats.json', 'utf8'))
@@ -145,45 +141,8 @@ bot.command('stop', ctx => {
   return ctx.reply('Du wirst nicht mehr benachrichtigt')
 })
 
+bot.use(partGraph)
 bot.use(partStatus)
-
-const gnuplotSettings = {
-  temp: {
-    label: 'Temperature',
-    unit: '°C'
-  },
-  hum: {
-    label: 'Humidity',
-    unit: '%%'
-  },
-  rssi: {
-    label: 'RSSI',
-    unit: ' dBm'
-  }
-}
-
-function createGnuplotCommandLine(type, positions) {
-  const settings = gnuplotSettings[type]
-
-  const gnuplotParams = []
-  gnuplotParams.push(`files='${positions.join(' ')}'`)
-  gnuplotParams.push(`set ylabel '${settings.label}'`)
-  gnuplotParams.push(`unit='${settings.unit}'`)
-  gnuplotParams.push(`type='${type}'`)
-
-  return `gnuplot -e "${gnuplotParams.join(';')}" graph.gnuplot`
-}
-
-bot.command('graph', async ctx => {
-  ctx.replyWithChatAction('upload_photo')
-
-  const positions = lastData.getPositions()
-  const types = Object.keys(gnuplotSettings)
-
-  await Promise.all(types.map(o => exec(createGnuplotCommandLine(o, positions))))
-  const mediaArr = types.map(o => ({media: { source: `${DATA_PLOT_DIR}${o}.png` }, type: 'photo'}))
-  return ctx.replyWithMediaGroup(mediaArr)
-})
 
 bot.catch(err => {
   if (err.description === 'Bad Request: message is not modified') return
