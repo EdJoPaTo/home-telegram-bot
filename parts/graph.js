@@ -7,7 +7,8 @@ const exec = util.promisify(require('child_process').exec)
 const lastData = require('../lib/lastData.js')
 
 const DATA_PLOT_DIR = './tmp/'
-
+const DAY_IN_SECONDS = 60 * 60 * 24
+const DAYS_IN_GRAPH = 7
 
 const bot = new Telegraf.Composer()
 module.exports = bot
@@ -47,6 +48,9 @@ function createGnuplotCommandLine(type, positions) {
   gnuplotParams.push(`set ylabel '${settings.label}'`)
   gnuplotParams.push(`unit='${settings.unit}'`)
   gnuplotParams.push(`type='${type}'`)
+
+  const xmin = Math.floor(Date.now() / 1000 / DAY_IN_SECONDS - (DAYS_IN_GRAPH - 1)) * DAY_IN_SECONDS
+  gnuplotParams.push(`set xrange [${xmin}:*]`)
 
   // TODO: set DATA_PLOT_DIR in options in order to have always a seperate tmp dir for each plot
   if (!fs.existsSync(DATA_PLOT_DIR)) {
