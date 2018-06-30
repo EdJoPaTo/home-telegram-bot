@@ -4,7 +4,7 @@ set datafile separator ","
 set xdata time
 set timefmt "%s"
 
-set term pngcairo size 1000,800
+set term pngcairo size 1280,800
 set output "tmp/".type.".png"
 
 set title "Temperature Sensors"
