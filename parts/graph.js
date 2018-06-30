@@ -38,6 +38,7 @@ bot.command('graph', async ctx => {
   return ctx.replyWithMediaGroup(mediaArr)
 })
 
+// console.log('gnuplot commandline:', createGnuplotCommandLine('temp', ['bude', 'bed', 'books', 'rt', 'wt']))
 function createGnuplotCommandLine(type, positions) {
   const settings = gnuplotSettings[type]
 
