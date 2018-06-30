@@ -5,7 +5,7 @@ const lastData = require('../lib/lastData.js')
 
 const { Extra, Markup } = Telegraf
 
-const MILLISECONDS_NEEDED_CONSTANT_FOR_CHANGE = 1000 * 60 // one Minute constantly on right temp in order to notify
+const MILLISECONDS_NEEDED_CONSTANT_FOR_CHANGE = 1000 * 60 * 3 // 3 Minutes constantly on right temp in order to notify
 const TEMP_SENSOR_OUTDOOR = process.env.npm_package_config_temp_sensor_outdoor
 
 let chats = {}
