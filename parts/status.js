@@ -2,28 +2,17 @@ const Telegraf = require('telegraf')
 
 const format = require('../lib/format.js')
 const lastData = require('../lib/lastData.js')
+const telegrafHandlerUpdatedReply = require('../lib/telegrafHandlerUpdatedReply.js')
 
 const { Extra } = Telegraf
+
+const UPDATE_EVERY_MS = 1000 * 5 // update message every 5 seconds
+const UPDATE_UNTIL_MS = 1000 * 30 // update message for 30 seconds
 
 const bot = new Telegraf.Composer()
 module.exports = bot
 
-bot.command('status', async ctx => {
-  const msgSend = await ctx.reply(generateStatusText(), Extra.markdown())
-
-  setInterval(doStatusUpdates, 5000, ctx.telegram, msgSend.chat.id, msgSend.message_id, msgSend.date * 1000)
-})
-
-function doStatusUpdates(telegram, chatID, messageID, initialMessageDate) {
-  const secondsSinceInitialMessage = Math.round((Date.now() - initialMessageDate) / 1000)
-  if (secondsSinceInitialMessage > 30) { // stop updating after 30 seconds
-    clearInterval(this)
-    return
-  }
-
-  const newStatus = generateStatusText()
-  telegram.editMessageText(chatID, messageID, undefined, newStatus, Extra.markdown())
-}
+bot.command('status', telegrafHandlerUpdatedReply(UPDATE_EVERY_MS, UPDATE_UNTIL_MS, generateStatusText))
 
 function generateStatusText() {
   const positions = lastData.getPositions()
@@ -57,5 +46,8 @@ function generateStatusText() {
   })
     .filter(o => o !== '')
 
-  return lines.join('\n')
+  return {
+    text: lines.join('\n'),
+    extra: Extra.markdown()
+  }
 }
