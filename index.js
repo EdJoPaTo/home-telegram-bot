@@ -4,6 +4,7 @@ const Telegraf = require('telegraf')
 
 const lastData = require('./lib/lastData.js')
 
+const partCheckSensors = require('./parts/checkSensors.js')
 const partGraph = require('./parts/graph.js')
 const partLog = require('./parts/log.js')
 const partNotify = require('./parts/notify.js')
@@ -49,6 +50,7 @@ client.on('message', (topic, message) => {
   }
 })
 
+bot.use(partCheckSensors)
 bot.use(partGraph)
 bot.use(partNotify.bot)
 bot.use(partStatus)
