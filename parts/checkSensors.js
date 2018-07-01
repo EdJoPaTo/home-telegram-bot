@@ -28,7 +28,7 @@ function generate() {
       const old = values[t].time
       const age = currentDate - old
 
-      return `  ${t} ${format.basedOnAge(old, currentDate, format.timespan(age))}`
+      return `  ${t} ${format.basedOnAge(old, currentDate, t, format.timespan(age))}`
     }).join('\n')
 
     return text
