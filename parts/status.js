@@ -1,12 +1,9 @@
 const Telegraf = require('telegraf')
 
+const format = require('../lib/format.js')
 const lastData = require('../lib/lastData.js')
 
 const { Extra } = Telegraf
-
-const DATA_AGE_HINT = 90 * 1000 // 90 s
-const DATA_AGE_WARNING = 6 * 60 * 1000 // 6 min
-const DATA_AGE_HIDE = 3 * 60 * 60 * 1000 // 3h
 
 const bot = new Telegraf.Composer()
 module.exports = bot
@@ -38,21 +35,21 @@ function generateStatusText() {
     const minTimestamp = Date.now() - Math.min(...timestamps)
     const maxTimestamp = Date.now() - Math.max(...timestamps)
 
-    if (minTimestamp > DATA_AGE_HIDE) {
+    if (minTimestamp > format.AGE_HIDE) {
       return '' // will be filtered out
     }
 
     let parts = ''
 
-    if (maxTimestamp < DATA_AGE_HINT) {
+    if (maxTimestamp < format.AGE_HINT) {
       parts += `*${position}*`
     } else {
       parts += `${position}`
     }
     parts += ' '
     parts += types.map(type =>
-      formatBasedOnAge(sensorData[type].time, Date.now(),
-        formatTypeValue(type, sensorData[type].value)
+      format.basedOnAge(sensorData[type].time, Date.now(),
+        format.typeValue(type, sensorData[type].value)
       )
     ).join(', ')
 
@@ -61,28 +58,4 @@ function generateStatusText() {
     .filter(o => o !== '')
 
   return lines.join('\n')
-}
-
-function formatBasedOnAge(oldDate, currentDate, value) {
-  const msAgo = currentDate - oldDate
-
-  if (msAgo > DATA_AGE_WARNING) {
-    return '⚠️ _' + value + '_'
-  } else if (msAgo > DATA_AGE_HINT) {
-    return '_' + value + '_'
-  } else {
-    return value
-  }
-}
-
-function formatTypeValue(type, value) {
-  if (type === 'temp') {
-    return `${value} °C`
-  } else if (type === 'hum') {
-    return `${value}%`
-  } else if (type === 'rssi') {
-    return `${value} dBm`
-  } else {
-    return `${value} (${type})`
-  }
 }

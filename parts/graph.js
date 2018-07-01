@@ -4,6 +4,7 @@ const util = require('util')
 
 const exec = util.promisify(require('child_process').exec)
 
+const format = require('../lib/format.js')
 const lastData = require('../lib/lastData.js')
 
 const DATA_PLOT_DIR = './tmp/'
@@ -13,26 +14,11 @@ const DAYS_IN_GRAPH = 7
 const bot = new Telegraf.Composer()
 module.exports = bot
 
-const gnuplotSettings = {
-  temp: {
-    label: 'Temperature',
-    unit: '°C'
-  },
-  hum: {
-    label: 'Humidity',
-    unit: '%%'
-  },
-  rssi: {
-    label: 'RSSI',
-    unit: ' dBm'
-  }
-}
-
 bot.command('graph', async ctx => {
   ctx.replyWithChatAction('upload_photo')
 
   const positions = lastData.getPositions()
-  const types = Object.keys(gnuplotSettings)
+  const types = Object.keys(format.information)
 
   await Promise.all(types.map(o => exec(createGnuplotCommandLine(o, positions))))
   const mediaArr = types.map(o => ({media: { source: `${DATA_PLOT_DIR}${o}.png` }, type: 'photo'}))
@@ -41,12 +27,13 @@ bot.command('graph', async ctx => {
 
 // console.log('gnuplot commandline:', createGnuplotCommandLine('temp', ['bude', 'bed', 'books', 'rt', 'wt']))
 function createGnuplotCommandLine(type, positions) {
-  const settings = gnuplotSettings[type]
+  const settings = format.information[type]
 
   const gnuplotParams = []
   gnuplotParams.push(`files='${positions.join(' ')}'`)
   gnuplotParams.push(`set ylabel '${settings.label}'`)
-  gnuplotParams.push(`unit='${settings.unit}'`)
+  const unit = settings.unit.replace('%', '%%')
+  gnuplotParams.push(`unit='${unit}'`)
   gnuplotParams.push(`type='${type}'`)
 
   const xmin = Math.floor(Date.now() / 1000 / DAY_IN_SECONDS - (DAYS_IN_GRAPH - 1)) * DAY_IN_SECONDS
