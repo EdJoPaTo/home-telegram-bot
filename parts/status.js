@@ -5,7 +5,7 @@ const lastData = require('../lib/lastData.js')
 const { Extra } = Telegraf
 
 const DATA_AGE_HINT = 90 * 1000 // 90 s
-const DATA_AGE_WARNING = 5 * 60 * 1000 // 5 min
+const DATA_AGE_WARNING = 6 * 60 * 1000 // 6 min
 const DATA_AGE_HIDE = 3 * 60 * 60 * 1000 // 3h
 
 const bot = new Telegraf.Composer()
