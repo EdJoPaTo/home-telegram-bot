@@ -7,7 +7,6 @@ set timefmt "%s"
 set term pngcairo size 1280,800
 set output "tmp/".type.".png"
 
-set title "Temperature Sensors"
 set xlabel "Time (UTC)"
 
 set style line 100 lc rgb "black" lw 1 dashtype 3
