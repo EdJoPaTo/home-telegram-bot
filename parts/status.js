@@ -9,7 +9,6 @@ const { Extra } = Telegraf
 const UPDATE_EVERY_MS = 1000 * 5 // update message every 5 seconds
 const UPDATE_UNTIL_MS = 1000 * 30 // update message for 30 seconds
 const AGE_HIDE = 1000 * 60 * 60 * 3 // 3h
-const AGE_HINT = 1000 * 60 * 6 // 6 minutes
 
 const bot = new Telegraf.Composer()
 module.exports = bot
@@ -24,19 +23,12 @@ function generateStatusText() {
 
     const timestamps = types.map(type => sensorData[type].time)
     const minTimestamp = Date.now() - Math.min(...timestamps)
-    const maxTimestamp = Date.now() - Math.max(...timestamps)
 
     if (minTimestamp > AGE_HIDE) {
       return '' // will be filtered out
     }
 
-    let parts = ''
-
-    if (maxTimestamp < AGE_HINT) {
-      parts += `*${position}*`
-    } else {
-      parts += `${position}`
-    }
+    let parts = `*${position}*`
     parts += ' '
     parts += types.map(type =>
       format.basedOnAge(sensorData[type].time, Date.now(), type,
