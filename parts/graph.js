@@ -32,12 +32,12 @@ bot.command('graph', async ctx => {
 
 // console.log('gnuplot commandline:', createGnuplotCommandLine('temp', ['bude', 'bed', 'books', 'rt', 'wt']))
 function createGnuplotCommandLine(type, positions) {
-  const settings = format.information[type]
+  const typeInformation = format.information[type]
 
   const gnuplotParams = []
   gnuplotParams.push(`files='${positions.join(' ')}'`)
-  gnuplotParams.push(`set ylabel '${settings.label}'`)
-  const unit = settings.unit.replace('%', '%%')
+  gnuplotParams.push(`set ylabel '${typeInformation.label}'`)
+  const unit = typeInformation.unit.replace('%', '%%')
   gnuplotParams.push(`unit='${unit}'`)
   gnuplotParams.push(`type='${type}'`)
 
