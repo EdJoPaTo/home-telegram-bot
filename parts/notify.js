@@ -2,6 +2,7 @@ const fs = require('fs')
 const Telegraf = require('telegraf')
 
 const lastData = require('../lib/lastData.js')
+const format = require('../lib/format.js')
 
 const { Extra, Markup } = Telegraf
 
@@ -14,10 +15,6 @@ try {
 } catch (err) {}
 let hotLocationsDontOpen = []
 const changeInitiated = {}
-
-function enabledEmoji(truthy) {
-  return truthy ? '✅' : '❎'
-}
 
 const bot = new Telegraf.Composer()
 
@@ -34,7 +31,7 @@ function createNotifyKeyboard(ctx) {
   const positions = getIndoorPositions()
   return Markup.inlineKeyboard(positions.map(position => {
     const hasPositionEnabled = chats[position] && chats[position].indexOf(chatID) >= 0
-    return [ Markup.callbackButton(`${enabledEmoji(hasPositionEnabled)} ${position}`, `notify:${position}`) ]
+    return [ Markup.callbackButton(`${format.enabledEmoji(hasPositionEnabled)} ${position}`, `notify:${position}`) ]
   }))
 }
 
