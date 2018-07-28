@@ -66,8 +66,13 @@ function generateKeyboardButtons(ctx) {
 
   // TODO: put in session
 
-  buttons.push([ Markup.callbackButton('Graph erstellen', 'g:create') ])
-
+  const createNotPossible = !ctx.session.graph.positions || ctx.session.graph.positions.length === 0 ||
+    !ctx.session.graph.types || ctx.session.graph.types.length === 0
+  let text = 'Graph erstellen'
+  if (createNotPossible) {
+    text = '⚠️ ' + text + ' ⚠️'
+  }
+  buttons.push([ Markup.callbackButton(text, 'g:create') ])
   return buttons
 }
 
@@ -84,6 +89,18 @@ bot.command('graph', ctx => {
 })
 
 bot.action('g:create', async ctx => {
+  if (!ctx.session.graph) {
+    ctx.session.graph = defaultSettings()
+    await ctx.editMessageReplyMarkup(Markup.inlineKeyboard(generateKeyboardButtons(ctx)))
+    return ctx.answerCbQuery('Ich hab den Faden verloren 🎈. Stimmt alles?')
+  }
+  if (!ctx.session.graph.positions || ctx.session.graph.positions.length === 0) {
+    return ctx.answerCbQuery('Ohne gewählte Sensoren kann ich das nicht! 😨')
+  }
+  if (!ctx.session.graph.types || ctx.session.graph.types.length === 0) {
+    return ctx.answerCbQuery('Ohne gewählte Graphenarten kann ich das nicht! 😨')
+  }
+
   ctx.editMessageText('Die Graphen werden erstellt, habe einen Moment Geduld…')
 
   const { types, positions, timeframe } = ctx.session.graph
