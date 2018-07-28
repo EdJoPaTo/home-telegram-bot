@@ -6,7 +6,7 @@
   },
   "dependencies": {
     "async-mqtt": "^1.0.1",
-    "telegraf": "^3.21.2"
+    "telegraf": "^3.22.1"
   },
   "devDependencies": {
     "eslint": "^5.2.0",
