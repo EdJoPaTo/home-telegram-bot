@@ -13,26 +13,32 @@ const DATA_PLOT_DIR = './tmp/'
 const DAY_IN_SECONDS = 60 * 60 * 24
 const HOUR_IN_SECONDS = 60 * 60
 
-function calculateXMinFromTimeframe(timeframe) {
+function calculateXRangeFromTimeframe(timeframe) {
   let match
 
   if ((match = timeframe.match(/(\d+)d/))) {
     const days = match[1]
-    return calculateXMinForDays(days)
+    return calculateXRangeForDays(days)
   } else if ((match = timeframe.match(/(\d+)h/))) {
     const hours = match[1]
-    return calculateXMinForHours(hours)
+    return calculateXRangeForHours(hours)
   } else {
-    return calculateXMinForDays(7)
+    return calculateXRangeForDays(7)
   }
 }
 
-function calculateXMinForDays(days) {
-  return Math.floor(Date.now() / 1000 / DAY_IN_SECONDS - (days - 1)) * DAY_IN_SECONDS
+function calculateXRangeForDays(days) {
+  return {
+    min: Math.floor(Date.now() / 1000 / DAY_IN_SECONDS - (days - 1)) * DAY_IN_SECONDS,
+    max: '*'
+  }
 }
 
-function calculateXMinForHours(hours) {
-  return Math.floor(Date.now() / 1000 / HOUR_IN_SECONDS - (hours - 1)) * HOUR_IN_SECONDS
+function calculateXRangeForHours(hours) {
+  return {
+    min: Math.floor(Date.now() / 1000 / HOUR_IN_SECONDS - (hours - 1)) * HOUR_IN_SECONDS,
+    max: Math.ceil(Date.now() / 1000 / HOUR_IN_SECONDS) * HOUR_IN_SECONDS
+  }
 }
 
 
@@ -73,8 +79,8 @@ bot.action('g:create', async ctx => {
 
   const { types, positions, timeframe } = selectedSettings
 
-  const xmin = calculateXMinFromTimeframe(timeframe)
-  await Promise.all(types.map(o => exec(createGnuplotCommandLine(o, positions, xmin))))
+  const xrange = calculateXRangeFromTimeframe(timeframe)
+  await Promise.all(types.map(o => exec(createGnuplotCommandLine(o, positions, xrange))))
   ctx.replyWithChatAction('upload_photo')
   if (types.length > 1) {
     const mediaArr = types.map(o => ({media: { source: `${DATA_PLOT_DIR}${o}.png` }, type: 'photo'}))
@@ -87,7 +93,7 @@ bot.action('g:create', async ctx => {
 })
 
 // console.log('gnuplot commandline:', createGnuplotCommandLine('temp', ['bude', 'bed', 'books', 'rt', 'wt']))
-function createGnuplotCommandLine(type, positions, xmin) {
+function createGnuplotCommandLine(type, positions, xrange) {
   const typeInformation = format.information[type]
 
   const gnuplotParams = []
@@ -97,7 +103,7 @@ function createGnuplotCommandLine(type, positions, xmin) {
   gnuplotParams.push(`unit='${unit}'`)
   gnuplotParams.push(`type='${type}'`)
 
-  gnuplotParams.push(`set xrange [${xmin}:*]`)
+  gnuplotParams.push(`set xrange [${xrange.min}:${xrange.max}]`)
 
   // TODO: set DATA_PLOT_DIR in options in order to have always a seperate tmp dir for each plot
   if (!fs.existsSync(DATA_PLOT_DIR)) {
