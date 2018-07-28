@@ -43,6 +43,17 @@ function calculateXRangeForHours(hours) {
   }
 }
 
+function defaultSettings() {
+  return {
+    positions: lastData.getPositions(),
+    types: [
+      'temp',
+      'hum'
+    ],
+    timeframe: '48h'
+  }
+}
+
 
 const bot = new Telegraf.Composer()
 module.exports = bot
@@ -61,6 +72,9 @@ function generateKeyboardButtons(ctx) {
 }
 
 bot.command('graph', ctx => {
+  if (!ctx.session.graph) {
+    ctx.session.graph = defaultSettings()
+  }
   const buttons = generateKeyboardButtons(ctx)
 
   return ctx.reply(
@@ -72,14 +86,7 @@ bot.command('graph', ctx => {
 bot.action('g:create', async ctx => {
   ctx.editMessageText('Die Graphen werden erstellt, habe einen Moment Geduld…')
 
-  // TODO: get from session
-  const selectedSettings = {
-    types: ['temp', 'hum', 'rssi'],
-    positions: ['bude', 'bed', 'wt', 'rt'],
-    timeframe: '48h'
-  }
-
-  const { types, positions, timeframe } = selectedSettings
+  const { types, positions, timeframe } = ctx.session.graph
 
   const xrange = calculateXRangeFromTimeframe(timeframe)
   await Promise.all(types.map(o => exec(createGnuplotCommandLine(o, positions, xrange))))

@@ -1,6 +1,7 @@
 const fs = require('fs')
 const MQTT = require('async-mqtt')
 const Telegraf = require('telegraf')
+const session = require('telegraf/session')
 
 const lastData = require('./lib/lastData.js')
 
@@ -14,6 +15,7 @@ const TEMP_SENSOR_OUTDOOR = process.env.npm_package_config_temp_sensor_outdoor
 
 const token = fs.readFileSync(process.env.npm_package_config_tokenpath, 'utf8').trim()
 const bot = new Telegraf(token)
+bot.use(session())
 
 const client = MQTT.connect('tcp://etoPiServer:1883')
 
