@@ -22,6 +22,8 @@ function calculateXRangeFromTimeframe(timeframe) {
   } else if ((match = timeframe.match(/(\d+)h/))) {
     const hours = match[1]
     return calculateXRangeForHours(hours)
+  } else if (timeframe === 'all') {
+    return { min: '*', max: '*' }
   } else {
     return calculateXRangeForDays(7)
   }
