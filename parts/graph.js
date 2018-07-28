@@ -64,7 +64,7 @@ bot.command('graph', ctx => {
   const buttons = generateKeyboardButtons(ctx)
 
   return ctx.reply(
-    'Wie möchtest du deinen Graphen haben?',
+    'Wie möchtest du deine Graphen haben?',
     Extra.markup(Markup.inlineKeyboard(buttons))
   )
 })
