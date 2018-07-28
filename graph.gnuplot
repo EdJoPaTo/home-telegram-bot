@@ -5,7 +5,7 @@ set xdata time
 set timefmt "%s"
 
 set term pngcairo size 1280,800
-set output "tmp/".type.".png"
+set output dir."/".type.".png"
 
 set xlabel "Time (UTC)"
 

@@ -8,10 +8,15 @@ const format = require('../lib/format.js')
 const lastData = require('../lib/lastData.js')
 
 const { Extra, Markup } = Telegraf
+const fsPromises = fs.promises
 
 const DATA_PLOT_DIR = './tmp/'
 const DAY_IN_SECONDS = 60 * 60 * 24
 const HOUR_IN_SECONDS = 60 * 60
+
+if (!fs.existsSync(DATA_PLOT_DIR)) {
+  fs.mkdirSync(DATA_PLOT_DIR)
+}
 
 function calculateXRangeFromTimeframe(timeframe) {
   let match
@@ -171,23 +176,30 @@ bot.action('g:create', async ctx => {
   const { types, positions, timeframe } = ctx.session.graph
 
   const xrange = calculateXRangeFromTimeframe(timeframe)
-  await Promise.all(types.map(o => exec(createGnuplotCommandLine(o, positions, xrange))))
+  const dir = await fsPromises.mkdtemp(DATA_PLOT_DIR)
+  await Promise.all(types.map(o => exec(createGnuplotCommandLine(dir, o, positions, xrange))))
+
   ctx.replyWithChatAction('upload_photo')
   if (types.length > 1) {
-    const mediaArr = types.map(o => ({media: { source: `${DATA_PLOT_DIR}${o}.png` }, type: 'photo'}))
+    const mediaArr = types.map(o => ({media: { source: `${dir}/${o}.png` }, type: 'photo'}))
     await ctx.replyWithMediaGroup(mediaArr)
   } else {
-    await ctx.replyWithPhoto({ source: `${DATA_PLOT_DIR}${types[0]}.png` })
+    await ctx.replyWithPhoto({ source: `${dir}/${types[0]}.png` })
   }
 
-  return ctx.deleteMessage()
+  await Promise.all(types.map(o => fsPromises.unlink(`${dir}/${o}.png`)))
+  return Promise.all([
+    fsPromises.rmdir(dir),
+    ctx.deleteMessage()
+  ])
 })
 
 // console.log('gnuplot commandline:', createGnuplotCommandLine('temp', ['bude', 'bed', 'books', 'rt', 'wt']))
-function createGnuplotCommandLine(type, positions, xrange) {
+function createGnuplotCommandLine(dir, type, positions, xrange) {
   const typeInformation = format.information[type]
 
   const gnuplotParams = []
+  gnuplotParams.push(`dir='${dir}'`)
   gnuplotParams.push(`files='${positions.join(' ')}'`)
   gnuplotParams.push(`set ylabel '${typeInformation.label}'`)
   const unit = typeInformation.unit.replace('%', '%%')
@@ -195,11 +207,6 @@ function createGnuplotCommandLine(type, positions, xrange) {
   gnuplotParams.push(`type='${type}'`)
 
   gnuplotParams.push(`set xrange [${xrange.min}:${xrange.max}]`)
-
-  // TODO: set DATA_PLOT_DIR in options in order to have always a seperate tmp dir for each plot
-  if (!fs.existsSync(DATA_PLOT_DIR)) {
-    fs.mkdirSync(DATA_PLOT_DIR)
-  }
 
   return `gnuplot -e "${gnuplotParams.join(';')}" graph.gnuplot`
 }
