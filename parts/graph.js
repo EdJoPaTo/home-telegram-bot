@@ -43,6 +43,15 @@ function calculateXRangeForHours(hours) {
   }
 }
 
+function setKeyInArray(arr, key, newState, allKeysOrdered) {
+  if (newState) {
+    arr.push(key)
+  } else {
+    arr = arr.filter(o => o !== key)
+  }
+  return allKeysOrdered.filter(o => arr.indexOf(o) >= 0)
+}
+
 function defaultSettings() {
   return {
     positions: lastData.getPositions(),
@@ -60,11 +69,10 @@ module.exports = bot
 
 function generateKeyboardButtons(ctx) {
   const buttons = []
-
-  const positions = lastData.getPositions()
-  const types = Object.keys(format.information)
-
-  // TODO: put in session
+  buttons.push(generateKeyboardTypeButtons(ctx))
+  buttons.push(generateKeyboardTimeframeButtons(ctx))
+  generateKeyboardPositionButtons(ctx)
+    .forEach(o => buttons.push([ o ]))
 
   const createNotPossible = !ctx.session.graph.positions || ctx.session.graph.positions.length === 0 ||
     !ctx.session.graph.types || ctx.session.graph.types.length === 0
@@ -74,6 +82,34 @@ function generateKeyboardButtons(ctx) {
   }
   buttons.push([ Markup.callbackButton(text, 'g:create') ])
   return buttons
+}
+
+function generateKeyboardTypeButtons(ctx) {
+  const allTypes = Object.keys(format.information)
+  return allTypes.map(o => {
+    const isEnabled = ctx.session.graph.types.indexOf(o) >= 0
+    const label = format.information[o].label
+
+    return Markup.callbackButton(`${format.enabledEmoji(isEnabled)} ${label}`, `g:t:${o}:${!isEnabled}`)
+  })
+}
+
+function generateKeyboardPositionButtons(ctx) {
+  const allPositions = lastData.getPositions()
+  return allPositions
+    .map(o => {
+      const isEnabled = ctx.session.graph.positions.indexOf(o) >= 0
+      return Markup.callbackButton(`${format.enabledEmoji(isEnabled)} ${o}`, `g:p:${o}:${!isEnabled}`)
+    })
+}
+
+function generateKeyboardTimeframeButtons(ctx) {
+  const timeframeOptions = [ '12h', '48h', '7d', '28d', 'all' ]
+  return timeframeOptions.map(o => {
+    const isEnabled = o === ctx.session.graph.timeframe
+    const text = isEnabled ? `${format.enabledEmoji(true)} ${o}` : o
+    return Markup.callbackButton(text, `g:tf:${o}`)
+  })
 }
 
 bot.command('graph', ctx => {
@@ -87,6 +123,35 @@ bot.command('graph', ctx => {
     Extra.markup(Markup.inlineKeyboard(buttons))
   )
 })
+
+bot.action(/g:(\w+):(\w+)(?::(\w+))?/, async (ctx, next) => {
+  // pre and post handling of settings from inline keyboard
+  if (!ctx.session.graph) {
+    ctx.session.graph = defaultSettings()
+  }
+  await next()
+  const buttons = generateKeyboardButtons(ctx)
+  return Promise.all([
+    ctx.answerCbQuery('done ☺️'),
+    ctx.editMessageReplyMarkup(Markup.inlineKeyboard(buttons))
+  ])
+})
+
+bot.action(/g:t:(\w+):(\w+)/, ctx => {
+  const key = ctx.match[1]
+  const newState = ctx.match[2] === 'true'
+  const allTypes = Object.keys(format.information)
+  ctx.session.graph.types = setKeyInArray(ctx.session.graph.types, key, newState, allTypes)
+})
+
+bot.action(/g:p:(\w+):(\w+)/, ctx => {
+  const key = ctx.match[1]
+  const newState = ctx.match[2] === 'true'
+  const allPositions = lastData.getPositions()
+  ctx.session.graph.positions = setKeyInArray(ctx.session.graph.positions, key, newState, allPositions)
+})
+
+bot.action(/g:tf:(\w+)/, ctx => { ctx.session.graph.timeframe = ctx.match[1] })
 
 bot.action('g:create', async ctx => {
   if (!ctx.session.graph) {
