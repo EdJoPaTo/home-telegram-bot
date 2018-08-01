@@ -189,6 +189,7 @@ bot.action('g:create', async ctx => {
 
   await Promise.all(types.map(o => fsPromises.unlink(`${dir}/${o}.png`)))
   return Promise.all([
+    ctx.answerCbQuery(),
     fsPromises.rmdir(dir),
     ctx.deleteMessage()
   ])
