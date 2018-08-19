@@ -209,5 +209,5 @@ function createGnuplotCommandLine(dir, type, positions, xrange) {
 
   gnuplotParams.push(`set xrange [${xrange.min}:${xrange.max}]`)
 
-  return `gnuplot -e "${gnuplotParams.join(';')}" graph.gnuplot`
+  return `nice gnuplot -e "${gnuplotParams.join(';')}" graph.gnuplot`
 }
