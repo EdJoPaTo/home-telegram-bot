@@ -7,7 +7,7 @@ const exec = util.promisify(require('child_process').exec)
 const format = require('../lib/format.js')
 const lastData = require('../lib/lastData.js')
 
-const { Extra, Markup } = Telegraf
+const {Extra, Markup} = Telegraf
 const fsPromises = fs.promises
 
 const DATA_PLOT_DIR = './tmp/'
@@ -28,7 +28,7 @@ function calculateXRangeFromTimeframe(timeframe) {
     const hours = match[1]
     return calculateXRangeForHours(hours)
   } else if (timeframe === 'all') {
-    return { min: '*', max: '*' }
+    return {min: '*', max: '*'}
   } else {
     return calculateXRangeForDays(7)
   }
@@ -77,7 +77,7 @@ function generateKeyboardButtons(ctx) {
   buttons.push(generateKeyboardTypeButtons(ctx))
   buttons.push(generateKeyboardTimeframeButtons(ctx))
   generateKeyboardPositionButtons(ctx)
-    .forEach(o => buttons.push([ o ]))
+    .forEach(o => buttons.push([o]))
 
   const createNotPossible = !ctx.session.graph.positions || ctx.session.graph.positions.length === 0 ||
     !ctx.session.graph.types || ctx.session.graph.types.length === 0
@@ -85,7 +85,7 @@ function generateKeyboardButtons(ctx) {
   if (createNotPossible) {
     text = '⚠️ ' + text + ' ⚠️'
   }
-  buttons.push([ Markup.callbackButton(text, 'g:create') ])
+  buttons.push([Markup.callbackButton(text, 'g:create')])
   return buttons
 }
 
@@ -109,7 +109,7 @@ function generateKeyboardPositionButtons(ctx) {
 }
 
 function generateKeyboardTimeframeButtons(ctx) {
-  const timeframeOptions = [ '12h', '48h', '7d', '28d', 'all' ]
+  const timeframeOptions = ['12h', '48h', '7d', '28d', 'all']
   return timeframeOptions.map(o => {
     const isEnabled = o === ctx.session.graph.timeframe
     const text = isEnabled ? `${format.enabledEmoji(true)} ${o}` : o
@@ -156,7 +156,9 @@ bot.action(/g:p:(\w+):(\w+)/, ctx => {
   ctx.session.graph.positions = setKeyInArray(ctx.session.graph.positions, key, newState, allPositions)
 })
 
-bot.action(/g:tf:(\w+)/, ctx => { ctx.session.graph.timeframe = ctx.match[1] })
+bot.action(/g:tf:(\w+)/, ctx => {
+  ctx.session.graph.timeframe = ctx.match[1]
+})
 
 bot.action('g:create', async ctx => {
   if (!ctx.session.graph) {
@@ -173,7 +175,7 @@ bot.action('g:create', async ctx => {
 
   ctx.editMessageText('Die Graphen werden erstellt, habe einen Moment Geduld…')
 
-  const { types, positions, timeframe } = ctx.session.graph
+  const {types, positions, timeframe} = ctx.session.graph
 
   const xrange = calculateXRangeFromTimeframe(timeframe)
   const dir = await fsPromises.mkdtemp(DATA_PLOT_DIR)
@@ -181,10 +183,10 @@ bot.action('g:create', async ctx => {
 
   ctx.replyWithChatAction('upload_photo')
   if (types.length > 1) {
-    const mediaArr = types.map(o => ({media: { source: `${dir}/${o}.png` }, type: 'photo'}))
+    const mediaArr = types.map(o => ({media: {source: `${dir}/${o}.png`}, type: 'photo'}))
     await ctx.replyWithMediaGroup(mediaArr)
   } else {
-    await ctx.replyWithPhoto({ source: `${dir}/${types[0]}.png` })
+    await ctx.replyWithPhoto({source: `${dir}/${types[0]}.png`})
   }
 
   await Promise.all(types.map(o => fsPromises.unlink(`${dir}/${o}.png`)))

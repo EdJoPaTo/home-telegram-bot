@@ -4,7 +4,7 @@ const format = require('../lib/format.js')
 const lastData = require('../lib/lastData.js')
 const telegrafHandlerUpdatedReply = require('../lib/telegrafHandlerUpdatedReply.js')
 
-const { Extra } = Telegraf
+const {Extra} = Telegraf
 
 const UPDATE_EVERY_MS = 1000 * 5 // update message every 5 seconds
 const UPDATE_UNTIL_MS = 1000 * 30 // update message for 30 seconds

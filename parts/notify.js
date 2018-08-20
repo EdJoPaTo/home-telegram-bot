@@ -4,7 +4,7 @@ const Telegraf = require('telegraf')
 const lastData = require('../lib/lastData.js')
 const format = require('../lib/format.js')
 
-const { Extra, Markup } = Telegraf
+const {Extra, Markup} = Telegraf
 
 const MILLISECONDS_NEEDED_CONSTANT_FOR_CHANGE = 1000 * 60 * 3 // 3 Minutes constantly on right temp in order to notify
 const TEMP_SENSOR_OUTDOOR = process.env.npm_package_config_temp_sensor_outdoor
@@ -31,7 +31,12 @@ function createNotifyKeyboard(ctx) {
   const positions = getIndoorPositions()
   return Markup.inlineKeyboard(positions.map(position => {
     const hasPositionEnabled = chats[position] && chats[position].indexOf(chatID) >= 0
-    return [ Markup.callbackButton(`${format.enabledEmoji(hasPositionEnabled)} ${position}`, `notify:${position}`) ]
+    return [
+      Markup.callbackButton(
+        `${format.enabledEmoji(hasPositionEnabled)} ${position}`,
+        `notify:${position}`
+      )
+    ]
   }))
 }
 
