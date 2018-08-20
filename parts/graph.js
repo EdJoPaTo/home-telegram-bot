@@ -24,14 +24,15 @@ function calculateXRangeFromTimeframe(timeframe) {
   if ((match = timeframe.match(/(\d+)d/))) {
     const days = match[1]
     return calculateXRangeForDays(days)
-  } else if ((match = timeframe.match(/(\d+)h/))) {
+  }
+  if ((match = timeframe.match(/(\d+)h/))) {
     const hours = match[1]
     return calculateXRangeForHours(hours)
-  } else if (timeframe === 'all') {
-    return {min: '*', max: '*'}
-  } else {
-    return calculateXRangeForDays(7)
   }
+  if (timeframe === 'all') {
+    return {min: '*', max: '*'}
+  }
+  return calculateXRangeForDays(7)
 }
 
 function calculateXRangeForDays(days) {
