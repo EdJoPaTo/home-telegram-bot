@@ -60,7 +60,7 @@ bot.action(/notify:(.+)/, ctx => {
   return ctx.editMessageReplyMarkup(createNotifyKeyboard(ctx))
 })
 
-async function notifyWhenNeeded(telegram) {
+function notifyWhenNeeded(telegram) {
   const outdoor = lastData.getSensorValue(TEMP_SENSOR_OUTDOOR, 'temp')
 
   if (!outdoor) {
@@ -73,48 +73,55 @@ async function notifyWhenNeeded(telegram) {
     .filter(p => notifyPositions.indexOf(p) >= 0)
     .filter(p => chats[p].length > 0)
 
-  for (const position of positions) {
-    const indoor = lastData.getSensorValue(position, 'temp')
-    const isClosed = hotLocationsDontOpen.indexOf(position) >= 0
-    const changeInitiatedTime = changeInitiated[position]
-    const idsToNotify = chats[position]
+  return Promise.all(positions.map(position => notifyPositionWhenNeeded(telegram, position, outdoor)))
+}
 
-    const diff = outdoor.value - indoor.value
+function notifyPositionWhenNeeded(telegram, position, outdoor) {
+  const indoor = lastData.getSensorValue(position, 'temp')
+  const isClosed = hotLocationsDontOpen.indexOf(position) >= 0
+  const idsToNotify = chats[position]
 
-    // Debug
-    // console.log('notifyWhenNeeded diff', outdoor.value, indoor.value, Math.round(diff * 10) / 10, position, isClosed ? 'next open' : 'next close', changeInitiatedTime ? `${Date.now() - changeInitiatedTime} > ${MILLISECONDS_NEEDED_CONSTANT_FOR_CHANGE}` : 'unplanned')
+  const diff = outdoor.value - indoor.value
+  const changeNeeded = checkForChangeNeeded(position, isClosed, diff)
 
-    const textSuffix = `\n\nBenutze /status oder /graph für umfassende Infos.`
+  // Debug
+  // console.log('notifyPositionWhenNeeded', outdoor.value, indoor.value, diff.toFixed(2), position, isClosed ? 'next open' : 'next close', changeNeeded)
+
+  if (changeNeeded) {
+    const textPrefix = `*${position}*: `
+    let text = ''
+    const textSuffix = `\n${outdoor.value}°C < ${indoor.value}°C\n\nBenutze /status oder /graph für umfassende Infos.`
 
     if (isClosed) {
-      // Next open
-      if (diff < 0) {
-        if (changeInitiatedTime + MILLISECONDS_NEEDED_CONSTANT_FOR_CHANGE <= Date.now()) {
-          hotLocationsDontOpen = hotLocationsDontOpen.filter(o => o !== position)
-          delete changeInitiated[position]
-          const text = `*${position}*: Es ist draußen *kälter* als drinnen. Man könnte die Fenster aufmachen.\n${outdoor.value}°C < ${indoor.value}°C`
-          await broadcastToIds(telegram, idsToNotify, text + textSuffix)
-        } else if (!changeInitiatedTime) {
-          changeInitiated[position] = Date.now()
-        }
-      } else {
-        delete changeInitiated[position]
-      }
+      hotLocationsDontOpen = hotLocationsDontOpen.filter(o => o !== position)
+      text += `Es ist draußen *kälter* als drinnen. Man könnte die Fenster aufmachen.`
     } else {
-      // Next close
-      if (diff > 0) {
-        if (changeInitiatedTime + MILLISECONDS_NEEDED_CONSTANT_FOR_CHANGE <= Date.now()) {
-          hotLocationsDontOpen.push(position)
-          delete changeInitiated[position]
-          const text = `*${position}*: Es ist draußen *wärmer* als drinnen. Sind alle Fenster zu?\n${outdoor.value}°C > ${indoor.value}°C`
-          await broadcastToIds(telegram, idsToNotify, text + textSuffix)
-        } else if (!changeInitiatedTime) {
-          changeInitiated[position] = Date.now()
-        }
-      } else {
-        delete changeInitiated[position]
-      }
+      hotLocationsDontOpen.push(position)
+      text += `Es ist draußen *wärmer* als drinnen. Sind alle Fenster zu?`
     }
+
+    return broadcastToIds(telegram, idsToNotify, textPrefix + text + textSuffix)
+  }
+}
+
+function checkForChangeNeeded(position, isClosed, diff) {
+  const changeInitiatedTime = changeInitiated[position]
+
+  // Debug
+  // console.log('checkForChangeNeeded', position, isClosed ? 'next open' : 'next close', diff.toFixed(2), changeInitiatedTime ? Date.now() - changeInitiatedTime : 0, '>', MILLISECONDS_NEEDED_CONSTANT_FOR_CHANGE)
+
+  if ((isClosed && diff < 0) || (!isClosed && diff > 0)) {
+    if (!changeInitiatedTime) {
+      // First time change is wished
+      changeInitiated[position] = Date.now()
+    } else if (changeInitiatedTime + MILLISECONDS_NEEDED_CONSTANT_FOR_CHANGE <= Date.now()) {
+      // Constantly high enough, do something
+      delete changeInitiated[position]
+      return true
+    }
+  } else {
+    delete changeInitiated[position]
+    return false
   }
 }
 
