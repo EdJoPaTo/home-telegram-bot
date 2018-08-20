@@ -92,7 +92,7 @@ function generateKeyboardTypeButtons(ctx) {
   const allTypes = Object.keys(format.information)
   return allTypes.map(o => {
     const isEnabled = ctx.session.graph.types.indexOf(o) >= 0
-    const label = format.information[o].label
+    const {label} = format.information[o]
 
     return Markup.callbackButton(`${format.enabledEmoji(isEnabled)} ${label}`, `g:t:${o}:${!isEnabled}`)
   })

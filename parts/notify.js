@@ -41,7 +41,7 @@ function createNotifyKeyboard(ctx) {
 }
 
 bot.action(/notify:(.+)/, ctx => {
-  const id = ctx.chat.id
+  const {id} = ctx.chat
   const position = ctx.match[1]
   try {
     chats = JSON.parse(fs.readFileSync('chats.json', 'utf8'))
