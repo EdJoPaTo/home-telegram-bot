@@ -27,6 +27,7 @@ client.on('connect', async () => {
 client.on('message', (topic, message) => {
   const time = Date.now()
   const msgStr = message.toString()
+  // Debug
   // console.log('incoming message', topic, msgStr)
   const position = topic.split('/')[3]
   const type = topic.split('/')[4]

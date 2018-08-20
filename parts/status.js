@@ -6,8 +6,8 @@ const telegrafHandlerUpdatedReply = require('../lib/telegrafHandlerUpdatedReply.
 
 const {Extra} = Telegraf
 
-const UPDATE_EVERY_MS = 1000 * 5 // update message every 5 seconds
-const UPDATE_UNTIL_MS = 1000 * 30 // update message for 30 seconds
+const UPDATE_EVERY_MS = 1000 * 5 // Update message every 5 seconds
+const UPDATE_UNTIL_MS = 1000 * 30 // Update message for 30 seconds
 const AGE_HIDE = 1000 * 60 * 60 * 3 // 3h
 
 const bot = new Telegraf.Composer()
@@ -25,7 +25,7 @@ function generateStatusText() {
     const minAge = Date.now() - Math.min(...timestamps)
 
     if (minAge > AGE_HIDE) {
-      return '' // will be filtered out
+      return '' // Will be filtered out
     }
 
     let parts = `*${position}*`

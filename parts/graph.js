@@ -129,7 +129,7 @@ bot.command('graph', ctx => {
 })
 
 bot.action(/g:(\w+):(\w+)(?::(\w+))?/, async (ctx, next) => {
-  // pre and post handling of settings from inline keyboard
+  // Pre and post handling of settings from inline keyboard
   if (!ctx.session.graph) {
     ctx.session.graph = defaultSettings()
   }
@@ -196,6 +196,7 @@ bot.action('g:create', async ctx => {
   ])
 })
 
+// Debug
 // console.log('gnuplot commandline:', createGnuplotCommandLine('temp', ['bude', 'bed', 'books', 'rt', 'wt']))
 function createGnuplotCommandLine(dir, type, positions, xrange) {
   const typeInformation = format.information[type]

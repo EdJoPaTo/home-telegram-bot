@@ -6,8 +6,8 @@ const telegrafHandlerUpdatedReply = require('../lib/telegrafHandlerUpdatedReply.
 
 const {Extra} = Telegraf
 
-const UPDATE_EVERY_MS = 1000 * 1 // update message every 1 second
-const UPDATE_UNTIL_MS = 1000 * 30 // update message for 30 seconds
+const UPDATE_EVERY_MS = 1000 * 1 // Update message every 1 second
+const UPDATE_UNTIL_MS = 1000 * 30 // Update message for 30 seconds
 
 const bot = new Telegraf.Composer()
 module.exports = bot

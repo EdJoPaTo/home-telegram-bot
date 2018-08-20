@@ -81,12 +81,13 @@ async function notifyWhenNeeded(telegram) {
 
     const diff = outdoor.value - indoor.value
 
+    // Debug
     // console.log('notifyWhenNeeded diff', outdoor.value, indoor.value, Math.round(diff * 10) / 10, position, isClosed ? 'next open' : 'next close', changeInitiatedTime ? `${Date.now() - changeInitiatedTime} > ${MILLISECONDS_NEEDED_CONSTANT_FOR_CHANGE}` : 'unplanned')
 
     const textSuffix = `\n\nBenutze /status oder /graph für umfassende Infos.`
 
     if (isClosed) {
-      // next open
+      // Next open
       if (diff < 0) {
         if (changeInitiatedTime + MILLISECONDS_NEEDED_CONSTANT_FOR_CHANGE <= Date.now()) {
           hotLocationsDontOpen = hotLocationsDontOpen.filter(o => o !== position)
@@ -100,7 +101,7 @@ async function notifyWhenNeeded(telegram) {
         delete changeInitiated[position]
       }
     } else {
-      // next close
+      // Next close
       if (diff > 0) {
         if (changeInitiatedTime + MILLISECONDS_NEEDED_CONSTANT_FOR_CHANGE <= Date.now()) {
           hotLocationsDontOpen.push(position)
