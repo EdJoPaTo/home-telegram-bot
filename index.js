@@ -57,7 +57,9 @@ bot.command('start', ctx => {
 })
 
 bot.catch(err => {
-  if (err.description === 'Bad Request: message is not modified') return
+  if (err.description === 'Bad Request: message is not modified') {
+    return
+  }
   console.error(err)
 })
 
