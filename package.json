@@ -2,7 +2,7 @@
   "private": true,
   "main": "index.js",
   "engines": {
-    "node": ">=7.6"
+    "node": ">=10"
   },
   "dependencies": {
     "async-mqtt": "^1.0.1",
