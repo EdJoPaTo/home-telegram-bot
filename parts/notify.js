@@ -119,6 +119,6 @@ function broadcastToIds(telegram, ids, text) {
 }
 
 module.exports = {
-  bot: bot,
-  notifyWhenNeeded: notifyWhenNeeded
+  bot,
+  notifyWhenNeeded
 }

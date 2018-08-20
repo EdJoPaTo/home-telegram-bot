@@ -41,8 +41,8 @@ client.on('message', (topic, message) => {
   partLog.logValue(position, type, time, value)
 
   const newVal = {
-    time: time,
-    value: value
+    time,
+    value
   }
 
   lastData.setSensorValue(position, type, newVal)

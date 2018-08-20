@@ -18,5 +18,5 @@ async function logValue(position, type, time, value) {
 }
 
 module.exports = {
-  logValue: logValue
+  logValue
 }
