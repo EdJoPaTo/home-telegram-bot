@@ -1,5 +1,5 @@
 [Unit]
-Description=Run Telegram Bot etoWLHomeBot
+Description=Run Home Telegram Bot
 Wants=network-online.target
 After=network-online.target
 
