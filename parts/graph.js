@@ -68,7 +68,6 @@ function defaultSettings() {
   }
 }
 
-
 const bot = new Telegraf.Composer()
 module.exports = bot
 
