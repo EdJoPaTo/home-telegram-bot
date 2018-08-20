@@ -37,14 +37,14 @@ function calculateXRangeFromTimeframe(timeframe) {
 
 function calculateXRangeForDays(days) {
   return {
-    min: Math.floor(Date.now() / 1000 / DAY_IN_SECONDS - (days - 1)) * DAY_IN_SECONDS,
+    min: Math.floor((Date.now() / 1000 / DAY_IN_SECONDS) - (days - 1)) * DAY_IN_SECONDS,
     max: '*'
   }
 }
 
 function calculateXRangeForHours(hours) {
   return {
-    min: Math.floor(Date.now() / 1000 / HOUR_IN_SECONDS - (hours - 1)) * HOUR_IN_SECONDS,
+    min: Math.floor((Date.now() / 1000 / HOUR_IN_SECONDS) - (hours - 1)) * HOUR_IN_SECONDS,
     max: Math.ceil(Date.now() / 1000 / HOUR_IN_SECONDS) * HOUR_IN_SECONDS
   }
 }
