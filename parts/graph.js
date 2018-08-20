@@ -1,8 +1,10 @@
 const fs = require('fs')
-const Telegraf = require('telegraf')
 const util = require('util')
+const childProcess = require('child_process')
 
-const exec = util.promisify(require('child_process').exec)
+const Telegraf = require('telegraf')
+
+const exec = util.promisify(childProcess.exec)
 
 const format = require('../lib/format.js')
 const lastData = require('../lib/lastData.js')
