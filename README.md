@@ -1,6 +1,9 @@
 # Home Telegram Bot
 
 [![Build Status](https://travis-ci.org/EdJoPaTo/home-telegram-bot.svg?branch=master)](https://travis-ci.org/EdJoPaTo/home-telegram-bot)
+[![Dependency Status](https://david-dm.org/edjopato/home-telegram-bot/status.svg)](https://david-dm.org/edjopato/home-telegram-bot)
+[![Dependency Status](https://david-dm.org/edjopato/home-telegram-bot/dev-status.svg)](https://david-dm.org/edjopato/home-telegram-bot?type=dev)
+
 This is a Telegram Bot for a home environment based on [mqtt-smarthome](https://github.com/mqtt-smarthome/mqtt-smarthome).
 Currently it's only made for read only and only temperature / humidity sensors.
 
