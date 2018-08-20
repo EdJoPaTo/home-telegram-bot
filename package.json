@@ -17,6 +17,7 @@
     "xo": "xo"
   },
   "config": {
+    "mqtt_server": "tcp://etoPiServer:1883",
     "temp_sensor_outdoor": "bude",
     "tokenpath": "token.txt"
   },

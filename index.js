@@ -17,7 +17,7 @@ const token = fs.readFileSync(process.env.npm_package_config_tokenpath, 'utf8').
 const bot = new Telegraf(token)
 bot.use(session())
 
-const client = MQTT.connect('tcp://etoPiServer:1883')
+const client = MQTT.connect(process.env.npm_package_config_mqtt_server)
 
 client.on('connect', async () => {
   console.log('connected to mqtt server')
