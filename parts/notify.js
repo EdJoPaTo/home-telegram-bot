@@ -1,7 +1,7 @@
 const fs = require('fs')
 const Telegraf = require('telegraf')
 
-const lastData = require('../lib/lastData.js')
+const lastData = require('../lib/last-data.js')
 const format = require('../lib/format.js')
 
 const {Extra, Markup} = Telegraf

@@ -3,9 +3,9 @@ const MQTT = require('async-mqtt')
 const Telegraf = require('telegraf')
 const session = require('telegraf/session')
 
-const lastData = require('./lib/lastData.js')
+const lastData = require('./lib/last-data.js')
 
-const partCheckSensors = require('./parts/checkSensors.js')
+const partCheckSensors = require('./parts/check-sensors.js')
 const partGraph = require('./parts/graph.js')
 const partLog = require('./parts/log.js')
 const partNotify = require('./parts/notify.js')

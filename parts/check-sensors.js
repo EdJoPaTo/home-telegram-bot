@@ -1,8 +1,8 @@
 const Telegraf = require('telegraf')
 
 const format = require('../lib/format.js')
-const lastData = require('../lib/lastData.js')
-const telegrafHandlerUpdatedReply = require('../lib/telegrafHandlerUpdatedReply.js')
+const lastData = require('../lib/last-data.js')
+const telegrafHandlerUpdatedReply = require('../lib/telegraf-handler-updated-reply.js')
 
 const {Extra} = Telegraf
 

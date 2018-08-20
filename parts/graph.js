@@ -7,7 +7,7 @@ const Telegraf = require('telegraf')
 const exec = util.promisify(childProcess.exec)
 
 const format = require('../lib/format.js')
-const lastData = require('../lib/lastData.js')
+const lastData = require('../lib/last-data.js')
 
 const {Extra, Markup} = Telegraf
 const fsPromises = fs.promises
