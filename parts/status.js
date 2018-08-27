@@ -17,9 +17,15 @@ bot.command('status', telegrafHandlerUpdatedReply(UPDATE_EVERY_MS, UPDATE_UNTIL_
 
 function generateStatusText() {
   const positions = lastData.getPositions()
+
+  const allConnectedOk = positions
+    .map(pos => lastData.getAllSensorValues(pos).connected)
+    .every(connected => connected && connected.value === 2)
+
   const lines = positions.map(position => {
     const sensorData = lastData.getAllSensorValues(position)
     const types = Object.keys(sensorData)
+      .filter(o => o !== 'connected')
 
     const timestamps = types.map(type => sensorData[type].time)
     const minAge = Date.now() - Math.max(...timestamps)
@@ -28,7 +34,8 @@ function generateStatusText() {
       return '' // Will be filtered out
     }
 
-    let parts = `*${position}*`
+    let parts = format.connectionStatus(sensorData, {withText: false, hideOk: allConnectedOk})
+    parts += ` *${position}*`
     parts += ' '
     parts += types.map(type =>
       format.basedOnAge(sensorData[type].time, Date.now(), type,

@@ -21,9 +21,14 @@ function generate() {
   const entries = positions.map(p => {
     const values = lastData.getAllSensorValues(p)
     const types = Object.keys(values)
+      .filter(o => o !== 'connected')
     types.sort()
 
     let text = `*${p}*\n`
+
+    text += format.connectionStatus(values, {withText: true, withTime: true})
+    text += `\n`
+
     text += types.map(t => {
       const old = values[t].time
       const age = currentDate - old
