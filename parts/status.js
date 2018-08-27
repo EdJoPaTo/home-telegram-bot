@@ -2,18 +2,18 @@ const Telegraf = require('telegraf')
 
 const format = require('../lib/format.js')
 const lastData = require('../lib/last-data.js')
-const telegrafHandlerUpdatedReply = require('../lib/telegraf-handler-updated-reply.js')
 
 const {Extra} = Telegraf
 
-const UPDATE_EVERY_MS = 1000 * 5 // Update message every 5 seconds
-const UPDATE_UNTIL_MS = 1000 * 30 // Update message for 30 seconds
 const AGE_HIDE = 1000 * 60 * 60 * 3 // 3h
 
 const bot = new Telegraf.Composer()
 module.exports = bot
 
-bot.command('status', telegrafHandlerUpdatedReply(UPDATE_EVERY_MS, UPDATE_UNTIL_MS, generateStatusText))
+bot.command('status', ctx => {
+  const {text, extra} = generateStatusText()
+  return ctx.reply(text, extra)
+})
 
 function generateStatusText() {
   const positions = lastData.getPositions()
