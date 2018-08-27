@@ -138,21 +138,23 @@ function notifyTempPositionWhenNeeded(telegram, position, outdoor) {
   // Debug
   // console.log('notifyTempPositionWhenNeeded', outdoor.value, indoor.value, diff.toFixed(2), position, isClosed ? 'next open' : 'next close', changeNeeded)
 
-  if (changeNeeded) {
-    const textPrefix = `*${position}*: `
-    let text = ''
-    const textSuffix = `\n${outdoor.value}°C < ${indoor.value}°C\n\nBenutze /status oder /graph für umfassende Infos.`
-
-    if (isClosed) {
-      hotLocationsDontOpen = hotLocationsDontOpen.filter(o => o !== position)
-      text += `Es ist draußen *kälter* als drinnen. Man könnte die Fenster aufmachen.`
-    } else {
-      hotLocationsDontOpen.push(position)
-      text += `Es ist draußen *wärmer* als drinnen. Sind alle Fenster zu?`
-    }
-
-    return broadcastToIds(telegram, idsToNotify, textPrefix + text + textSuffix)
+  if (!changeNeeded) {
+    return
   }
+
+  const textPrefix = `*${position}*: `
+  let text = ''
+  const textSuffix = `\n${outdoor.value}°C < ${indoor.value}°C\n\nBenutze /status oder /graph für umfassende Infos.`
+
+  if (isClosed) {
+    hotLocationsDontOpen = hotLocationsDontOpen.filter(o => o !== position)
+    text += `Es ist draußen *kälter* als drinnen. Man könnte die Fenster aufmachen.`
+  } else {
+    hotLocationsDontOpen.push(position)
+    text += `Es ist draußen *wärmer* als drinnen. Sind alle Fenster zu?`
+  }
+
+  return broadcastToIds(telegram, idsToNotify, textPrefix + text + textSuffix)
 }
 
 function isWindowStateChangeNeeded(position, isClosed, diff) {
