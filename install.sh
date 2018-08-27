@@ -1,6 +1,6 @@
 #!/bin/bash
 
-npm install --production
+npm ci --production
 
 echo
 echo WARNING
