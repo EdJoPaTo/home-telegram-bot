@@ -1,4 +1,6 @@
 const fs = require('fs')
+
+const debounce = require('debounce-promise')
 const Telegraf = require('telegraf')
 
 const lastData = require('../lib/last-data.js')
@@ -20,6 +22,14 @@ const bot = new Telegraf.Composer()
 
 function getIndoorPositions() {
   return lastData.getPositions().filter(o => o !== TEMP_SENSOR_OUTDOOR)
+}
+
+function getAllIdsWithAnyNotification() {
+  const notifyPositions = Object.keys(chats)
+  const merged = [].concat(...notifyPositions.map(pos => chats[pos]))
+  const distinct = [...new Set(merged)]
+
+  return distinct
 }
 
 bot.command('notify', ctx => {
@@ -59,6 +69,47 @@ bot.action(/notify:(.+)/, ctx => {
   fs.writeFileSync('chats.json', JSON.stringify(chats, null, 2), 'utf8')
   return ctx.editMessageReplyMarkup(createNotifyKeyboard(ctx))
 })
+
+const notifyConnectedPositionFunc = {}
+function notifyConnectedWhenNeeded(telegram, position, ...args) {
+  if (!notifyConnectedPositionFunc[position]) {
+    notifyConnectedPositionFunc[position] = debounce(
+      (...args) => notifyConnectedWhenNeededDebounced(telegram, position, ...args),
+      1000 * 30 // Wait 30 Seconds before possible notification
+    )
+  }
+
+  return notifyConnectedPositionFunc[position](...args)
+}
+
+function notifyConnectedWhenNeededDebounced(telegram, position, val) {
+  const connected = Number(val.value)
+  if (connected === 2) {
+    // Everything is ok, sensor is connected
+    return
+  }
+
+  let idsToNotify = []
+  if (position === TEMP_SENSOR_OUTDOOR) {
+    idsToNotify = getAllIdsWithAnyNotification()
+  } else {
+    idsToNotify = chats[position] || []
+  }
+
+  const textPrefix = `${format.connectionStatusParts[connected].emoji} *${position}*: `
+  let text = ''
+  const textSuffix = `\n\nBenutze /checksensors beim Beheben des Problems um sofort zu sehen, ob du erfolgreich warst.`
+
+  if (connected === 1) {
+    text = `Der Sensor kann nicht mehr gelesen werden.`
+  } else if (connected === 0) {
+    text = `Das Board ist offline. Tipp: Benutze den Reset Button.`
+  } else {
+    text = `#∞!@∆Ω† ${connected}`
+  }
+
+  return broadcastToIds(telegram, idsToNotify, textPrefix + text + textSuffix)
+}
 
 function notifyTempWhenNeeded(telegram) {
   const outdoor = lastData.getSensorValue(TEMP_SENSOR_OUTDOOR, 'temp')
@@ -133,5 +184,6 @@ function broadcastToIds(telegram, ids, text) {
 
 module.exports = {
   bot,
+  notifyConnectedWhenNeeded,
   notifyTempWhenNeeded
 }

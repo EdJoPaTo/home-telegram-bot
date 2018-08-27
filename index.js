@@ -46,6 +46,9 @@ client.on('message', (topic, message) => {
   if (type === 'temp' && position === TEMP_SENSOR_OUTDOOR) {
     partNotify.notifyTempWhenNeeded(bot.telegram)
   }
+  if (type === 'connected') {
+    partNotify.notifyConnectedWhenNeeded(bot.telegram, position, newVal)
+  }
 })
 
 bot.use(partCheckSensors)

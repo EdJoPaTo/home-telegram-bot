@@ -6,6 +6,7 @@
   },
   "dependencies": {
     "async-mqtt": "^1.0.1",
+    "debounce-promise": "^3.1.0",
     "telegraf": "^3.22.1"
   },
   "devDependencies": {
