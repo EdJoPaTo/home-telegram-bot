@@ -34,8 +34,12 @@ function generateStatusText() {
       return '' // Will be filtered out
     }
 
-    let parts = format.connectionStatus(sensorData, {withText: false, hideOk: allConnectedOk})
-    parts += ` *${position}*`
+    let parts = ''
+    if (!allConnectedOk) {
+      parts += format.connectionStatus(sensorData, {withText: false})
+      parts += ' '
+    }
+    parts += `*${position}*`
     parts += ' '
     parts += types.map(type =>
       format.basedOnAge(sensorData[type].time, Date.now(), type,
