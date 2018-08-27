@@ -17,6 +17,7 @@ const token = fs.readFileSync(process.env.npm_package_config_tokenpath, 'utf8').
 const bot = new Telegraf(token)
 bot.use(session())
 
+console.log(`MQTT connecting to ${process.env.npm_package_config_mqtt_server}`)
 const client = MQTT.connect(process.env.npm_package_config_mqtt_server)
 
 client.on('connect', async () => {
