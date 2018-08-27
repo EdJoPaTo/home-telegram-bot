@@ -22,7 +22,7 @@ function generateStatusText() {
     const types = Object.keys(sensorData)
 
     const timestamps = types.map(type => sensorData[type].time)
-    const minAge = Date.now() - Math.min(...timestamps)
+    const minAge = Date.now() - Math.max(...timestamps)
 
     if (minAge > AGE_HIDE) {
       return '' // Will be filtered out
