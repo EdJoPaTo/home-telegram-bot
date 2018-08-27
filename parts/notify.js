@@ -60,11 +60,11 @@ bot.action(/notify:(.+)/, ctx => {
   return ctx.editMessageReplyMarkup(createNotifyKeyboard(ctx))
 })
 
-function notifyWhenNeeded(telegram) {
+function notifyTempWhenNeeded(telegram) {
   const outdoor = lastData.getSensorValue(TEMP_SENSOR_OUTDOOR, 'temp')
 
   if (!outdoor) {
-    console.log('notifyWhenNeeded is still waiting for init')
+    console.log('notifyTempWhenNeeded is still waiting for init')
     return
   }
 
@@ -73,19 +73,19 @@ function notifyWhenNeeded(telegram) {
     .filter(p => notifyPositions.indexOf(p) >= 0)
     .filter(p => chats[p].length > 0)
 
-  return Promise.all(positions.map(position => notifyPositionWhenNeeded(telegram, position, outdoor)))
+  return Promise.all(positions.map(position => notifyTempPositionWhenNeeded(telegram, position, outdoor)))
 }
 
-function notifyPositionWhenNeeded(telegram, position, outdoor) {
+function notifyTempPositionWhenNeeded(telegram, position, outdoor) {
   const indoor = lastData.getSensorValue(position, 'temp')
   const isClosed = hotLocationsDontOpen.indexOf(position) >= 0
   const idsToNotify = chats[position]
 
   const diff = outdoor.value - indoor.value
-  const changeNeeded = checkForChangeNeeded(position, isClosed, diff)
+  const changeNeeded = isWindowStateChangeNeeded(position, isClosed, diff)
 
   // Debug
-  // console.log('notifyPositionWhenNeeded', outdoor.value, indoor.value, diff.toFixed(2), position, isClosed ? 'next open' : 'next close', changeNeeded)
+  // console.log('notifyTempPositionWhenNeeded', outdoor.value, indoor.value, diff.toFixed(2), position, isClosed ? 'next open' : 'next close', changeNeeded)
 
   if (changeNeeded) {
     const textPrefix = `*${position}*: `
@@ -104,11 +104,11 @@ function notifyPositionWhenNeeded(telegram, position, outdoor) {
   }
 }
 
-function checkForChangeNeeded(position, isClosed, diff) {
+function isWindowStateChangeNeeded(position, isClosed, diff) {
   const changeInitiatedTime = changeInitiated[position]
 
   // Debug
-  // console.log('checkForChangeNeeded', position, isClosed ? 'next open' : 'next close', diff.toFixed(2), changeInitiatedTime ? Date.now() - changeInitiatedTime : 0, '>', MILLISECONDS_NEEDED_CONSTANT_FOR_CHANGE)
+  // console.log('isWindowStateChangeNeeded', position, isClosed ? 'next open' : 'next close', diff.toFixed(2), changeInitiatedTime ? Date.now() - changeInitiatedTime : 0, '>', MILLISECONDS_NEEDED_CONSTANT_FOR_CHANGE)
 
   if ((isClosed && diff < 0) || (!isClosed && diff > 0)) {
     if (!changeInitiatedTime) {
@@ -133,5 +133,5 @@ function broadcastToIds(telegram, ids, text) {
 
 module.exports = {
   bot,
-  notifyWhenNeeded
+  notifyTempWhenNeeded
 }
