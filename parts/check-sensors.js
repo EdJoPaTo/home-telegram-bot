@@ -2,17 +2,16 @@ const Telegraf = require('telegraf')
 
 const format = require('../lib/format.js')
 const lastData = require('../lib/last-data.js')
-const telegrafHandlerUpdatedReply = require('../lib/telegraf-handler-updated-reply.js')
 
 const {Extra} = Telegraf
-
-const UPDATE_EVERY_MS = 1000 * 1 // Update message every 1 second
-const UPDATE_UNTIL_MS = 1000 * 30 // Update message for 30 seconds
 
 const bot = new Telegraf.Composer()
 module.exports = bot
 
-bot.command('checksensors', telegrafHandlerUpdatedReply(UPDATE_EVERY_MS, UPDATE_UNTIL_MS, generate))
+bot.command('checksensors', ctx => {
+  const {text, extra} = generate()
+  return ctx.reply(text, extra)
+})
 
 function generate() {
   const positions = lastData.getPositions()
