@@ -3,17 +3,10 @@ const Telegraf = require('telegraf')
 const format = require('../lib/format.js')
 const lastData = require('../lib/last-data.js')
 
-const {Extra} = Telegraf
-
 const bot = new Telegraf.Composer()
 module.exports = bot
 
 bot.command('checksensors', ctx => {
-  const {text, extra} = generate()
-  return ctx.reply(text, extra)
-})
-
-function generate() {
   const positions = lastData.getPositions()
   const currentDate = Date.now()
 
@@ -39,8 +32,6 @@ function generate() {
   })
     .filter(o => o !== '')
 
-  return {
-    text: entries.join('\n'),
-    extra: Extra.markdown()
-  }
-}
+  const text = entries.join('\n')
+  return ctx.replyWithMarkdown(text)
+})

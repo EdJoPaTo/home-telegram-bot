@@ -3,19 +3,12 @@ const Telegraf = require('telegraf')
 const format = require('../lib/format.js')
 const lastData = require('../lib/last-data.js')
 
-const {Extra} = Telegraf
-
 const AGE_HIDE = 1000 * 60 * 60 * 3 // 3h
 
 const bot = new Telegraf.Composer()
 module.exports = bot
 
 bot.command('status', ctx => {
-  const {text, extra} = generateStatusText()
-  return ctx.reply(text, extra)
-})
-
-function generateStatusText() {
   const positions = lastData.getPositions()
 
   const allConnectedOk = positions
@@ -51,8 +44,6 @@ function generateStatusText() {
   })
     .filter(o => o !== '')
 
-  return {
-    text: lines.join('\n'),
-    extra: Extra.markdown()
-  }
-}
+  const text = lines.join('\n')
+  return ctx.replyWithMarkdown(text)
+})
