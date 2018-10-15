@@ -75,9 +75,9 @@ const bot = new Telegraf.Composer()
 module.exports = bot
 
 function generateKeyboardButtons(ctx) {
-  const buttons = []
+  let buttons = []
   buttons.push(generateKeyboardTypeButtons(ctx))
-  buttons.push(generateKeyboardTimeframeButtons(ctx))
+  buttons = buttons.concat(generateKeyboardTimeframeButtons(ctx))
   generateKeyboardPositionButtons(ctx)
     .forEach(o => buttons.push([o]))
 
@@ -111,12 +111,18 @@ function generateKeyboardPositionButtons(ctx) {
 }
 
 function generateKeyboardTimeframeButtons(ctx) {
-  const timeframeOptions = ['12h', '48h', '7d', '28d', 'all']
-  return timeframeOptions.map(o => {
+  const timeframeOptions = ['4h', '12h', '48h', '7d', '28d', 'all']
+  const buttons = timeframeOptions.map(o => {
     const isEnabled = o === ctx.session.graph.timeframe
     const text = isEnabled ? `${format.enabledEmoji(true)} ${o}` : o
     return Markup.callbackButton(text, `g:tf:${o}`)
   })
+  const result = []
+  for (let i = 0; i < buttons.length; i += 3) {
+    const part = buttons.slice(i, i + 3)
+    result.push(part)
+  }
+  return result
 }
 
 bot.command('graph', ctx => {
