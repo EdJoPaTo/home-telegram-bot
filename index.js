@@ -1,7 +1,7 @@
 const fs = require('fs')
 const MQTT = require('async-mqtt')
 const Telegraf = require('telegraf')
-const session = require('telegraf/session')
+const LocalSession = require('telegraf-session-local')
 
 const lastData = require('./lib/last-data.js')
 
@@ -15,7 +15,10 @@ const TEMP_SENSOR_OUTDOOR = process.env.npm_package_config_temp_sensor_outdoor
 
 const token = fs.readFileSync(process.env.npm_package_config_tokenpath, 'utf8').trim()
 const bot = new Telegraf(token)
-bot.use(session())
+bot.use(new LocalSession({
+  getSessionKey: ctx => ctx.from.id,
+  database: './tmp/sessions.json'
+}))
 
 console.log(`MQTT connecting to ${process.env.npm_package_config_mqtt_server}`)
 const client = MQTT.connect(process.env.npm_package_config_mqtt_server)
