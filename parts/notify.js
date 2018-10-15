@@ -129,6 +129,10 @@ function notifyTempWhenNeeded(telegram) {
 
 function notifyTempPositionWhenNeeded(telegram, position, outdoor) {
   const indoor = lastData.getSensorValue(position, 'temp')
+  if (!indoor) {
+    // Sensor not yet initialized. Should only happen with retained false sensors
+    return
+  }
   const isClosed = hotLocationsDontOpen.indexOf(position) >= 0
   const idsToNotify = chats[position]
 
