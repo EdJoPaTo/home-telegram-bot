@@ -19,7 +19,7 @@ bot.command('checksensors', ctx => {
     let text = `*${p}*\n`
 
     text += format.connectionStatus(values, {withText: true, withTime: true})
-    text += `\n`
+    text += '\n'
 
     text += types.map(t => {
       const old = values[t].time

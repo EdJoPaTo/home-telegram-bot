@@ -14,7 +14,7 @@ const TEMP_SENSOR_OUTDOOR = process.env.npm_package_config_temp_sensor_outdoor
 let chats = {}
 try {
   chats = JSON.parse(fs.readFileSync('chats.json', 'utf8'))
-} catch (err) {}
+} catch (error) {}
 let hotLocationsDontOpen = []
 const changeInitiated = {}
 
@@ -33,7 +33,7 @@ function getAllIdsWithAnyNotification() {
 }
 
 bot.command('notify', ctx => {
-  return ctx.reply(`Wähle die Sensoren aus, bei denen du erinnert werden willst. Wird es draußen wärmer als beim jeweiligen Sensor, bekommst du eine Benachrichtigung.`, Extra.markup(createNotifyKeyboard(ctx)))
+  return ctx.reply('Wähle die Sensoren aus, bei denen du erinnert werden willst. Wird es draußen wärmer als beim jeweiligen Sensor, bekommst du eine Benachrichtigung.', Extra.markup(createNotifyKeyboard(ctx)))
 })
 
 function createNotifyKeyboard(ctx) {
@@ -55,7 +55,7 @@ bot.action(/notify:(.+)/, ctx => {
   const position = ctx.match[1]
   try {
     chats = JSON.parse(fs.readFileSync('chats.json', 'utf8'))
-  } catch (err) {
+  } catch (error) {
     chats = {}
   }
   if (!chats[position]) {
@@ -98,12 +98,12 @@ function notifyConnectedWhenNeededDebounced(telegram, position, val) {
 
   const textPrefix = `${format.connectionStatusParts[connected].emoji} *${position}*: `
   let text = ''
-  const textSuffix = `\n\nBenutze /checksensors beim Beheben des Problems um sofort zu sehen, ob du erfolgreich warst.`
+  const textSuffix = '\n\nBenutze /checksensors beim Beheben des Problems um sofort zu sehen, ob du erfolgreich warst.'
 
   if (connected === 1) {
-    text = `Der Sensor kann nicht mehr gelesen werden.`
+    text = 'Der Sensor kann nicht mehr gelesen werden.'
   } else if (connected === 0) {
-    text = `Das Board ist offline. Tipp: Benutze den Reset Button.`
+    text = 'Das Board ist offline. Tipp: Benutze den Reset Button.'
   } else {
     text = `#∞!@∆Ω† ${connected}`
   }
@@ -152,10 +152,10 @@ function notifyTempPositionWhenNeeded(telegram, position, outdoor) {
 
   if (isClosed) {
     hotLocationsDontOpen = hotLocationsDontOpen.filter(o => o !== position)
-    text += `Es ist draußen *kälter* als drinnen. Man könnte die Fenster aufmachen.`
+    text += 'Es ist draußen *kälter* als drinnen. Man könnte die Fenster aufmachen.'
   } else {
     hotLocationsDontOpen.push(position)
-    text += `Es ist draußen *wärmer* als drinnen. Sind alle Fenster zu?`
+    text += 'Es ist draußen *wärmer* als drinnen. Sind alle Fenster zu?'
   }
 
   return broadcastToIds(telegram, idsToNotify, textPrefix + text + textSuffix)
