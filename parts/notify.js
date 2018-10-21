@@ -2,6 +2,7 @@ const fs = require('fs')
 
 const debounce = require('debounce-promise')
 const Telegraf = require('telegraf')
+const TelegrafInlineMenu = require('telegraf-inline-menu')
 
 const lastData = require('../lib/last-data.js')
 const format = require('../lib/format.js')
@@ -32,27 +33,27 @@ function getAllIdsWithAnyNotification() {
   return distinct
 }
 
-bot.command('notify', ctx => {
-  return ctx.reply('Wähle die Sensoren aus, bei denen du erinnert werden willst. Wird es draußen wärmer als beim jeweiligen Sensor, bekommst du eine Benachrichtigung.', Extra.markup(createNotifyKeyboard(ctx)))
+const menu = new TelegrafInlineMenu('Wähle die Sensoren aus, bei denen du erinnert werden willst. Wird es draußen wärmer als beim jeweiligen Sensor, bekommst du eine Benachrichtigung.')
+menu.setCommand('notify')
+
+menu.select('position', getIndoorPositions, {
+  columns: 2,
+  multiselect: true,
+  isSetFunc: (ctx, key) => {
+    if (!chats[key]) {
+      return false
+    }
+    return chats[key].indexOf(ctx.chat.id) >= 0
+  },
+  setFunc: (ctx, key) => togglePositionNotify(ctx, key)
 })
 
-function createNotifyKeyboard(ctx) {
-  const chatID = ctx.chat.id
-  const positions = getIndoorPositions()
-  return Markup.inlineKeyboard(positions.map(position => {
-    const hasPositionEnabled = chats[position] && chats[position].indexOf(chatID) >= 0
-    return [
-      Markup.callbackButton(
-        `${format.enabledEmoji(hasPositionEnabled)} ${position}`,
-        `notify:${position}`
-      )
-    ]
-  }))
-}
+bot.use(menu.init({
+  actionCode: 'notify'
+}))
 
-bot.action(/notify:(.+)/, ctx => {
+function togglePositionNotify(ctx, position) {
   const {id} = ctx.chat
-  const position = ctx.match[1]
   try {
     chats = JSON.parse(fs.readFileSync('chats.json', 'utf8'))
   } catch (error) {
@@ -67,8 +68,7 @@ bot.action(/notify:(.+)/, ctx => {
   }
   console.log('chats to notify was changed', chats)
   fs.writeFileSync('chats.json', JSON.stringify(chats, null, 2), 'utf8')
-  return ctx.editMessageReplyMarkup(createNotifyKeyboard(ctx))
-})
+}
 
 const notifyConnectedPositionFunc = {}
 function notifyConnectedWhenNeeded(telegram, position, ...args) {
