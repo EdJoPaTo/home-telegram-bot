@@ -3,13 +3,13 @@ const util = require('util')
 const childProcess = require('child_process')
 
 const Telegraf = require('telegraf')
+const TelegrafInlineMenu = require('telegraf-inline-menu')
 
 const exec = util.promisify(childProcess.exec)
 
 const format = require('../lib/format.js')
 const lastData = require('../lib/last-data.js')
 
-const {Extra, Markup} = Telegraf
 const fsPromises = fs.promises
 
 const DATA_PLOT_DIR = './tmp/'
@@ -60,6 +60,12 @@ function setKeyInArray(arr, key, newState, allKeysOrdered) {
   return allKeysOrdered.filter(o => arr.indexOf(o) >= 0)
 }
 
+function toggleKeyInArray(arr, key, allKeysOrdered) {
+  const currentState = arr.indexOf(key) >= 0
+  const newState = !currentState
+  return setKeyInArray(arr, key, newState, allKeysOrdered)
+}
+
 function defaultSettings() {
   return {
     positions: lastData.getPositions(),
@@ -71,114 +77,60 @@ function defaultSettings() {
   }
 }
 
-const bot = new Telegraf.Composer()
-module.exports = bot
+const menu = new TelegrafInlineMenu('Wie möchtest du deine Graphen haben?')
+menu.setCommand('graph')
 
-function generateKeyboardButtons(ctx) {
-  let buttons = []
-  buttons.push(generateKeyboardTypeButtons(ctx))
-  buttons = buttons.concat(generateKeyboardTimeframeButtons(ctx))
-  generateKeyboardPositionButtons(ctx)
-    .forEach(o => buttons.push([o]))
-
-  const creationNotPossible = isCreationNotPossible(ctx)
-  let text = 'Graph erstellen'
-  if (creationNotPossible) {
-    text = '⚠️ ' + text + ' ⚠️'
+menu.select('type', typeOptions(), {
+  columns: 2,
+  multiselect: true,
+  isSetFunc: (ctx, key) => ctx.session.graph.types.indexOf(key) >= 0,
+  setFunc: (ctx, key) => {
+    const allTypes = Object.keys(format.information)
+    ctx.session.graph.types = toggleKeyInArray(ctx.session.graph.types, key, allTypes)
   }
-  buttons.push([Markup.callbackButton(text, 'g:create')])
-  return buttons
-}
+})
 
-function generateKeyboardTypeButtons(ctx) {
+function typeOptions() {
   const allTypes = Object.keys(format.information)
-  return allTypes.map(o => {
-    const isEnabled = ctx.session.graph.types.indexOf(o) >= 0
-    const {label} = format.information[o]
-
-    return Markup.callbackButton(`${format.enabledEmoji(isEnabled)} ${label}`, `g:t:${o}:${!isEnabled}`)
+  const result = {}
+  allTypes.forEach(type => {
+    result[type] = format.information[type].label
   })
-}
-
-function generateKeyboardPositionButtons(ctx) {
-  const allPositions = lastData.getPositions()
-  return allPositions
-    .map(o => {
-      const isEnabled = ctx.session.graph.positions.indexOf(o) >= 0
-      return Markup.callbackButton(`${format.enabledEmoji(isEnabled)} ${o}`, `g:p:${o}:${!isEnabled}`)
-    })
-}
-
-function generateKeyboardTimeframeButtons(ctx) {
-  const timeframeOptions = ['4h', '12h', '48h', '7d', '28d', 'all']
-  const buttons = timeframeOptions.map(o => {
-    const isEnabled = o === ctx.session.graph.timeframe
-    const text = isEnabled ? `${format.enabledEmoji(true)} ${o}` : o
-    return Markup.callbackButton(text, `g:tf:${o}`)
-  })
-  const result = []
-  for (let i = 0; i < buttons.length; i += 3) {
-    const part = buttons.slice(i, i + 3)
-    result.push(part)
-  }
   return result
 }
 
-bot.command('graph', ctx => {
-  if (!ctx.session.graph) {
-    ctx.session.graph = defaultSettings()
+menu.select('timeframe', ['4h', '12h', '48h', '7d', '28d', 'all'], {
+  columns: 3,
+  isSetFunc: (ctx, key) => key === ctx.session.graph.timeframe,
+  setFunc: (ctx, key) => {
+    ctx.session.graph.timeframe = key
   }
-  const buttons = generateKeyboardButtons(ctx)
-
-  return ctx.reply(
-    'Wie möchtest du deine Graphen haben?',
-    Extra.markup(Markup.inlineKeyboard(buttons))
-  )
 })
 
-bot.action(/g:(\w+):(\w+)(?::(\w+))?/, async (ctx, next) => {
-  // Pre and post handling of settings from inline keyboard
-  if (!ctx.session.graph) {
-    ctx.session.graph = defaultSettings()
+menu.select('positions', lastData.getPositions, {
+  columns: 2,
+  multiselect: true,
+  isSetFunc: (ctx, key) => ctx.session.graph.positions.indexOf(key) >= 0,
+  setFunc: (ctx, key) => {
+    const allPositions = lastData.getPositions()
+    ctx.session.graph.positions = toggleKeyInArray(ctx.session.graph.positions, key, allPositions)
   }
-  await next()
-  const buttons = generateKeyboardButtons(ctx)
-  return Promise.all([
-    ctx.answerCbQuery('done ☺️'),
-    ctx.editMessageReplyMarkup(Markup.inlineKeyboard(buttons))
-  ])
 })
 
-bot.action(/g:t:(\w+):(\w+)/, ctx => {
-  const key = ctx.match[1]
-  const newState = ctx.match[2] === 'true'
-  const allTypes = Object.keys(format.information)
-  ctx.session.graph.types = setKeyInArray(ctx.session.graph.types, key, newState, allTypes)
+menu.simpleButton('Graph erstellen', 'create', {
+  doFunc: ctx => createGraph(ctx),
+  hide: ctx => isCreationNotPossible(ctx)
 })
 
-bot.action(/g:p:(\w+):(\w+)/, ctx => {
-  const key = ctx.match[1]
-  const newState = ctx.match[2] === 'true'
-  const allPositions = lastData.getPositions()
-  ctx.session.graph.positions = setKeyInArray(ctx.session.graph.positions, key, newState, allPositions)
+menu.simpleButton('⚠️ Graph erstellen ⚠️', 'create-hint', {
+  doFunc: ctx => ctx.answerCbQuery(isCreationNotPossible(ctx)),
+  hide: ctx => !isCreationNotPossible(ctx)
 })
 
-bot.action(/g:tf:(\w+)/, ctx => {
-  ctx.session.graph.timeframe = ctx.match[1]
-})
-
-bot.action('g:create', async ctx => {
-  if (!ctx.session.graph) {
-    ctx.session.graph = defaultSettings()
-    await ctx.editMessageReplyMarkup(Markup.inlineKeyboard(generateKeyboardButtons(ctx)))
-    return ctx.answerCbQuery('Ich hab den Faden verloren 🎈. Stimmt alles?')
-  }
-  const creationNotPossible = isCreationNotPossible(ctx)
-  if (creationNotPossible) {
-    return ctx.answerCbQuery(creationNotPossible)
-  }
-  return createGraph(ctx)
-})
+const bot = new Telegraf.Composer()
+bot.use(menu.init({
+  actionCode: 'graph'
+}))
 
 function isCreationNotPossible(ctx) {
   if (!ctx.session.graph) {
@@ -234,4 +186,8 @@ function createGnuplotCommandLine(dir, type, positions, xrange) {
   gnuplotParams.push(`set xrange [${xrange.min}:${xrange.max}]`)
 
   return `nice gnuplot -e "${gnuplotParams.join(';')}" graph.gnuplot`
+}
+
+module.exports = {
+  bot
 }

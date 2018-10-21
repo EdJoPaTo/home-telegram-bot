@@ -59,7 +59,7 @@ client.on('message', (topic, message) => {
 })
 
 bot.use(partCheckSensors)
-bot.use(partGraph)
+bot.use(partGraph.bot)
 bot.use(partNotify.bot)
 bot.use(partStatus)
 
