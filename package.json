@@ -5,13 +5,13 @@
     "node": ">=10"
   },
   "dependencies": {
-    "async-mqtt": "^1.0.1",
+    "async-mqtt": "^2.0.0",
     "debounce-promise": "^3.1.0",
-    "telegraf": "^3.22.1",
+    "telegraf": "^3.24.1",
     "telegraf-session-local": "0.0.6"
   },
   "devDependencies": {
-    "xo": "^0.22.0"
+    "xo": "^0.23.0"
   },
   "scripts": {
     "start": "node index.js",
