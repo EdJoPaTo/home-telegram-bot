@@ -81,10 +81,9 @@ function generateKeyboardButtons(ctx) {
   generateKeyboardPositionButtons(ctx)
     .forEach(o => buttons.push([o]))
 
-  const createNotPossible = !ctx.session.graph.positions || ctx.session.graph.positions.length === 0 ||
-    !ctx.session.graph.types || ctx.session.graph.types.length === 0
+  const creationNotPossible = isCreationNotPossible(ctx)
   let text = 'Graph erstellen'
-  if (createNotPossible) {
+  if (creationNotPossible) {
     text = '⚠️ ' + text + ' ⚠️'
   }
   buttons.push([Markup.callbackButton(text, 'g:create')])
@@ -174,13 +173,27 @@ bot.action('g:create', async ctx => {
     await ctx.editMessageReplyMarkup(Markup.inlineKeyboard(generateKeyboardButtons(ctx)))
     return ctx.answerCbQuery('Ich hab den Faden verloren 🎈. Stimmt alles?')
   }
+  const creationNotPossible = isCreationNotPossible(ctx)
+  if (creationNotPossible) {
+    return ctx.answerCbQuery(creationNotPossible)
+  }
+  return createGraph(ctx)
+})
+
+function isCreationNotPossible(ctx) {
+  if (!ctx.session.graph) {
+    ctx.session.graph = defaultSettings()
+    return 'Ich hab den Faden verloren 🎈. Stimmt alles?'
+  }
   if (!ctx.session.graph.positions || ctx.session.graph.positions.length === 0) {
-    return ctx.answerCbQuery('Ohne gewählte Sensoren kann ich das nicht! 😨')
+    return 'Ohne gewählte Sensoren kann ich das nicht! 😨'
   }
   if (!ctx.session.graph.types || ctx.session.graph.types.length === 0) {
-    return ctx.answerCbQuery('Ohne gewählte Graphenarten kann ich das nicht! 😨')
+    return 'Ohne gewählte Graphenarten kann ich das nicht! 😨'
   }
+}
 
+async function createGraph(ctx) {
   ctx.editMessageText('Die Graphen werden erstellt, habe einen Moment Geduld…')
 
   const {types, positions, timeframe} = ctx.session.graph
@@ -203,7 +216,7 @@ bot.action('g:create', async ctx => {
     fsPromises.rmdir(dir),
     ctx.deleteMessage()
   ])
-})
+}
 
 // Debug
 // console.log('gnuplot commandline:', createGnuplotCommandLine('temp', ['bude', 'bed', 'books', 'rt', 'wt']))
