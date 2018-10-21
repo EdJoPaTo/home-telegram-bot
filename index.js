@@ -37,6 +37,10 @@ client.on('message', (topic, message) => {
   const type = topic.split('/')[4]
   const value = Number(msgStr)
 
+  if (type === 'identify') {
+    return
+  }
+
   partLog.logValue(position, type, time, value)
 
   const newVal = {
