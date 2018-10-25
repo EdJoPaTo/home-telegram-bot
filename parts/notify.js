@@ -105,7 +105,7 @@ function notifyConnectedWhenNeededDebounced(telegram, position, val) {
   } else if (connected === 0) {
     text = 'Das Board ist offline. Tipp: Benutze den Reset Button.'
   } else {
-    text = `#∞!@∆Ω† ${connected}`
+    text = `connection status ${connected}. This is not expected.`
   }
 
   return broadcastToIds(telegram, idsToNotify, textPrefix + text + textSuffix)
