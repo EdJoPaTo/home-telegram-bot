@@ -75,7 +75,7 @@ function notifyConnectedWhenNeeded(telegram, position, ...args) {
   if (!notifyConnectedPositionFunc[position]) {
     notifyConnectedPositionFunc[position] = debounce(
       (...args) => notifyConnectedWhenNeededDebounced(telegram, position, ...args),
-      1000 * 30 // Wait 30 Seconds before possible notification
+      1000 * 60 * 2 // Wait 2 minutes before possible notification
     )
   }
 
