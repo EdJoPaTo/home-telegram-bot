@@ -152,7 +152,20 @@ async function createGraph(ctx) {
 
   const xrange = calculateXRangeFromTimeframe(timeframe)
   const dir = await fsPromises.mkdtemp(DATA_PLOT_DIR)
-  await Promise.all(types.map(o => exec(createGnuplotCommandLine(dir, o, positions, xrange))))
+  await Promise.all(types.map(type => {
+    const values = {}
+    positions.forEach(pos => {
+      values[pos] = lastData.getSensorValue(pos, type).value
+    })
+
+    const orderedPositions = [...positions]
+    orderedPositions.sort((posA, posB) => {
+      const valA = values[posA]
+      const valB = values[posB]
+      return valB - valA
+    })
+    return exec(createGnuplotCommandLine(dir, type, orderedPositions, xrange))
+  }))
 
   ctx.replyWithChatAction('upload_photo')
   if (types.length > 1) {
