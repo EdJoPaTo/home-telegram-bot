@@ -12,7 +12,7 @@ bot.command('status', ctx => {
   const positions = lastData.getPositions()
 
   const allConnectedOk = positions
-    .map(pos => lastData.getAllSensorValues(pos).connected)
+    .map(pos => lastData.getSensorValue(pos, 'connected'))
     .every(connected => connected && connected.value === 2)
 
   const lines = positions.map(position => {
