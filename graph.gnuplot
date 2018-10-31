@@ -9,6 +9,7 @@ set output dir."/".type.".png"
 
 set xlabel "Time (UTC)"
 
+set key outside
 set style line 100 lc rgb "black" lw 1 dashtype 3
 set style line 101 lc rgb "dark-gray" lw 1 dashtype 3
 set grid xtics mxtics ytics linestyle 100, linestyle 101
