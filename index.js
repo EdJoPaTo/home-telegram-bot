@@ -28,11 +28,11 @@ client.on('connect', async () => {
   await client.subscribe('+/status/temp/#')
 })
 
-client.on('message', (topic, message) => {
+client.on('message', (topic, message, packet) => {
   const time = Date.now()
   const msgStr = message.toString()
   // Debug
-  // console.log('incoming message', topic, msgStr)
+  // console.log('incoming message', topic, msgStr, packet)
   const position = topic.split('/')[3]
   const type = topic.split('/')[4]
   const value = Number(msgStr)
@@ -41,13 +41,15 @@ client.on('message', (topic, message) => {
     return
   }
 
-  partLog.logValue(position, type, time, value)
+  if (!packet.retain) {
+    // Do not log when the value is a retained one
+    partLog.logValue(position, type, time, value)
+  }
 
   const newVal = {
     time,
     value
   }
-
   lastData.setSensorValue(position, type, newVal)
 
   if (type === 'temp' && position === TEMP_SENSOR_OUTDOOR) {
