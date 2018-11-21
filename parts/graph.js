@@ -155,7 +155,10 @@ async function createGraph(ctx) {
   await Promise.all(types.map(type => {
     const values = {}
     positions.forEach(pos => {
-      values[pos] = lastData.getSensorValue(pos, type).value
+      const sensorValue = lastData.getSensorValue(pos, type)
+      if (sensorValue) {
+        values[pos] = sensorValue.value
+      }
     })
 
     const orderedPositions = [...positions]
