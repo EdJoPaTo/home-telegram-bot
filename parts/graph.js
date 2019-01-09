@@ -16,6 +16,8 @@ const DATA_PLOT_DIR = './tmp/'
 const DAY_IN_SECONDS = 60 * 60 * 24
 const HOUR_IN_SECONDS = 60 * 60
 
+const XLABEL_AMOUNT = 12
+
 if (!fs.existsSync(DATA_PLOT_DIR)) {
   fs.mkdirSync(DATA_PLOT_DIR)
 }
@@ -32,20 +34,34 @@ function calculateXRangeFromTimeframe(timeframe) {
     return calculateXRangeForHours(hours)
   }
   if (timeframe === 'all') {
-    return {min: '*', max: '*'}
+    return {
+      format: '%b',
+      tics: DAY_IN_SECONDS * 30,
+      mtics: 1,
+      min: '*',
+      max: '*'
+    }
   }
   return calculateXRangeForDays(7)
 }
 
 function calculateXRangeForDays(days) {
+  const daysPerTic = Math.max(1, Math.round(days / XLABEL_AMOUNT))
   return {
+    format: '%d. %b',
+    tics: DAY_IN_SECONDS * daysPerTic,
+    mtics: daysPerTic > 1 ? daysPerTic : 4,
     min: Math.floor((Date.now() / 1000 / DAY_IN_SECONDS) - (days - 1)) * DAY_IN_SECONDS,
-    max: '*'
+    max: Math.ceil(Date.now() / 1000 / DAY_IN_SECONDS) * DAY_IN_SECONDS
   }
 }
 
 function calculateXRangeForHours(hours) {
+  const hoursPerTic = Math.max(1, Math.round(hours / XLABEL_AMOUNT))
   return {
+    format: '%d. %b %H:00',
+    tics: HOUR_IN_SECONDS * hoursPerTic,
+    mtics: hoursPerTic > 1 ? hoursPerTic : 4,
     min: Math.floor((Date.now() / 1000 / HOUR_IN_SECONDS) - (hours - 1)) * HOUR_IN_SECONDS,
     max: Math.ceil(Date.now() / 1000 / HOUR_IN_SECONDS) * HOUR_IN_SECONDS
   }
@@ -200,6 +216,9 @@ function createGnuplotCommandLine(dir, type, positions, xrange) {
   gnuplotParams.push(`type='${type}'`)
 
   gnuplotParams.push(`set xrange [${xrange.min}:${xrange.max}]`)
+  gnuplotParams.push(`set xtics format '${xrange.format}'`)
+  gnuplotParams.push(`set xtics ${xrange.tics}`)
+  gnuplotParams.push(`set mxtics ${xrange.mtics}`)
 
   return `nice gnuplot -e "${gnuplotParams.join(';')}" graph.gnuplot`
 }
