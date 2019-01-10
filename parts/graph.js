@@ -16,7 +16,7 @@ const DATA_PLOT_DIR = './tmp/'
 const DAY_IN_SECONDS = 60 * 60 * 24
 const HOUR_IN_SECONDS = 60 * 60
 
-const XLABEL_AMOUNT = 12
+const XLABEL_AMOUNT = 8
 
 if (!fs.existsSync(DATA_PLOT_DIR)) {
   fs.mkdirSync(DATA_PLOT_DIR)
