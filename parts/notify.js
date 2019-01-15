@@ -9,7 +9,8 @@ const format = require('../lib/format.js')
 
 const {Extra} = Telegraf
 
-const MILLISECONDS_NEEDED_CONSTANT_FOR_CHANGE = 1000 * 60 * 3 // 3 Minutes constantly on right temp in order to notify
+const MILLISECONDS_NEEDED_CONSTANT_FOR_CHANGE = 1000 * 60 * 3 // Time needed to be constantly on right temp in order to notify
+const MILLISECONDS_NEEDED_ON_ERROR_FOR_NOTIFY = 1000 * 60 * 5 // Time needed before the bot notifies about the sensor error
 const TEMP_SENSOR_OUTDOOR = process.env.npm_package_config_temp_sensor_outdoor
 
 let chats = {}
@@ -75,7 +76,7 @@ function notifyConnectedWhenNeeded(telegram, position, ...args) {
   if (!notifyConnectedPositionFunc[position]) {
     notifyConnectedPositionFunc[position] = debounce(
       (...args) => notifyConnectedWhenNeededDebounced(telegram, position, ...args),
-      1000 * 60 * 2 // Wait 2 minutes before possible notification
+      MILLISECONDS_NEEDED_ON_ERROR_FOR_NOTIFY
     )
   }
 
