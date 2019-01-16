@@ -12,7 +12,7 @@
     "telegraf-session-local": "0.0.6"
   },
   "devDependencies": {
-    "xo": "^0.23.0"
+    "xo": "^0.24.0"
   },
   "scripts": {
     "start": "node index.js",

@@ -17,6 +17,7 @@ let chats = {}
 try {
   chats = JSON.parse(fs.readFileSync('chats.json', 'utf8'))
 } catch (error) {}
+
 let hotLocationsDontOpen = []
 const changeInitiated = {}
 
@@ -44,6 +45,7 @@ menu.select('position', getIndoorPositions, {
     if (!chats[key]) {
       return false
     }
+
     return chats[key].indexOf(ctx.chat.id) >= 0
   },
   setFunc: (ctx, key) => togglePositionNotify(ctx, key)
@@ -60,6 +62,7 @@ function togglePositionNotify(ctx, position) {
   } catch (error) {
     chats = {}
   }
+
   if (!chats[position]) {
     chats[position] = [id]
   } else if (chats[position].indexOf(id) < 0) {
@@ -67,6 +70,7 @@ function togglePositionNotify(ctx, position) {
   } else {
     chats[position] = chats[position].filter(i => i !== id)
   }
+
   console.log('chats to notify was changed', chats)
   fs.writeFileSync('chats.json', JSON.stringify(chats, null, 2), 'utf8')
 }
@@ -134,6 +138,7 @@ function notifyTempPositionWhenNeeded(telegram, position, outdoor) {
     // Sensor not yet initialized. Should only happen with retained false sensors
     return
   }
+
   const isClosed = hotLocationsDontOpen.indexOf(position) >= 0
   const idsToNotify = chats[position]
 

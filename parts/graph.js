@@ -30,14 +30,17 @@ function calculateXRangeFromTimeframe(timeframe) {
     const days = match[1]
     return calculateXRangeForDays(days)
   }
+
   if ((match = timeframe.match(/(\d+)h/))) {
     const hours = match[1]
     return calculateXRangeForHours(hours)
   }
+
   if ((match = timeframe.match(/(\d+) ?min/))) {
     const minutes = match[1]
     return calculateXRangeForMinutes(minutes)
   }
+
   if (timeframe === 'all') {
     return {
       format: '%b',
@@ -47,6 +50,7 @@ function calculateXRangeFromTimeframe(timeframe) {
       max: '*'
     }
   }
+
   return calculateXRangeForDays(7)
 }
 
@@ -89,6 +93,7 @@ function setKeyInArray(arr, key, newState, allKeysOrdered) {
   } else {
     arr = arr.filter(o => o !== key)
   }
+
   return allKeysOrdered.filter(o => arr.indexOf(o) >= 0)
 }
 
@@ -169,9 +174,11 @@ function isCreationNotPossible(ctx) {
     ctx.session.graph = defaultSettings()
     return 'Ich hab den Faden verloren 🎈. Stimmt alles?'
   }
+
   if (!ctx.session.graph.positions || ctx.session.graph.positions.length === 0) {
     return 'Ohne gewählte Sensoren kann ich das nicht! 😨'
   }
+
   if (!ctx.session.graph.types || ctx.session.graph.types.length === 0) {
     return 'Ohne gewählte Graphenarten kann ich das nicht! 😨'
   }

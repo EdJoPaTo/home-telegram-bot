@@ -55,6 +55,7 @@ client.on('message', (topic, message, packet) => {
   if (type === 'temp' && position === TEMP_SENSOR_OUTDOOR) {
     partNotify.notifyTempWhenNeeded(bot.telegram)
   }
+
   if (type === 'connected') {
     partNotify.notifyConnectedWhenNeeded(bot.telegram, position, newVal)
   }
@@ -73,6 +74,7 @@ bot.catch(error => {
   if (error.description === 'Bad Request: message is not modified') {
     return
   }
+
   console.error(error)
 })
 

@@ -32,6 +32,7 @@ bot.command('status', ctx => {
       parts += format.connectionStatus(sensorData, {withText: false})
       parts += ' '
     }
+
     parts += `*${position}*`
     parts += ' '
     parts += types.map(type =>
