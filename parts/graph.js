@@ -13,8 +13,9 @@ const lastData = require('../lib/last-data.js')
 const fsPromises = fs.promises
 
 const DATA_PLOT_DIR = './tmp/'
-const DAY_IN_SECONDS = 60 * 60 * 24
-const HOUR_IN_SECONDS = 60 * 60
+const MINUTES_IN_SECONDS = 60
+const HOUR_IN_SECONDS = 60 * MINUTES_IN_SECONDS
+const DAY_IN_SECONDS = 24 * HOUR_IN_SECONDS
 
 const XLABEL_AMOUNT = 8
 
@@ -32,6 +33,10 @@ function calculateXRangeFromTimeframe(timeframe) {
   if ((match = timeframe.match(/(\d+)h/))) {
     const hours = match[1]
     return calculateXRangeForHours(hours)
+  }
+  if ((match = timeframe.match(/(\d+) ?min/))) {
+    const minutes = match[1]
+    return calculateXRangeForMinutes(minutes)
   }
   if (timeframe === 'all') {
     return {
@@ -64,6 +69,17 @@ function calculateXRangeForHours(hours) {
     mtics: hoursPerTic > 1 ? hoursPerTic : 4,
     min: Math.floor((Date.now() / 1000 / HOUR_IN_SECONDS) - (hours - 1)) * HOUR_IN_SECONDS,
     max: Math.ceil(Date.now() / 1000 / HOUR_IN_SECONDS) * HOUR_IN_SECONDS
+  }
+}
+
+function calculateXRangeForMinutes(minutes) {
+  const minutesPerTic = Math.max(1, Math.round(minutes / XLABEL_AMOUNT))
+  return {
+    format: '%d. %b %H:%M',
+    tics: MINUTES_IN_SECONDS * minutesPerTic,
+    mtics: minutesPerTic > 1 ? minutesPerTic : 1,
+    min: Math.floor((Date.now() / 1000 / MINUTES_IN_SECONDS) - (minutes - 1)) * MINUTES_IN_SECONDS,
+    max: Math.ceil(Date.now() / 1000 / MINUTES_IN_SECONDS) * MINUTES_IN_SECONDS
   }
 }
 
@@ -115,8 +131,8 @@ function typeOptions() {
   return result
 }
 
-menu.select('timeframe', ['4h', '12h', '48h', '7d', '28d', 'all'], {
-  columns: 3,
+menu.select('timeframe', ['40min', '4h', '12h', '48h', '7d', '28d', 'all'], {
+  columns: 4,
   isSetFunc: (ctx, key) => key === ctx.session.graph.timeframe,
   setFunc: (ctx, key) => {
     ctx.session.graph.timeframe = key
