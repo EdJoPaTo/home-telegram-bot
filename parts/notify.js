@@ -88,7 +88,7 @@ function notifyConnectedWhenNeeded(telegram, position, ...args) {
 }
 
 function notifyConnectedWhenNeededDebounced(telegram, position, val) {
-  const connected = Number(val.value)
+  const connected = Number(val)
   if (connected === 2) {
     // Everything is ok, sensor is connected
     return

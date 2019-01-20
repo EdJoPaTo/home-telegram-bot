@@ -57,7 +57,7 @@ client.on('message', (topic, message, packet) => {
   }
 
   if (type === 'connected') {
-    partNotify.notifyConnectedWhenNeeded(bot.telegram, position, newVal)
+    partNotify.notifyConnectedWhenNeeded(bot.telegram, position, value)
   }
 })
 
