@@ -46,11 +46,7 @@ client.on('message', (topic, message, packet) => {
     partLog.logValue(position, type, time, value)
   }
 
-  const newVal = {
-    time,
-    value
-  }
-  lastData.setSensorValue(position, type, newVal)
+  lastData.setSensorValue(position, type, time, value)
 
   if (type === 'temp' && position === TEMP_SENSOR_OUTDOOR) {
     partNotify.notifyTempWhenNeeded(bot.telegram)
