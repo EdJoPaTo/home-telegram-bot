@@ -27,18 +27,10 @@ function getIndoorPositions() {
   return lastData.getPositions().filter(o => o !== TEMP_SENSOR_OUTDOOR)
 }
 
-function getAllIdsWithAnyNotification() {
-  const notifyPositions = Object.keys(chats)
-  const merged = [].concat(...notifyPositions.map(pos => chats[pos]))
-  const distinct = [...new Set(merged)]
-
-  return distinct
-}
-
 const menu = new TelegrafInlineMenu('Wähle die Sensoren aus, bei denen du erinnert werden willst. Wird es draußen wärmer als beim jeweiligen Sensor, bekommst du eine Benachrichtigung.')
 menu.setCommand('notify')
 
-menu.select('position', getIndoorPositions, {
+menu.select('position', lastData.getPositions, {
   columns: 2,
   multiselect: true,
   isSetFunc: (ctx, key) => {
@@ -94,12 +86,7 @@ function notifyConnectedWhenNeededDebounced(telegram, position, val) {
     return
   }
 
-  let idsToNotify = []
-  if (position === TEMP_SENSOR_OUTDOOR) {
-    idsToNotify = getAllIdsWithAnyNotification()
-  } else {
-    idsToNotify = chats[position] || []
-  }
+  const idsToNotify = chats[position] || []
 
   const textPrefix = `${format.connectionStatusParts[connected].emoji} *${position}*: `
   let text = ''
