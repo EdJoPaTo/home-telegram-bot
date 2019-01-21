@@ -124,10 +124,9 @@ function notifyTempWhenNeeded(telegram) {
     return
   }
 
-  const notifyPositions = Object.keys(chats)
   const positions = getIndoorPositions()
-    .filter(p => notifyPositions.indexOf(p) >= 0)
-    .filter(p => chats[p].length > 0)
+    // Get positions that have subscribers
+    .filter(p => (chats[p] || []).length > 0)
 
   return Promise.all(positions.map(position => notifyTempPositionWhenNeeded(telegram, position, outdoor)))
 }
