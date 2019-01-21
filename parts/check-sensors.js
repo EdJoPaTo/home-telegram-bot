@@ -30,6 +30,7 @@ bot.command('checksensors', ctx => {
 
     return text
   })
+    .map(o => o.trim())
     .filter(o => o !== '')
 
   const text = entries.join('\n')
