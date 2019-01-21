@@ -37,7 +37,8 @@ client.on('message', (topic, message, packet) => {
   const type = topic.split('/')[4]
   const value = Number(msgStr)
 
-  if (type === 'identify') {
+  if (!msgStr || !isFinite(value)) {
+    console.log('dropping non finite number', topic, msgStr)
     return
   }
 
