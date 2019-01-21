@@ -25,7 +25,8 @@ const client = MQTT.connect(process.env.npm_package_config_mqtt_server)
 
 client.on('connect', async () => {
   console.log('connected to mqtt server')
-  await client.subscribe('+/status/temp/#')
+  await client.subscribe('+/status/#')
+  await client.subscribe('+/connected')
 })
 
 client.on('message', (topic, message, packet) => {
@@ -33,14 +34,19 @@ client.on('message', (topic, message, packet) => {
   const msgStr = message.toString()
   // Debug
   // console.log('incoming message', topic, msgStr, packet)
-  const position = topic.split('/')[3]
-  const type = topic.split('/')[4]
   const value = Number(msgStr)
 
   if (!msgStr || !isFinite(value)) {
     console.log('dropping non finite number', topic, msgStr)
     return
   }
+
+  const topicSplitted = topic.split('/')
+  const type = topicSplitted.slice(-1)[0]
+  const position = topicSplitted
+    .slice(0, topicSplitted.length - 1)
+    .filter((o, i) => i !== 1 || o !== 'status')
+    .join('/')
 
   if (!packet.retain) {
     // Do not log when the value is a retained one

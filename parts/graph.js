@@ -9,6 +9,7 @@ const exec = util.promisify(childProcess.exec)
 
 const format = require('../lib/format.js')
 const lastData = require('../lib/last-data.js')
+const {getWithoutCommonPrefix} = require('../lib/mqtt-topic')
 
 const fsPromises = fs.promises
 
@@ -18,6 +19,7 @@ const HOUR_IN_SECONDS = 60 * MINUTES_IN_SECONDS
 const DAY_IN_SECONDS = 24 * HOUR_IN_SECONDS
 
 const XLABEL_AMOUNT = 8
+const POSITIONS_PER_MENU_PAGE = 10
 
 if (!fs.existsSync(DATA_PLOT_DIR)) {
   fs.mkdirSync(DATA_PLOT_DIR)
@@ -144,13 +146,45 @@ menu.select('timeframe', ['40min', '4h', '12h', '48h', '7d', '28d', 'all'], {
   }
 })
 
-menu.select('positions', lastData.getPositions, {
-  columns: 2,
+function positionsOptions(ctx) {
+  const positions = lastData.getPositions()
+  const page = ctx.session.graph.positionsPage || 0
+  const firstEntry = page * POSITIONS_PER_MENU_PAGE
+  const currentPageEntries = positions.slice(firstEntry, firstEntry + POSITIONS_PER_MENU_PAGE)
+  return currentPageEntries
+}
+
+menu.select('positions', positionsOptions, {
+  columns: 1,
+  maxRows: POSITIONS_PER_MENU_PAGE,
   multiselect: true,
   isSetFunc: (ctx, key) => ctx.session.graph.positions.indexOf(key) >= 0,
   setFunc: (ctx, key) => {
     const allPositions = lastData.getPositions()
     ctx.session.graph.positions = toggleKeyInArray(ctx.session.graph.positions, key, allPositions)
+  }
+})
+
+function possiblePages() {
+  const positions = lastData.getPositions()
+  const result = []
+  const pages = Math.ceil(positions.length / POSITIONS_PER_MENU_PAGE)
+  for (let i = 1; i <= pages; i++) {
+    result.push(i)
+  }
+
+  return result
+}
+
+menu.select('positionPage', possiblePages, {
+  isSetFunc: (ctx, key) => (ctx.session.graph.positionsPage || 0) === Number(key) - 1,
+  setFunc: (ctx, key) => {
+    console.log('set positionsPage', key)
+    ctx.session.graph.positionsPage = Number(key - 1)
+  },
+  hide: (ctx, key) => {
+    console.log('positionsPag hidee', key)
+    return lastData.getPositions().length <= POSITIONS_PER_MENU_PAGE
   }
 })
 
@@ -225,14 +259,13 @@ async function createGraph(ctx) {
   ])
 }
 
-// Debug
-// console.log('gnuplot commandline:', createGnuplotCommandLine('temp', ['bude', 'bed', 'books', 'rt', 'wt']))
 function createGnuplotCommandLine(dir, type, positions, xrange) {
   const typeInformation = format.information[type]
 
   const gnuplotParams = []
   gnuplotParams.push(`dir='${dir}'`)
   gnuplotParams.push(`files='${positions.join(' ')}'`)
+  gnuplotParams.push(`fileLabels='${getWithoutCommonPrefix(positions).join(' ')}'`)
   gnuplotParams.push(`set ylabel '${typeInformation.label}'`)
   const unit = typeInformation.unit.replace('%', '%%')
   gnuplotParams.push(`unit='${unit}'`)

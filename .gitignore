@@ -1,7 +1,10 @@
+.nyc_output
+
+# node
+node_modules
+
+# botfiles
 token.txt
 chats.json
 data/
 tmp/
-
-# node
-node_modules

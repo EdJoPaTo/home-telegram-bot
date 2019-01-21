@@ -31,7 +31,7 @@ const menu = new TelegrafInlineMenu('Wähle die Sensoren aus, bei denen du erinn
 menu.setCommand('notify')
 
 menu.select('position', lastData.getPositions, {
-  columns: 2,
+  columns: 1,
   multiselect: true,
   isSetFunc: (ctx, key) => {
     if (!chats[key]) {

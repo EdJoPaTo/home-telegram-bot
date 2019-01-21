@@ -12,12 +12,17 @@
     "telegraf-session-local": "0.0.6"
   },
   "devDependencies": {
+    "ava": "^1.1.0",
+    "nyc": "^13.1.0",
     "xo": "^0.24.0"
   },
   "scripts": {
+    "ava": "ava",
+    "nyc": "nyc ava",
+    "xo": "xo",
     "start": "node index.js",
-    "test": "xo",
-    "xo": "xo"
+    "pretest": "xo",
+    "test": "nyc ava"
   },
   "config": {
     "mqtt_server": "tcp://etoPiServer:1883",

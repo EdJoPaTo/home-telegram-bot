@@ -16,4 +16,4 @@ set grid xtics mxtics ytics linestyle 100, linestyle 101
 set style data lines
 set ytics format "%1.0f".unit
 
-plot for [i=1:words(files)] "data/".word(files, i)."-".type.".log" using 1:2 title word(files,i) linewidth 2
+plot for [i=1:words(files)] "data/".word(files, i)."/".type.".log" using 1:2 title word(fileLabels,i) linewidth 2
