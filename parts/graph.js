@@ -234,12 +234,12 @@ async function createGraph(ctx) {
       }
     })
 
-    const orderedPositions = [...positions]
-    orderedPositions.sort((posA, posB) => {
-      const valA = values[posA]
-      const valB = values[posB]
-      return valB - valA
-    })
+    const orderedPositions = Object.keys(values)
+      .sort((posA, posB) => {
+        const valA = values[posA]
+        const valB = values[posB]
+        return valB - valA
+      })
     return exec(createGnuplotCommandLine(dir, type, orderedPositions, xrange))
   }))
 
