@@ -199,7 +199,6 @@ function possiblePages(ctx) {
 menu.select('positionPage', possiblePages, {
   isSetFunc: (ctx, key) => (ctx.session.graph.positionsPage || 0) === Number(key) - 1,
   setFunc: (ctx, key) => {
-    console.log('set positionsPage', key)
     ctx.session.graph.positionsPage = Number(key - 1)
   },
   hide: ctx => {
