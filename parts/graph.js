@@ -161,11 +161,18 @@ function getRelevantPositions(ctx) {
 
 function positionsOptions(ctx) {
   const positions = getRelevantPositions(ctx)
+  const displayNames = getWithoutCommonPrefix(positions)
   const maxPage = Math.ceil(positions.length / POSITIONS_PER_MENU_PAGE) - 1
   const page = Math.min(ctx.session.graph.positionsPage || 0, maxPage)
   const firstEntry = page * POSITIONS_PER_MENU_PAGE
   const currentPageEntries = positions.slice(firstEntry, firstEntry + POSITIONS_PER_MENU_PAGE)
-  return currentPageEntries
+
+  const result = {}
+  for (let i = 0; i < currentPageEntries.length; i++) {
+    result[currentPageEntries[i]] = displayNames[firstEntry + i]
+  }
+
+  return result
 }
 
 menu.select('positions', positionsOptions, {
