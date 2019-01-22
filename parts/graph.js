@@ -89,20 +89,20 @@ function calculateXRangeForMinutes(minutes) {
   }
 }
 
-function setKeyInArray(arr, key, newState, allKeysOrdered) {
+function setKeyInArray(arr, key, newState) {
   if (newState) {
     arr.push(key)
   } else {
     arr = arr.filter(o => o !== key)
   }
 
-  return allKeysOrdered.filter(o => arr.indexOf(o) >= 0)
+  return arr
 }
 
-function toggleKeyInArray(arr, key, allKeysOrdered) {
+function toggleKeyInArray(arr, key) {
   const currentState = arr.indexOf(key) >= 0
   const newState = !currentState
-  return setKeyInArray(arr, key, newState, allKeysOrdered)
+  return setKeyInArray(arr, key, newState)
 }
 
 function defaultSettings() {
@@ -124,8 +124,7 @@ menu.select('type', typeOptions(), {
   multiselect: true,
   isSetFunc: (ctx, key) => ctx.session.graph.types.indexOf(key) >= 0,
   setFunc: (ctx, key) => {
-    const allTypes = Object.keys(format.information)
-    ctx.session.graph.types = toggleKeyInArray(ctx.session.graph.types, key, allTypes)
+    ctx.session.graph.types = toggleKeyInArray(ctx.session.graph.types, key)
   }
 })
 
@@ -160,8 +159,7 @@ menu.select('positions', positionsOptions, {
   multiselect: true,
   isSetFunc: (ctx, key) => ctx.session.graph.positions.indexOf(key) >= 0,
   setFunc: (ctx, key) => {
-    const allPositions = lastData.getPositions()
-    ctx.session.graph.positions = toggleKeyInArray(ctx.session.graph.positions, key, allPositions)
+    ctx.session.graph.positions = toggleKeyInArray(ctx.session.graph.positions, key)
   }
 })
 
