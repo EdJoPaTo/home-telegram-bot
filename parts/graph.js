@@ -119,7 +119,7 @@ function defaultSettings() {
 const menu = new TelegrafInlineMenu('Wie möchtest du deine Graphen haben?')
 menu.setCommand('graph')
 
-menu.select('type', typeOptions(), {
+menu.select('type', typeOptions, {
   columns: 2,
   multiselect: true,
   isSetFunc: (ctx, key) => ctx.session.graph.types.indexOf(key) >= 0,
@@ -129,10 +129,10 @@ menu.select('type', typeOptions(), {
 })
 
 function typeOptions() {
-  const allTypes = Object.keys(format.information)
+  const allTypes = lastData.getAllTypes()
   const result = {}
   allTypes.forEach(type => {
-    result[type] = format.information[type].label
+    result[type] = format.information[type] ? format.information[type].label : type
   })
   return result
 }
@@ -283,14 +283,14 @@ async function createGraph(ctx) {
 }
 
 function createGnuplotCommandLine(dir, type, positions, xrange) {
-  const typeInformation = format.information[type]
+  const typeInformation = format.information[type] || {}
 
   const gnuplotParams = []
   gnuplotParams.push(`dir='${dir}'`)
   gnuplotParams.push(`files='${positions.join(' ')}'`)
   gnuplotParams.push(`fileLabels='${getWithoutCommonPrefix(positions).join(' ')}'`)
-  gnuplotParams.push(`set ylabel '${typeInformation.label}'`)
-  const unit = typeInformation.unit.replace('%', '%%')
+  gnuplotParams.push(`set ylabel '${typeInformation.label || type}'`)
+  const unit = (typeInformation.unit || '').replace('%', '%%')
   gnuplotParams.push(`unit='${unit}'`)
   gnuplotParams.push(`type='${type}'`)
 
