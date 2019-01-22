@@ -145,8 +145,22 @@ menu.select('timeframe', ['40min', '4h', '12h', '48h', '7d', '28d', 'all'], {
   }
 })
 
+function getRelevantPositions(ctx) {
+  const selectedTypes = ctx.session.graph.types
+  if (selectedTypes.length === 0) {
+    return []
+  }
+
+  return lastData.getPositions(pos => {
+    const typesOfPos = Object.keys(pos)
+    const posHasRequiredType = selectedTypes
+      .every(t => typesOfPos.indexOf(t) >= 0)
+    return posHasRequiredType
+  })
+}
+
 function positionsOptions(ctx) {
-  const positions = lastData.getPositions()
+  const positions = getRelevantPositions(ctx)
   const page = ctx.session.graph.positionsPage || 0
   const firstEntry = page * POSITIONS_PER_MENU_PAGE
   const currentPageEntries = positions.slice(firstEntry, firstEntry + POSITIONS_PER_MENU_PAGE)
@@ -163,8 +177,8 @@ menu.select('positions', positionsOptions, {
   }
 })
 
-function possiblePages() {
-  const positions = lastData.getPositions()
+function possiblePages(ctx) {
+  const positions = getRelevantPositions(ctx)
   const result = []
   const pages = Math.ceil(positions.length / POSITIONS_PER_MENU_PAGE)
   for (let i = 1; i <= pages; i++) {
@@ -180,9 +194,8 @@ menu.select('positionPage', possiblePages, {
     console.log('set positionsPage', key)
     ctx.session.graph.positionsPage = Number(key - 1)
   },
-  hide: (ctx, key) => {
-    console.log('positionsPag hidee', key)
-    return lastData.getPositions().length <= POSITIONS_PER_MENU_PAGE
+  hide: ctx => {
+    return getRelevantPositions(ctx).length <= POSITIONS_PER_MENU_PAGE
   }
 })
 
@@ -207,12 +220,16 @@ function isCreationNotPossible(ctx) {
     return 'Ich hab den Faden verloren 🎈. Stimmt alles?'
   }
 
-  if (!ctx.session.graph.positions || ctx.session.graph.positions.length === 0) {
-    return 'Ohne gewählte Sensoren kann ich das nicht! 😨'
+  if ((ctx.session.graph.types || []).length === 0) {
+    return 'Ohne gewählte Datentypen kann ich das nicht! 😨'
   }
 
-  if (!ctx.session.graph.types || ctx.session.graph.types.length === 0) {
-    return 'Ohne gewählte Graphenarten kann ich das nicht! 😨'
+  const availablePositions = getRelevantPositions(ctx)
+  const selectedPositions = (ctx.session.graph.positions || [])
+    .filter(o => availablePositions.indexOf(o) >= 0)
+
+  if (selectedPositions.length === 0) {
+    return 'Ohne gewählte Sensoren kann ich das nicht! 😨'
   }
 }
 
