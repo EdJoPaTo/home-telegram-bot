@@ -66,6 +66,29 @@ client.on('message', (topic, message, packet) => {
   }
 })
 
+if (config.telegramUserWhitelist.length > 0) {
+  bot.use((ctx, next) => {
+    const isWhitelisted = config.telegramUserWhitelist.indexOf(ctx.from.id) >= 0
+    if (isWhitelisted) {
+      return next()
+    }
+
+    let text = `Hey ${ctx.from.first_name}!`
+    text += '\n'
+    text += 'Looks like you are not approved to use this bot.'
+
+    text += '\n\n'
+    text += 'Forward this message to the owner of the bot if you think you should be approved.'
+    text += '\n'
+    text += 'Your Telegram user id: '
+    text += '`'
+    text += ctx.from.id
+    text += '`'
+
+    ctx.replyWithMarkdown(text)
+  })
+}
+
 bot.use(partCheckSensors)
 bot.use(partGraph.bot)
 bot.use(partNotify.bot)
