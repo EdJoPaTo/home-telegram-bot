@@ -1,9 +1,9 @@
-const fs = require('fs')
 const MQTT = require('async-mqtt')
 const Telegraf = require('telegraf')
 const LocalSession = require('telegraf-session-local')
 
 const lastData = require('./lib/last-data.js')
+const {loadConfig} = require('./lib/config')
 
 const partCheckSensors = require('./parts/check-sensors.js')
 const partGraph = require('./parts/graph.js')
@@ -13,20 +13,22 @@ const partStatus = require('./parts/status.js')
 
 const TEMP_SENSOR_OUTDOOR = process.env.npm_package_config_temp_sensor_outdoor
 
-const token = fs.readFileSync(process.env.npm_package_config_tokenpath, 'utf8').trim()
-const bot = new Telegraf(token)
+const config = loadConfig()
+
+const bot = new Telegraf(config.telegramBotToken)
 bot.use(new LocalSession({
   getSessionKey: ctx => ctx.from.id,
   database: './tmp/sessions.json'
 }))
 
-console.log(`MQTT connecting to ${process.env.npm_package_config_mqtt_server}`)
-const client = MQTT.connect(process.env.npm_package_config_mqtt_server)
+console.log(`MQTT connecting to ${config.mqttServer}`)
+const client = MQTT.connect(config.mqttServer)
 
 client.on('connect', async () => {
   console.log('connected to mqtt server')
-  await client.subscribe('+/status/#')
-  await client.subscribe('+/connected')
+  await Promise.all(
+    config.mqttTopics.map(topic => client.subscribe(topic))
+  )
 })
 
 client.on('message', (topic, message, packet) => {

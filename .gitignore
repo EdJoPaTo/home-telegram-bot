@@ -4,7 +4,7 @@
 node_modules
 
 # botfiles
-token.txt
+config.json
 chats.json
 data/
 tmp/

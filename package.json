@@ -26,9 +26,7 @@
     "test": "nyc ava"
   },
   "config": {
-    "mqtt_server": "tcp://etoPiServer:1883",
-    "temp_sensor_outdoor": "bude",
-    "tokenpath": "token.txt"
+    "temp_sensor_outdoor": "bude"
   },
   "xo": {
     "space": true,
