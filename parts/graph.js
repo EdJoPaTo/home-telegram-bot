@@ -232,6 +232,11 @@ function isCreationNotPossible(ctx) {
   }
 
   const availablePositions = getRelevantPositions(ctx)
+
+  if (availablePositions.length === 0) {
+    return 'Kein Sensor kann alle gewählten Datentypen! 😨'
+  }
+
   const selectedPositions = (ctx.session.graph.positions || [])
     .filter(o => availablePositions.indexOf(o) >= 0)
 
