@@ -9,7 +9,7 @@ const exec = util.promisify(childProcess.exec)
 
 const format = require('../lib/format.js')
 const lastData = require('../lib/last-data.js')
-const {getWithoutCommonPrefix} = require('../lib/mqtt-topic')
+const {getCommonPrefix, getWithoutCommonPrefix} = require('../lib/mqtt-topic')
 
 const fsPromises = fs.promises
 
@@ -137,13 +137,15 @@ function typeOptions() {
   return result
 }
 
-menu.select('timeframe', ['40min', '4h', '12h', '48h', '7d', '28d', 'all'], {
-  columns: 4,
-  isSetFunc: (ctx, key) => key === ctx.session.graph.timeframe,
-  setFunc: (ctx, key) => {
-    ctx.session.graph.timeframe = key
-  }
-})
+menu.submenu(ctx => '🕑 ' + ctx.session.graph.timeframe, 'timeframe', new TelegrafInlineMenu('Welchen Zeitbereich soll der Graph zeigen?'))
+  .select('t', ['40min', '4h', '12h', '48h', '7d', '28d', 'all'], {
+    columns: 2,
+    setParentMenuAfter: true,
+    isSetFunc: (ctx, key) => key === ctx.session.graph.timeframe,
+    setFunc: (ctx, key) => {
+      ctx.session.graph.timeframe = key
+    }
+  })
 
 function getRelevantPositions(ctx) {
   const selectedTypes = ctx.session.graph.types
@@ -175,7 +177,48 @@ function positionsOptions(ctx) {
   return result
 }
 
-menu.select('positions', positionsOptions, {
+function positionsButtonText(ctx) {
+  const relevantPositions = getRelevantPositions(ctx)
+  const selectedPositions = ctx.session.graph.positions
+    .filter(o => relevantPositions.indexOf(o) >= 0)
+
+  let text = ''
+  if (selectedPositions.length === 0 && relevantPositions.length > 0) {
+    text += '⚠️'
+  } else {
+    text += '📡'
+  }
+
+  text += ' '
+  text += `${selectedPositions.length} / ${relevantPositions.length}`
+  return text
+}
+
+function positionsText(ctx) {
+  let text = 'Welche Daten soll der Graph zeigen?'
+  text += '\n\n'
+
+  const relevantPositions = getRelevantPositions(ctx)
+  const commonPrefix = getCommonPrefix(relevantPositions)
+  const selectedPositions = ctx.session.graph.positions
+    .filter(o => relevantPositions.indexOf(o) >= 0)
+    .map(o => o.slice(commonPrefix.length))
+    .sort()
+
+  if (selectedPositions.length > 0) {
+    text += '*Datenquellen*\n'
+    text += selectedPositions
+      .join('\n')
+  }
+
+  return text
+}
+
+const positionsMenu = new TelegrafInlineMenu(positionsText)
+
+menu.submenu(positionsButtonText, 'pos', positionsMenu)
+
+positionsMenu.select('p', positionsOptions, {
   columns: 1,
   maxRows: POSITIONS_PER_MENU_PAGE,
   multiselect: true,
@@ -196,7 +239,7 @@ function possiblePages(ctx) {
   return result
 }
 
-menu.select('positionPage', possiblePages, {
+positionsMenu.select('positionPage', possiblePages, {
   isSetFunc: (ctx, key) => (ctx.session.graph.positionsPage || 0) === Number(key) - 1,
   setFunc: (ctx, key) => {
     ctx.session.graph.positionsPage = Number(key - 1)
@@ -218,6 +261,7 @@ menu.simpleButton('⚠️ Graph erstellen ⚠️', 'create-hint', {
 
 const bot = new Telegraf.Composer()
 bot.use(menu.init({
+  backButtonText: '🔙 zurück…',
   actionCode: 'graph'
 }))
 
