@@ -3,6 +3,7 @@ const Telegraf = require('telegraf')
 const LocalSession = require('telegraf-session-local')
 
 const data = require('./lib/data.js')
+const notify = require('./lib/notify')
 const {loadConfig} = require('./lib/config')
 
 const partConnected = require('./parts/connected')
@@ -19,6 +20,8 @@ bot.use(new LocalSession({
   getSessionKey: ctx => ctx.from.id,
   database: './persistent/sessions.json'
 }))
+
+notify.init(bot.telegram)
 
 console.log(`MQTT connecting to ${config.mqttServer}`)
 const client = MQTT.connect(config.mqttServer)
@@ -54,6 +57,7 @@ client.on('message', (topic, message, packet) => {
     // The retained value is an old one the MQTT broker still knows about
     data.setLastValue(position, type, undefined, value)
   } else {
+    notify.check(position, type, value)
     // Not retained -> new value
     data.logValue(position, type, time, value)
   }
