@@ -4,7 +4,6 @@
 node_modules
 
 # botfiles
-config.json
 chats.json
 data/
 persistent/
