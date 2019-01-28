@@ -107,7 +107,7 @@ function toggleKeyInArray(arr, key) {
 
 function defaultSettings() {
   return {
-    positions: data.getPositions(),
+    positions: [],
     types: [
       'temp',
       'hum'
