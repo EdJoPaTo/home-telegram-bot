@@ -4,7 +4,6 @@ const data = require('../lib/data')
 const format = require('../lib/format.js')
 
 const bot = new Telegraf.Composer()
-module.exports = bot
 
 bot.command('status', ctx => {
   const positions = data.getPositions()
@@ -35,3 +34,7 @@ bot.command('status', ctx => {
   const text = lines.join('\n')
   return ctx.replyWithMarkdown(text)
 })
+
+module.exports = {
+  bot
+}

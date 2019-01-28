@@ -91,7 +91,7 @@ if (config.telegramUserWhitelist.length > 0) {
 
 bot.use(partGraph.bot)
 bot.use(partNotify.bot)
-bot.use(partStatus)
+bot.use(partStatus.bot)
 
 bot.command('start', ctx => {
   ctx.reply(`Hi ${ctx.from.first_name}!\n\nWenn du den Status der aktuellen Sensoren sehen willst, nutze /status oder /graph.\nWenn du eine Benachrichtigung haben möchtest, wenn es draußen wärmer wird als drinnen, nutze /notify.`)
