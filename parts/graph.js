@@ -137,7 +137,7 @@ function typeOptions() {
   return result
 }
 
-menu.submenu(ctx => '🕑 ' + ctx.session.graph.timeframe, 'timeframe', new TelegrafInlineMenu('Welchen Zeitbereich soll der Graph zeigen?'))
+menu.submenu(ctx => '🕑 ' + (ctx.session.graph || defaultSettings()).timeframe, 'timeframe', new TelegrafInlineMenu('Welchen Zeitbereich soll der Graph zeigen?'))
   .select('t', ['40min', '4h', '12h', '48h', '7d', '28d', 'all'], {
     columns: 2,
     setParentMenuAfter: true,
@@ -148,7 +148,7 @@ menu.submenu(ctx => '🕑 ' + ctx.session.graph.timeframe, 'timeframe', new Tele
   })
 
 function getRelevantPositions(ctx) {
-  const selectedTypes = ctx.session.graph.types
+  const selectedTypes = (ctx.session.graph || defaultSettings()).types
   if (selectedTypes.length === 0) {
     return []
   }
@@ -179,7 +179,7 @@ function positionsOptions(ctx) {
 
 function positionsButtonText(ctx) {
   const relevantPositions = getRelevantPositions(ctx)
-  const selectedPositions = ctx.session.graph.positions
+  const selectedPositions = (ctx.session.graph || defaultSettings()).positions
     .filter(o => relevantPositions.indexOf(o) >= 0)
 
   let text = ''
