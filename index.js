@@ -51,7 +51,7 @@ client.on('message', (topic, message, packet) => {
 
   if (packet.retain) {
     // The retained value is an old one the MQTT broker still knows about
-    data.setLastValue(position, type, time, value)
+    data.setLastValue(position, type, undefined, value)
   } else {
     // Not retained -> new value
     data.logValue(position, type, time, value)
