@@ -143,6 +143,20 @@ addMenu.submenu(ctx => positionButtonText((ctx.session.notify || {}).compareTo),
     }
   })
 
+const stableSecondsOptions = {
+  0: 'instant',
+  60: '1 min',
+  300: '5 min'
+}
+
+addMenu.select('stableSeconds', stableSecondsOptions, {
+  hide: ctx => !(ctx.session.notify || {}).type,
+  isSetFunc: (ctx, key) => (ctx.session.notify || {}).stableSeconds === Number(key),
+  setFunc: (ctx, key) => {
+    ctx.session.notify.stableSeconds = Number(key)
+  }
+})
+
 addMenu.button('Erstellen', 'addRule', {
   setParentMenuAfter: true,
   hide: ctx => {
