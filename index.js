@@ -11,8 +11,6 @@ const partGraph = require('./parts/graph.js')
 const partNotify = require('./parts/notify.js')
 const partStatus = require('./parts/status.js')
 
-const TEMP_SENSOR_OUTDOOR = process.env.npm_package_config_temp_sensor_outdoor
-
 const config = loadConfig()
 
 const bot = new Telegraf(config.telegramBotToken)
@@ -60,14 +58,6 @@ client.on('message', (topic, message, packet) => {
     notify.check(position, type, value)
     // Not retained -> new value
     data.logValue(position, type, time, value)
-  }
-
-  if (type === 'temp' && position === TEMP_SENSOR_OUTDOOR) {
-    partNotify.notifyTempWhenNeeded(bot.telegram)
-  }
-
-  if (type === 'connected') {
-    partNotify.notifyConnectedWhenNeeded(bot.telegram, position, value)
   }
 })
 

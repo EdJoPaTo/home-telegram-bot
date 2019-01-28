@@ -25,9 +25,6 @@
     "pretest": "xo",
     "test": "nyc ava"
   },
-  "config": {
-    "temp_sensor_outdoor": "bude"
-  },
   "xo": {
     "space": true,
     "semicolon": false
