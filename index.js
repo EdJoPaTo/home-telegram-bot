@@ -5,6 +5,7 @@ const LocalSession = require('telegraf-session-local')
 const data = require('./lib/data.js')
 const {loadConfig} = require('./lib/config')
 
+const partConnected = require('./parts/connected')
 const partGraph = require('./parts/graph.js')
 const partNotify = require('./parts/notify.js')
 const partStatus = require('./parts/status.js')
@@ -89,6 +90,7 @@ if (config.telegramUserWhitelist.length > 0) {
   })
 }
 
+bot.use(partConnected.bot)
 bot.use(partGraph.bot)
 bot.use(partNotify.bot)
 bot.use(partStatus.bot)
