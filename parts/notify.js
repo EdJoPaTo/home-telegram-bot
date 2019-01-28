@@ -9,7 +9,25 @@ const {DEFAULT_RULE, CHANGE_TYPES} = notifyRules
 
 const bot = new Telegraf.Composer()
 
-const menu = new TelegrafInlineMenu('Wähle die Sensoren aus, bei denen du erinnert werden willst. Wird es draußen wärmer als beim jeweiligen Sensor, bekommst du eine Benachrichtigung.')
+function notifyOverviewText(ctx) {
+  let text = '*Benachrichtigungen*\n'
+
+  text += 'Du kannst benachrichtigt werden, wenn Geräte bestimmte Bedinungen erfüllen.'
+
+  const rules = notifyRules.getByChat(ctx.chat.id)
+  if (rules.length > 0) {
+    text += '\n\n'
+    text += '*Deine Regeln*\n'
+    text += rules
+      .map(o => notifyRules.asString(o))
+      .sort()
+      .join('\n')
+  }
+
+  return text
+}
+
+const menu = new TelegrafInlineMenu(notifyOverviewText)
 menu.setCommand('notify')
 
 const addMenu = menu.submenu('Regel hinzufügen…', 'add', new TelegrafInlineMenu('Spezifiziere die Regel…'))
