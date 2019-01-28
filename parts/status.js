@@ -13,6 +13,10 @@ bot.command('status', ctx => {
     const types = data.getTypesOfPosition(position)
       .filter(o => o !== 'connected')
 
+    if (types.length === 0) {
+      return ''
+    }
+
     let parts = ''
     const connected = data.getLastValue(position, 'connected') || {}
     parts += format.connectionStatusEmoji(connected.value)
@@ -26,6 +30,7 @@ bot.command('status', ctx => {
 
     return parts
   })
+    .filter(o => o)
 
   const text = lines.join('\n')
   return ctx.replyWithMarkdown(text)
