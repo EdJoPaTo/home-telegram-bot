@@ -11,10 +11,6 @@ module.exports = bot
 bot.command('status', ctx => {
   const positions = lastData.getPositions()
 
-  const allConnectedOk = positions
-    .map(pos => lastData.getSensorValue(pos, 'connected'))
-    .every(connected => connected && connected.value === 2)
-
   const lines = positions.map(position => {
     const sensorData = lastData.getAllSensorValues(position)
     const types = Object.keys(sensorData)
@@ -28,17 +24,13 @@ bot.command('status', ctx => {
     }
 
     let parts = ''
-    if (!allConnectedOk) {
-      parts += format.connectionStatus(sensorData, {withText: false})
-      parts += ' '
-    }
+    parts += format.connectionStatus(sensorData, {withText: false})
+    parts += ' '
 
     parts += `*${position}*`
     parts += ' '
     parts += types.map(type =>
-      format.basedOnAge(sensorData[type].time, Date.now(), type,
-        format.typeValue(type, sensorData[type].value)
-      )
+      format.typeValue(type, sensorData[type].value)
     ).join(', ')
 
     return parts
