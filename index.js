@@ -29,6 +29,7 @@ client.on('connect', async () => {
   await Promise.all(
     config.mqttTopics.map(topic => client.subscribe(topic))
   )
+  console.log('subscribed to topics', config.mqttTopics)
 })
 
 client.on('message', (topic, message, packet) => {
