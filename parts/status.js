@@ -1,27 +1,27 @@
 const Telegraf = require('telegraf')
 
+const data = require('../lib/data')
 const format = require('../lib/format.js')
-const lastData = require('../lib/last-data.js')
 
 const bot = new Telegraf.Composer()
 module.exports = bot
 
 bot.command('status', ctx => {
-  const positions = lastData.getPositions()
+  const positions = data.getPositions()
 
   const lines = positions.map(position => {
-    const sensorData = lastData.getAllSensorValues(position)
-    const types = Object.keys(sensorData)
+    const types = data.getTypesOfPosition(position)
       .filter(o => o !== 'connected')
 
     let parts = ''
-    parts += format.connectionStatus(sensorData, {withText: false})
+    const connected = data.getLastValue(position, 'connected') || {}
+    parts += format.connectionStatusEmoji(connected.value)
     parts += ' '
 
     parts += `*${position}*`
     parts += ' '
     parts += types.map(type =>
-      format.typeValue(type, sensorData[type].value)
+      format.typeValue(type, data.getLastValue(position, type).value)
     ).join(', ')
 
     return parts

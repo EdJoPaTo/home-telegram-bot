@@ -7,8 +7,8 @@ const TelegrafInlineMenu = require('telegraf-inline-menu')
 
 const exec = util.promisify(childProcess.exec)
 
+const data = require('../lib/data')
 const format = require('../lib/format.js')
-const lastData = require('../lib/last-data.js')
 const {getCommonPrefix, getWithoutCommonPrefix} = require('../lib/mqtt-topic')
 
 const fsPromises = fs.promises
@@ -107,7 +107,7 @@ function toggleKeyInArray(arr, key) {
 
 function defaultSettings() {
   return {
-    positions: lastData.getPositions(),
+    positions: data.getPositions(),
     types: [
       'temp',
       'hum'
@@ -129,7 +129,7 @@ menu.select('type', typeOptions, {
 })
 
 function typeOptions() {
-  const allTypes = lastData.getAllTypes()
+  const allTypes = data.getTypes()
   const result = {}
   allTypes.forEach(type => {
     result[type] = format.information[type] ? format.information[type].label : type
@@ -153,7 +153,7 @@ function getRelevantPositions(ctx) {
     return []
   }
 
-  return lastData.getPositions(pos => {
+  return data.getPositions(pos => {
     const typesOfPos = Object.keys(pos)
     const posHasRequiredType = selectedTypes
       .every(t => typesOfPos.indexOf(t) >= 0)
@@ -299,7 +299,7 @@ async function createGraph(ctx) {
   await Promise.all(types.map(type => {
     const values = {}
     positions.forEach(pos => {
-      const sensorValue = lastData.getSensorValue(pos, type)
+      const sensorValue = data.getLastValue(pos, type)
       if (sensorValue) {
         values[pos] = sensorValue.value
       }

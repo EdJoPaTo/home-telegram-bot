@@ -2,11 +2,10 @@ const MQTT = require('async-mqtt')
 const Telegraf = require('telegraf')
 const LocalSession = require('telegraf-session-local')
 
-const lastData = require('./lib/last-data.js')
+const data = require('./lib/data.js')
 const {loadConfig} = require('./lib/config')
 
 const partGraph = require('./parts/graph.js')
-const partLog = require('./parts/log.js')
 const partNotify = require('./parts/notify.js')
 const partStatus = require('./parts/status.js')
 
@@ -50,12 +49,13 @@ client.on('message', (topic, message, packet) => {
     .filter((o, i) => i !== 1 || o !== 'status')
     .join('/')
 
-  if (!packet.retain) {
-    // Do not log when the value is a retained one
-    partLog.logValue(position, type, time, value)
+  if (packet.retain) {
+    // The retained value is an old one the MQTT broker still knows about
+    data.setLastValue(position, type, time, value)
+  } else {
+    // Not retained -> new value
+    data.logValue(position, type, time, value)
   }
-
-  lastData.setSensorValue(position, type, time, value)
 
   if (type === 'temp' && position === TEMP_SENSOR_OUTDOOR) {
     partNotify.notifyTempWhenNeeded(bot.telegram)

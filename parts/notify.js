@@ -4,7 +4,7 @@ const debounce = require('debounce-promise')
 const Telegraf = require('telegraf')
 const TelegrafInlineMenu = require('telegraf-inline-menu')
 
-const lastData = require('../lib/last-data.js')
+const data = require('../lib/data')
 const format = require('../lib/format.js')
 
 const {Extra} = Telegraf
@@ -24,13 +24,13 @@ const changeInitiated = {}
 const bot = new Telegraf.Composer()
 
 function getIndoorPositions() {
-  return lastData.getPositions().filter(o => o !== TEMP_SENSOR_OUTDOOR)
+  return data.getPositions().filter(o => o !== TEMP_SENSOR_OUTDOOR)
 }
 
 const menu = new TelegrafInlineMenu('Wähle die Sensoren aus, bei denen du erinnert werden willst. Wird es draußen wärmer als beim jeweiligen Sensor, bekommst du eine Benachrichtigung.')
 menu.setCommand('notify')
 
-menu.select('position', lastData.getPositions, {
+menu.select('position', () => data.getPositions(), {
   columns: 1,
   multiselect: true,
   isSetFunc: (ctx, key) => {
@@ -104,7 +104,7 @@ function notifyConnectedWhenNeededDebounced(telegram, position, val) {
 }
 
 function notifyTempWhenNeeded(telegram) {
-  const outdoor = lastData.getSensorValue(TEMP_SENSOR_OUTDOOR, 'temp')
+  const outdoor = data.getLastValue(TEMP_SENSOR_OUTDOOR, 'temp')
 
   if (!outdoor) {
     console.log('notifyTempWhenNeeded is still waiting for init')
@@ -119,7 +119,7 @@ function notifyTempWhenNeeded(telegram) {
 }
 
 function notifyTempPositionWhenNeeded(telegram, position, outdoor) {
-  const indoor = lastData.getSensorValue(position, 'temp')
+  const indoor = data.getLastValue(position, 'temp')
   if (!indoor) {
     // Sensor not yet initialized. Should only happen with retained false sensors
     return
