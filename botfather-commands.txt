@@ -1,0 +1,4 @@
+status - betrachte den aktuellen Status der Temperatur Sensoren
+graph - sende Graphen der Sensordaten
+checksensors - überprüfe die Aktualität der Sensoren
+notify - ändere zu welchen Sensoren du benachrichtigt werden willst
