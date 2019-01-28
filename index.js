@@ -5,7 +5,6 @@ const LocalSession = require('telegraf-session-local')
 const lastData = require('./lib/last-data.js')
 const {loadConfig} = require('./lib/config')
 
-const partCheckSensors = require('./parts/check-sensors.js')
 const partGraph = require('./parts/graph.js')
 const partLog = require('./parts/log.js')
 const partNotify = require('./parts/notify.js')
@@ -90,7 +89,6 @@ if (config.telegramUserWhitelist.length > 0) {
   })
 }
 
-bot.use(partCheckSensors)
 bot.use(partGraph.bot)
 bot.use(partNotify.bot)
 bot.use(partStatus)
