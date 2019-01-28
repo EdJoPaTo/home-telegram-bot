@@ -17,8 +17,8 @@ bot.command('status', ctx => {
     }
 
     let parts = ''
-    const connected = data.getLastValue(position, 'connected') || {}
-    parts += format.connectionStatusEmoji(connected.value)
+    const connected = data.getLastValue(position, 'connected')
+    parts += format.connectionStatus(connected && connected.value).emoji
     parts += ' '
 
     parts += `*${position}*`

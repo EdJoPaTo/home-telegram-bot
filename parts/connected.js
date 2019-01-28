@@ -12,10 +12,10 @@ bot.command('connected', ctx => {
     const connected = data.getLastValue(position, 'connected')
 
     const parts = []
-    parts.push(format.connectionStatusParts[connected.value].emoji)
+    parts.push(format.connectionStatus(connected.value).emoji)
     parts.push(`*${position}*`)
     if (connected.value !== 2) {
-      parts.push(format.connectionStatusParts[connected.value].text)
+      parts.push(format.connectionStatus(connected.value).text)
     }
 
     if (connected.time) {
