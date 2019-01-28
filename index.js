@@ -17,7 +17,7 @@ const config = loadConfig()
 const bot = new Telegraf(config.telegramBotToken)
 bot.use(new LocalSession({
   getSessionKey: ctx => ctx.from.id,
-  database: './tmp/sessions.json'
+  database: './persistent/sessions.json'
 }))
 
 console.log(`MQTT connecting to ${config.mqttServer}`)
