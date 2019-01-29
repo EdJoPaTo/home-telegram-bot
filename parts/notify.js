@@ -115,24 +115,7 @@ addMenu.select('change', CHANGE_TYPES, {
       ctx.session.notify.change = []
     }
 
-    const isEnabled = ctx.session.notify.change.indexOf(key) >= 0
-
-    // Don't select unequal and rising/falling together
-    if (key === 'unequal') {
-      if (isEnabled) {
-        ctx.session.notify.change = ['rising', 'falling']
-      } else {
-        ctx.session.notify.change = ['unequal']
-      }
-
-      return
-    }
-
-    // No unequal pressed -> filter it out
-    ctx.session.notify.change = ctx.session.notify.change
-      .filter(o => o !== 'unequal')
-
-    if (isEnabled) {
+    if (ctx.session.notify.change.indexOf(key) >= 0) {
       ctx.session.notify.change = ctx.session.notify.change
         .filter(o => o !== key)
     } else {
@@ -140,7 +123,11 @@ addMenu.select('change', CHANGE_TYPES, {
     }
 
     if (ctx.session.notify.change.length === 0) {
-      ctx.session.notify.change = ['unequal']
+      if (key === 'unequal') {
+        ctx.session.notify.change = ['rising', 'falling']
+      } else {
+        ctx.session.notify.change = ['unequal']
+      }
     }
   }
 })
