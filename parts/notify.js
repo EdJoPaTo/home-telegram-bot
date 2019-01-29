@@ -4,6 +4,7 @@ const TelegrafInlineMenu = require('telegraf-inline-menu')
 const data = require('../lib/data')
 const format = require('../lib/format.js')
 const notifyRules = require('../lib/notify-rules')
+const {toggleKeyInArray} = require('../lib/array-helper')
 
 const {DEFAULT_RULE, CHANGE_TYPES} = notifyRules
 
@@ -111,16 +112,7 @@ addMenu.select('change', CHANGE_TYPES, {
   hide: ctx => !(ctx.session.notify || {}).type,
   isSetFunc: (ctx, key) => ((ctx.session.notify || {}).change || []).indexOf(key) >= 0,
   setFunc: (ctx, key) => {
-    if (!ctx.session.notify.change) {
-      ctx.session.notify.change = []
-    }
-
-    if (ctx.session.notify.change.indexOf(key) >= 0) {
-      ctx.session.notify.change = ctx.session.notify.change
-        .filter(o => o !== key)
-    } else {
-      ctx.session.notify.change.push(key)
-    }
+    ctx.session.notify.change = toggleKeyInArray(ctx.session.notify.change || [], key)
 
     if (ctx.session.notify.change.length === 0) {
       if (key === 'unequal') {

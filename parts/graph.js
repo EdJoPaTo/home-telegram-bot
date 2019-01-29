@@ -10,6 +10,7 @@ const exec = util.promisify(childProcess.exec)
 const data = require('../lib/data')
 const format = require('../lib/format.js')
 const {getCommonPrefix, getWithoutCommonPrefix} = require('../lib/mqtt-topic')
+const {toggleKeyInArray} = require('../lib/array-helper')
 
 const fsPromises = fs.promises
 
@@ -87,22 +88,6 @@ function calculateXRangeForMinutes(minutes) {
     min: Math.floor((Date.now() / 1000 / MINUTES_IN_SECONDS) - (minutes - 1)) * MINUTES_IN_SECONDS,
     max: Math.ceil(Date.now() / 1000 / MINUTES_IN_SECONDS) * MINUTES_IN_SECONDS
   }
-}
-
-function setKeyInArray(arr, key, newState) {
-  if (newState) {
-    arr.push(key)
-  } else {
-    arr = arr.filter(o => o !== key)
-  }
-
-  return arr
-}
-
-function toggleKeyInArray(arr, key) {
-  const currentState = arr.indexOf(key) >= 0
-  const newState = !currentState
-  return setKeyInArray(arr, key, newState)
 }
 
 function defaultSettings() {
