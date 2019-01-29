@@ -3,11 +3,42 @@
 [![Build Status](https://travis-ci.org/EdJoPaTo/home-telegram-bot.svg?branch=master)](https://travis-ci.org/EdJoPaTo/home-telegram-bot)
 [![Dependency Status](https://david-dm.org/edjopato/home-telegram-bot/status.svg)](https://david-dm.org/edjopato/home-telegram-bot)
 [![Dependency Status](https://david-dm.org/edjopato/home-telegram-bot/dev-status.svg)](https://david-dm.org/edjopato/home-telegram-bot?type=dev)
+[![mqtt-smarthome](https://img.shields.io/badge/mqtt-smarthome-blue.svg)](https://github.com/mqtt-smarthome/mqtt-smarthome)
 
 This is a Telegram Bot for a home environment based on [mqtt-smarthome](https://github.com/mqtt-smarthome/mqtt-smarthome).
-Currently it's only made for read only reading of numeric values.
+Currently it's only made for read-only reading of numeric values.
 
 As Telegram Bot Framework [telegraf](https://github.com/telegraf/telegraf) is used.
+
+## Features
+
+### Graph
+
+Users can plot dynamic graphs of the history sensor values.
+Plotting is made with [gnuplot](http://gnuplot.info/)
+
+### Notifications
+
+This bot can notify about numeric changes on topics.
+An example could be to be notified about temperature changes or unresponsive devices via a [Connection Status Topic](https://github.com/mqtt-smarthome/mqtt-smarthome/blob/master/Architecture.md#connected-status).
+
+---
+
+# Installation
+
+This was tested on a Raspberry Pi with Raspbian.
+NodeJS is already installed.
+
+* Clone this repositiory to a position you like.
+* modify `home-telegram-bot.service` to fit your needs
+  * `User` and `Group` are propably `pi` and `pi`
+  * `WorkingDirectory` is your repositiory directory. Use the full path (see `pwd`).
+* Call the `install.sh`
+* Install `gnuplot`
+  * Debian / Raspbian: `sudo apt install gnuplot`
+* Start the bot with `npm start`. The bot will stop and tell you, it created a `config.json`. Adapt it to your needs. See <a href="#config">Config</a>.
+* When everything is ready start the bot with systemd: `sudo systemctl start home-telegram-bot.service`
+  * When the bot shall start on system bootup run: `sudo systemctl enable home-telegram-bot.service`
 
 ## Config
 
@@ -36,20 +67,13 @@ Wildcards are supported.
 ### Telegram Bot Token
 
 Go to the [BotFather](https://t.me/botfather) and create your telegram bot account.
-He will provide you with a token you have to place in here
+He will provide you with a token you have to place in here.
+
+Also give the BotFather the commands the bot shall show.
+A list for Copy & Paste is in `botfather-commands.txt`.
 
 ### Telegram User Whitelist
 
 The userids of telegram users have to be specified in here.
 Everyone can use the bot when it is empty.
 You can add a random number, start the bot and write to the bot.
-
-## Notifications
-
-This bot can notify about temperature changing.
-When the temperature of the (currently there is only one possible) outdoor sensor gets higher or lower than an indoor sensor the specific user gets notified.
-
-## Graph
-
-Users can plot dynamic graphs of the history sensor values.
-Plotting is made with [gnuplot](http://gnuplot.info/)
