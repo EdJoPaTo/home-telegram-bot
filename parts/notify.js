@@ -57,7 +57,7 @@ addMenu.submenu(ctx => positionButtonText((ctx.session.notify || {}).position), 
 
 function selectTypeButtonText(ctx) {
   const {type} = ctx.session.notify || {}
-  const prefix = '🌡 '
+  const prefix = '📐 '
   if (!type) {
     return prefix + 'Typ'
   }
