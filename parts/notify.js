@@ -9,19 +9,31 @@ const {DEFAULT_RULE, CHANGE_TYPES} = notifyRules
 
 const bot = new Telegraf.Composer()
 
+function myRuleList(ctx) {
+  const rules = notifyRules.getByChat(ctx.chat.id)
+  if (rules.length === 0) {
+    return
+  }
+
+  let text = ''
+  text += '*Deine Regeln*\n'
+  text += rules
+    .map(o => notifyRules.asString(o))
+    .sort()
+    .join('\n')
+
+  return text
+}
+
 function notifyOverviewText(ctx) {
   let text = '*Benachrichtigungen*\n'
 
   text += 'Du kannst benachrichtigt werden, wenn Geräte bestimmte Bedinungen erfüllen.'
 
-  const rules = notifyRules.getByChat(ctx.chat.id)
-  if (rules.length > 0) {
+  const ruleList = myRuleList(ctx)
+  if (ruleList) {
     text += '\n\n'
-    text += '*Deine Regeln*\n'
-    text += rules
-      .map(o => notifyRules.asString(o))
-      .sort()
-      .join('\n')
+    text += ruleList
   }
 
   return text
@@ -225,6 +237,41 @@ addMenu.button('Erstellen', 'addRule', {
     })
     delete ctx.session.notify
     return ctx.answerCbQuery('👍')
+  }
+})
+
+function removeMenuText(ctx) {
+  let text = 'Welche Regel möchtest du entfernen?'
+
+  const ruleList = myRuleList(ctx)
+  if (ruleList) {
+    text += '\n\n'
+    text += ruleList
+  }
+
+  return text
+}
+
+const removeMenu = menu.submenu('Regel entfernen…', 'r', new TelegrafInlineMenu(removeMenuText), {
+  hide: ctx => notifyRules.getByChat(ctx.chat.id).length === 0
+})
+
+function removeOptions(ctx) {
+  const rules = notifyRules.getByChat(ctx.chat.id)
+  const result = {}
+  for (let i = 0; i < rules.length; i++) {
+    result[i] = notifyRules.asString(rules[i])
+  }
+
+  return result
+}
+
+removeMenu.select('r', removeOptions, {
+  columns: 1,
+  setFunc: (ctx, key) => {
+    const rules = notifyRules.getByChat(ctx.chat.id)
+    const ruleToRemove = rules[Number(key)]
+    notifyRules.remove(ruleToRemove)
   }
 })
 
