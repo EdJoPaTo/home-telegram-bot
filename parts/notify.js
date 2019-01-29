@@ -135,14 +135,24 @@ function possibleCompareToSensors(ctx) {
     .filter(o => o !== position)
 }
 
-addMenu.question(ctx => '🔢 ' + Number((ctx.session.notify || {}).compareTo), 'cv', {
+function compareToValueButtonText(ctx) {
+  const prefix = '🔢 '
+  const {type, compareTo} = ctx.session.notify || {}
+  const formatted = format.typeValue(type, Number(compareTo))
+  return prefix + formatted
+}
+
+addMenu.question(compareToValueButtonText, 'cv', {
   questionText: 'Mit welchem Wert soll verglichen werden?',
   hide: ctx => {
     const {type, compare} = ctx.session.notify || {}
     return !type || compare !== 'value'
   },
   setFunc: (ctx, answer) => {
-    ctx.session.notify.compareTo = Number(answer)
+    const justDigits = answer
+      .replace(/[^\d+,.]/g, '')
+      .replace(',', '.')
+    ctx.session.notify.compareTo = Number(justDigits)
   }
 })
 
