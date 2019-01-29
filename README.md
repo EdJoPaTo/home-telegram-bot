@@ -21,6 +21,7 @@ Edit it to fit your needs.
     "+/connected",
     "+/status/#"
   ],
+  "name": "home-telegram-bot",
   "telegramBotToken": "123:abc",
   "telegramUserWhitelist": []
 }

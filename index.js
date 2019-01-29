@@ -21,11 +21,20 @@ bot.use(new LocalSession({
 
 notify.init(bot.telegram)
 
-console.log(`MQTT connecting to ${config.mqttServer}`)
-const client = MQTT.connect(config.mqttServer)
+const mqttRetain = process.env.NODE_ENV === 'production'
+const mqttOptions = {
+  will: {
+    topic: `${config.name}/connected`,
+    payload: '0',
+    retain: mqttRetain
+  }
+}
+console.log('MQTT connecting to', config.mqttServer, mqttOptions)
+const client = MQTT.connect(config.mqttServer, mqttOptions)
 
 client.on('connect', async () => {
   console.log('connected to mqtt server')
+  await client.publish(`${config.name}/connected`, '2', {retain: mqttRetain})
   await Promise.all(
     config.mqttTopics.map(topic => client.subscribe(topic))
   )
