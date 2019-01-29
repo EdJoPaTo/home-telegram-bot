@@ -219,19 +219,7 @@ addMenu.button('Erstellen', 'addRule', {
   }
 })
 
-function removeMenuText(ctx) {
-  let text = 'Welche Regel möchtest du entfernen?'
-
-  const ruleList = myRuleList(ctx)
-  if (ruleList) {
-    text += '\n\n'
-    text += ruleList
-  }
-
-  return text
-}
-
-const removeMenu = menu.submenu('Regel entfernen…', 'r', new TelegrafInlineMenu(removeMenuText), {
+const removeMenu = menu.submenu('Regel entfernen…', 'r', new TelegrafInlineMenu('Welche Regel möchtest du entfernen?'), {
   hide: ctx => notifyRules.getByChat(ctx.chat.id).length === 0
 })
 
