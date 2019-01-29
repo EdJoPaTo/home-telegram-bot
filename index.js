@@ -3,14 +3,13 @@ const Telegraf = require('telegraf')
 const LocalSession = require('telegraf-session-local')
 
 const data = require('./lib/data.js')
+const notify = require('./lib/notify')
 const {loadConfig} = require('./lib/config')
 
 const partConnected = require('./parts/connected')
 const partGraph = require('./parts/graph.js')
 const partNotify = require('./parts/notify.js')
 const partStatus = require('./parts/status.js')
-
-const TEMP_SENSOR_OUTDOOR = process.env.npm_package_config_temp_sensor_outdoor
 
 const config = loadConfig()
 
@@ -19,6 +18,8 @@ bot.use(new LocalSession({
   getSessionKey: ctx => ctx.from.id,
   database: './persistent/sessions.json'
 }))
+
+notify.init(bot.telegram)
 
 console.log(`MQTT connecting to ${config.mqttServer}`)
 const client = MQTT.connect(config.mqttServer)
@@ -54,16 +55,9 @@ client.on('message', (topic, message, packet) => {
     // The retained value is an old one the MQTT broker still knows about
     data.setLastValue(position, type, undefined, value)
   } else {
+    notify.check(position, type, value)
     // Not retained -> new value
     data.logValue(position, type, time, value)
-  }
-
-  if (type === 'temp' && position === TEMP_SENSOR_OUTDOOR) {
-    partNotify.notifyTempWhenNeeded(bot.telegram)
-  }
-
-  if (type === 'connected') {
-    partNotify.notifyConnectedWhenNeeded(bot.telegram, position, value)
   }
 })
 
