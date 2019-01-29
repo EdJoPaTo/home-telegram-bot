@@ -19,7 +19,7 @@ function myRuleList(ctx) {
   let text = ''
   text += '*Deine Regeln*\n'
   text += rules
-    .map(o => notifyRules.asString(o))
+    .map(o => notifyRules.asString(o, true))
     .sort()
     .join('\n')
 
