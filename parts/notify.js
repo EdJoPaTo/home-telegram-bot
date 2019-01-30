@@ -154,9 +154,10 @@ addMenu.question(compareToValueButtonText, 'cv', {
   },
   setFunc: (ctx, answer) => {
     const justDigits = answer
-      .replace(/[^\d+,.]/g, '')
+      .replace(/[^\d,.-]/g, '')
       .replace(',', '.')
-    ctx.session.notify.compareTo = Number(justDigits)
+    const number = Number(justDigits)
+    ctx.session.notify.compareTo = isFinite(number) ? number : 42
   }
 })
 
