@@ -1,5 +1,15 @@
 {
+  "name": "home-telegram-bot",
   "private": true,
+  "version": "0.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EdJoPaTo/home-telegram-bot.git"
+  },
+  "bugs": {
+    "url": "https://github.com/EdJoPaTo/home-telegram-bot/issues"
+  },
+  "homepage": "https://github.com/EdJoPaTo/home-telegram-bot#readme",
   "main": "index.js",
   "engines": {
     "node": ">=11"
