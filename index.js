@@ -53,6 +53,11 @@ client.on('message', (topic, message, packet) => {
     return
   }
 
+  if (packet.retain && topic === `${config.name}/connected`) {
+    // Thats my own, old/retained connectionStatus. Ignore it.
+    return
+  }
+
   const topicSplitted = topic.split('/')
   const type = topicSplitted.slice(-1)[0]
   const position = topicSplitted
