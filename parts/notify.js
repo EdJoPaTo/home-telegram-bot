@@ -142,7 +142,8 @@ function possibleCompareToSensors(ctx) {
 function compareToValueButtonText(ctx) {
   const prefix = '🔢 '
   const {type, compareTo} = ctx.session.notify || {}
-  const formatted = format.typeValue(type, Number(compareTo))
+  const number = Number(compareTo) || 42
+  const formatted = format.typeValue(type, number)
   return prefix + formatted
 }
 
