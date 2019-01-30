@@ -124,7 +124,7 @@ addMenu.select('change', CHANGE_TYPES, {
   }
 })
 
-addMenu.select('compare', {value: 'Wert', position: 'Position'}, {
+addMenu.select('compare', {value: '🔢 Wert', position: '📡 Position'}, {
   hide: ctx => !(ctx.session.notify || {}).type,
   isSetFunc: (ctx, key) => (ctx.session.notify || {}).compare === key,
   setFunc: (ctx, key) => {
