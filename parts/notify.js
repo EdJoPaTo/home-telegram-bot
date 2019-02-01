@@ -142,7 +142,7 @@ function possibleCompareToSensors(ctx) {
 function compareToValueButtonText(ctx) {
   const prefix = '🔢 '
   const {type, compareTo} = ctx.session.notify || {}
-  const number = Number(compareTo) || 42
+  const number = isFinite(compareTo) ? Number(compareTo) : 42
   const formatted = format.typeValue(type, number)
   return prefix + formatted
 }
@@ -157,8 +157,7 @@ addMenu.question(compareToValueButtonText, 'cv', {
     const justDigits = answer
       .replace(/[^\d,.-]/g, '')
       .replace(',', '.')
-    const number = Number(justDigits)
-    ctx.session.notify.compareTo = isFinite(number) ? number : 42
+    ctx.session.notify.compareTo = isFinite(justDigits) ? Number(justDigits) : 42
   }
 })
 
