@@ -65,6 +65,10 @@ addMenu.submenu(ctx => positionButtonText((ctx.session.notify || {}).position), 
         ...DEFAULT_RULE,
         position: key
       }
+    },
+    getCurrentPage: ctx => ctx.session.page,
+    setPage: (ctx, page) => {
+      ctx.session.page = page
     }
   })
 
@@ -173,6 +177,10 @@ addMenu.submenu(ctx => positionButtonText((ctx.session.notify || {}).compareTo),
     isSetFunc: (ctx, key) => (ctx.session.notify || {}).compareTo === key,
     setFunc: (ctx, key) => {
       ctx.session.notify.compareTo = key
+    },
+    getCurrentPage: ctx => ctx.session.page,
+    setPage: (ctx, page) => {
+      ctx.session.page = page
     }
   })
 
@@ -240,6 +248,10 @@ removeMenu.select('r', removeOptions, {
     const rules = notifyRules.getByChat(ctx.chat.id)
     const ruleToRemove = rules[Number(key)]
     notifyRules.remove(ruleToRemove)
+  },
+  getCurrentPage: ctx => ctx.session.page,
+  setPage: (ctx, page) => {
+    ctx.session.page = page
   }
 })
 

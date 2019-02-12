@@ -149,14 +149,10 @@ function getRelevantPositions(ctx) {
 function positionsOptions(ctx) {
   const positions = getRelevantPositions(ctx)
   const displayNames = getWithoutCommonPrefix(positions)
-  const maxPage = Math.ceil(positions.length / POSITIONS_PER_MENU_PAGE) - 1
-  const page = Math.min(ctx.session.graph.positionsPage || 0, maxPage)
-  const firstEntry = page * POSITIONS_PER_MENU_PAGE
-  const currentPageEntries = positions.slice(firstEntry, firstEntry + POSITIONS_PER_MENU_PAGE)
 
   const result = {}
-  for (let i = 0; i < currentPageEntries.length; i++) {
-    result[currentPageEntries[i]] = displayNames[firstEntry + i]
+  for (let i = 0; i < positions.length; i++) {
+    result[positions[i]] = displayNames[i]
   }
 
   return result
@@ -210,27 +206,10 @@ positionsMenu.select('p', positionsOptions, {
   isSetFunc: (ctx, key) => ctx.session.graph.positions.indexOf(key) >= 0,
   setFunc: (ctx, key) => {
     ctx.session.graph.positions = toggleKeyInArray(ctx.session.graph.positions, key)
-  }
-})
-
-function possiblePages(ctx) {
-  const positions = getRelevantPositions(ctx)
-  const result = []
-  const pages = Math.ceil(positions.length / POSITIONS_PER_MENU_PAGE)
-  for (let i = 1; i <= pages; i++) {
-    result.push(i)
-  }
-
-  return result
-}
-
-positionsMenu.select('positionPage', possiblePages, {
-  isSetFunc: (ctx, key) => (ctx.session.graph.positionsPage || 0) === Number(key) - 1,
-  setFunc: (ctx, key) => {
-    ctx.session.graph.positionsPage = Number(key - 1)
   },
-  hide: ctx => {
-    return getRelevantPositions(ctx).length <= POSITIONS_PER_MENU_PAGE
+  getCurrentPage: ctx => ctx.session.graph.positionsPage,
+  setPage: (ctx, page) => {
+    ctx.session.graph.positionsPage = page
   }
 })
 
