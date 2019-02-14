@@ -48,7 +48,7 @@ client.on('message', (topic, message, packet) => {
   // console.log('incoming message', topic, msgStr, packet)
   const value = Number(msgStr)
 
-  if (!msgStr || !isFinite(value)) {
+  if (!msgStr || !Number.isFinite(value)) {
     console.log('dropping non finite number', topic, msgStr)
     return
   }

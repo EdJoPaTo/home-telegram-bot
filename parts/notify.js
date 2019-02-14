@@ -146,7 +146,7 @@ function possibleCompareToSensors(ctx) {
 function compareToValueButtonText(ctx) {
   const prefix = '🔢 '
   const {type, compareTo} = ctx.session.notify || {}
-  const number = isFinite(compareTo) ? Number(compareTo) : 42
+  const number = Number.isFinite(compareTo) ? Number(compareTo) : 42
   const formatted = format.typeValue(type, number)
   return prefix + formatted
 }
@@ -161,7 +161,7 @@ addMenu.question(compareToValueButtonText, 'cv', {
     const justDigits = answer
       .replace(/[^\d,.-]/g, '')
       .replace(',', '.')
-    ctx.session.notify.compareTo = isFinite(justDigits) ? Number(justDigits) : 42
+    ctx.session.notify.compareTo = Number.isFinite(justDigits) ? Number(justDigits) : 42
   }
 })
 
@@ -208,7 +208,7 @@ addMenu.button('Erstellen', 'addRule', {
 
     if (compare === 'value') {
       const number = Number(compareTo)
-      return !isFinite(number)
+      return !Number.isFinite(number)
     }
 
     if (!compareTo) {
