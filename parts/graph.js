@@ -1,93 +1,35 @@
-const fs = require('fs')
-const util = require('util')
-const childProcess = require('child_process')
-
 const Telegraf = require('telegraf')
 const TelegrafInlineMenu = require('telegraf-inline-menu')
-
-const exec = util.promisify(childProcess.exec)
 
 const data = require('../lib/data')
 const format = require('../lib/format.js')
 const {getCommonPrefix, getWithoutCommonPrefix} = require('../lib/mqtt-topic')
 const {toggleKeyInArray} = require('../lib/array-helper')
 
-const fsPromises = fs.promises
+const Graph = require('../lib/graph')
 
-const DATA_PLOT_DIR = './tmp/'
 const MINUTES_IN_SECONDS = 60
 const HOUR_IN_SECONDS = 60 * MINUTES_IN_SECONDS
 const DAY_IN_SECONDS = 24 * HOUR_IN_SECONDS
 
-const XLABEL_AMOUNT = 8
 const POSITIONS_PER_MENU_PAGE = 10
 
-if (!fs.existsSync(DATA_PLOT_DIR)) {
-  fs.mkdirSync(DATA_PLOT_DIR)
-}
+function calculateSecondsFromTimeframeString(timeframe) {
+  const match = timeframe.match(/(\d+) ?(\w+)/)
 
-function calculateXRangeFromTimeframe(timeframe) {
-  let match
-
-  if ((match = timeframe.match(/(\d+)d/))) {
-    const days = match[1]
-    return calculateXRangeForDays(days)
+  if (match[2] === 'min') {
+    return Number(match[1]) * MINUTES_IN_SECONDS
   }
 
-  if ((match = timeframe.match(/(\d+)h/))) {
-    const hours = match[1]
-    return calculateXRangeForHours(hours)
+  if (match[2] === 'h') {
+    return Number(match[1]) * HOUR_IN_SECONDS
   }
 
-  if ((match = timeframe.match(/(\d+) ?min/))) {
-    const minutes = match[1]
-    return calculateXRangeForMinutes(minutes)
+  if (match[2] === 'd') {
+    return Number(match[1]) * DAY_IN_SECONDS
   }
 
-  if (timeframe === 'all') {
-    return {
-      format: '%b',
-      tics: DAY_IN_SECONDS * 30,
-      mtics: 1,
-      min: '*',
-      max: '*'
-    }
-  }
-
-  return calculateXRangeForDays(7)
-}
-
-function calculateXRangeForDays(days) {
-  const daysPerTic = Math.max(1, Math.round(days / XLABEL_AMOUNT))
-  return {
-    format: '%d. %b',
-    tics: DAY_IN_SECONDS * daysPerTic,
-    mtics: daysPerTic > 1 ? daysPerTic : 4,
-    min: Math.floor((Date.now() / 1000 / DAY_IN_SECONDS) - (days - 1)) * DAY_IN_SECONDS,
-    max: Math.ceil(Date.now() / 1000 / DAY_IN_SECONDS) * DAY_IN_SECONDS
-  }
-}
-
-function calculateXRangeForHours(hours) {
-  const hoursPerTic = Math.max(1, Math.round(hours / XLABEL_AMOUNT))
-  return {
-    format: '%d. %b %H:00',
-    tics: HOUR_IN_SECONDS * hoursPerTic,
-    mtics: hoursPerTic > 1 ? hoursPerTic : 4,
-    min: Math.floor((Date.now() / 1000 / HOUR_IN_SECONDS) - (hours - 1)) * HOUR_IN_SECONDS,
-    max: Math.ceil(Date.now() / 1000 / HOUR_IN_SECONDS) * HOUR_IN_SECONDS
-  }
-}
-
-function calculateXRangeForMinutes(minutes) {
-  const minutesPerTic = Math.max(1, Math.round(minutes / XLABEL_AMOUNT))
-  return {
-    format: '%d. %b %H:%M',
-    tics: MINUTES_IN_SECONDS * minutesPerTic,
-    mtics: minutesPerTic > 1 ? minutesPerTic : 1,
-    min: Math.floor((Date.now() / 1000 / MINUTES_IN_SECONDS) - (minutes - 1)) * MINUTES_IN_SECONDS,
-    max: Math.ceil(Date.now() / 1000 / MINUTES_IN_SECONDS) * MINUTES_IN_SECONDS
-  }
+  return 7 * DAY_IN_SECONDS
 }
 
 function defaultSettings() {
@@ -123,7 +65,7 @@ function typeOptions() {
 }
 
 menu.submenu(ctx => '🕑 ' + (ctx.session.graph || defaultSettings()).timeframe, 'timeframe', new TelegrafInlineMenu('Welchen Zeitbereich soll der Graph zeigen?'))
-  .select('t', ['40min', '4h', '12h', '48h', '7d', '28d', 'all'], {
+  .select('t', ['40min', '4h', '12h', '48h', '7d', '28d', '90d'], {
     columns: 2,
     setParentMenuAfter: true,
     isSetFunc: (ctx, key) => key === ctx.session.graph.timeframe,
@@ -259,59 +201,34 @@ async function createGraph(ctx) {
 
   const {types, positions, timeframe} = ctx.session.graph
 
-  const xrange = calculateXRangeFromTimeframe(timeframe)
-  const dir = await fsPromises.mkdtemp(DATA_PLOT_DIR)
-  await Promise.all(types.map(type => {
-    const values = {}
-    positions.forEach(pos => {
-      const sensorValue = data.getLastValue(pos, type)
-      if (sensorValue) {
-        values[pos] = sensorValue.value
-      }
-    })
+  const graphs = []
 
-    const orderedPositions = Object.keys(values)
-      .sort((posA, posB) => {
-        const valA = values[posA]
-        const valB = values[posB]
-        return valB - valA
-      })
-    return exec(createGnuplotCommandLine(dir, type, orderedPositions, xrange))
-  }))
+  for (const t of types) {
+    const g = new Graph(t)
+    for (const p of positions) {
+      g.addSeries(p)
+    }
 
-  ctx.replyWithChatAction('upload_photo')
-  if (types.length > 1) {
-    const mediaArr = types.map(o => ({media: {source: `${dir}/${o}.png`}, type: 'photo'}))
-    await ctx.replyWithMediaGroup(mediaArr)
-  } else {
-    await ctx.replyWithPhoto({source: `${dir}/${types[0]}.png`})
+    graphs.push(g)
   }
 
-  await Promise.all(types.map(o => fsPromises.unlink(`${dir}/${o}.png`)))
+  const timeframeInSeconds = calculateSecondsFromTimeframeString(timeframe)
+  const files = await Promise.all(
+    graphs.map(g => g.create(timeframeInSeconds * 1000))
+  )
+
+  ctx.replyWithChatAction('upload_photo')
+  if (files.length > 1) {
+    const mediaArr = files.map(o => ({media: {source: o}, type: 'photo'}))
+    await ctx.replyWithMediaGroup(mediaArr)
+  } else {
+    await ctx.replyWithPhoto({source: files[0]})
+  }
+
   return Promise.all([
-    fsPromises.rmdir(dir),
+    ...graphs.map(g => g.cleanup()),
     ctx.deleteMessage()
   ])
-}
-
-function createGnuplotCommandLine(dir, type, positions, xrange) {
-  const typeInformation = format.information[type] || {}
-
-  const gnuplotParams = []
-  gnuplotParams.push(`dir='${dir}'`)
-  gnuplotParams.push(`files='${positions.join(' ')}'`)
-  gnuplotParams.push(`fileLabels='${getWithoutCommonPrefix(positions).join(' ')}'`)
-  gnuplotParams.push(`set ylabel '${typeInformation.label || type}'`)
-  const unit = (typeInformation.unit || '').replace('%', '%%')
-  gnuplotParams.push(`unit='${unit}'`)
-  gnuplotParams.push(`type='${type}'`)
-
-  gnuplotParams.push(`set xrange [${xrange.min}:${xrange.max}]`)
-  gnuplotParams.push(`set xtics format '${xrange.format}'`)
-  gnuplotParams.push(`set xtics ${xrange.tics}`)
-  gnuplotParams.push(`set mxtics ${xrange.mtics}`)
-
-  return `nice gnuplot -e "${gnuplotParams.join(';')}" graph.gnuplot`
 }
 
 module.exports = {
