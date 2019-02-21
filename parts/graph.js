@@ -254,6 +254,7 @@ function isCreationNotPossible(ctx) {
 }
 
 async function createGraph(ctx) {
+  ctx.answerCbQuery()
   ctx.editMessageText('Die Graphen werden erstellt, habe einen Moment Geduld…')
 
   const {types, positions, timeframe} = ctx.session.graph
@@ -288,7 +289,6 @@ async function createGraph(ctx) {
 
   await Promise.all(types.map(o => fsPromises.unlink(`${dir}/${o}.png`)))
   return Promise.all([
-    ctx.answerCbQuery(),
     fsPromises.rmdir(dir),
     ctx.deleteMessage()
   ])
