@@ -15,7 +15,8 @@ As Telegram Bot Framework [telegraf](https://github.com/telegraf/telegraf) is us
 ### Graph
 
 Users can plot dynamic graphs of the history sensor values.
-Plotting is made with [gnuplot](http://gnuplot.info/)
+Plotting is made with [d3](https://d3js.org/).
+As Telegram sadly does not support SVG [Inkscape](https://inkscape.org/) is used to create images to send via Telegram.
 
 ### Notifications
 
@@ -34,8 +35,8 @@ NodeJS is already installed.
   * `User` and `Group` are propably `pi` and `pi`
   * `WorkingDirectory` is your repositiory directory. Use the full path (see `pwd`).
 * Call the `install.sh`
-* Install `gnuplot`
-  * Debian / Raspbian: `sudo apt install gnuplot`
+* Install `inkscape`
+  * Debian / Raspbian: `sudo apt install inkscape`
 * Start the bot with `npm start`. The bot will stop and tell you, it created a `config.json`. Adapt it to your needs. See <a href="#config">Config</a>.
 * When everything is ready start the bot with systemd: `sudo systemctl start home-telegram-bot.service`
   * When the bot shall start on system bootup run: `sudo systemctl enable home-telegram-bot.service`
