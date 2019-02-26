@@ -161,7 +161,7 @@ addMenu.question(compareToValueButtonText, 'cv', {
     const justDigits = answer
       .replace(/[^\d,.-]/g, '')
       .replace(',', '.')
-    ctx.session.notify.compareTo = Number.isFinite(justDigits) ? Number(justDigits) : 42
+    ctx.session.notify.compareTo = isFinite(justDigits) ? Number(justDigits) : 42
   }
 })
 
