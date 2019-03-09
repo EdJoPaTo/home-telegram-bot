@@ -200,12 +200,15 @@ async function createGraph(ctx) {
   ctx.editMessageText('Die Graphen werden erstellt, habe einen Moment Geduld…')
 
   const {types, positions, timeframe} = ctx.session.graph
+
   const timeframeInSeconds = calculateSecondsFromTimeframeString(timeframe)
+  const minDate = Date.now() - (timeframeInSeconds * 1000)
+  const minUnixTimestamp = minDate / 1000
 
   const graphs = []
 
   for (const t of types) {
-    const g = new Graph(t, timeframeInSeconds * 1000)
+    const g = new Graph(t, minUnixTimestamp)
     for (const p of positions) {
       g.addSeries(p)
     }
