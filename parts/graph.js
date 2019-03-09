@@ -200,11 +200,12 @@ async function createGraph(ctx) {
   ctx.editMessageText('Die Graphen werden erstellt, habe einen Moment Geduld…')
 
   const {types, positions, timeframe} = ctx.session.graph
+  const timeframeInSeconds = calculateSecondsFromTimeframeString(timeframe)
 
   const graphs = []
 
   for (const t of types) {
-    const g = new Graph(t)
+    const g = new Graph(t, timeframeInSeconds * 1000)
     for (const p of positions) {
       g.addSeries(p)
     }
@@ -212,9 +213,8 @@ async function createGraph(ctx) {
     graphs.push(g)
   }
 
-  const timeframeInSeconds = calculateSecondsFromTimeframeString(timeframe)
   const files = await Promise.all(
-    graphs.map(g => g.create(timeframeInSeconds * 1000))
+    graphs.map(g => g.create())
   )
 
   ctx.replyWithChatAction('upload_photo')
