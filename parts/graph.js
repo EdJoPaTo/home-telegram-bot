@@ -216,22 +216,19 @@ async function createGraph(ctx) {
     graphs.push(g)
   }
 
-  const files = await Promise.all(
+  const pngBuffers = await Promise.all(
     graphs.map(g => g.create())
   )
 
   ctx.replyWithChatAction('upload_photo')
-  if (files.length > 1) {
-    const mediaArr = files.map(o => ({media: {source: o}, type: 'photo'}))
+  if (pngBuffers.length > 1) {
+    const mediaArr = pngBuffers.map(o => ({media: {source: o}, type: 'photo'}))
     await ctx.replyWithMediaGroup(mediaArr)
   } else {
-    await ctx.replyWithPhoto({source: files[0]})
+    await ctx.replyWithPhoto({source: pngBuffers[0]})
   }
 
-  return Promise.all([
-    ...graphs.map(g => g.cleanup()),
-    ctx.deleteMessage()
-  ])
+  return ctx.deleteMessage()
 }
 
 module.exports = {
