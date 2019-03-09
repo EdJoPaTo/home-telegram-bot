@@ -2,14 +2,14 @@ const MQTT = require('async-mqtt')
 const Telegraf = require('telegraf')
 const LocalSession = require('telegraf-session-local')
 
-const data = require('./lib/data.js')
+const data = require('./lib/data')
 const notify = require('./lib/notify')
 const {loadConfig} = require('./lib/config')
 
 const partConnected = require('./parts/connected')
-const partGraph = require('./parts/graph.js')
-const partNotify = require('./parts/notify.js')
-const partStatus = require('./parts/status.js')
+const partGraph = require('./parts/graph')
+const partNotify = require('./parts/notify')
+const partStatus = require('./parts/status')
 
 const config = loadConfig()
 

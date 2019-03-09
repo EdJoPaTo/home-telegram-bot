@@ -1,7 +1,7 @@
 const Telegraf = require('telegraf')
 
 const data = require('../lib/data')
-const format = require('../lib/format.js')
+const format = require('../lib/format')
 
 const bot = new Telegraf.Composer()
 

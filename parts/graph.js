@@ -2,7 +2,7 @@ const Telegraf = require('telegraf')
 const TelegrafInlineMenu = require('telegraf-inline-menu')
 
 const data = require('../lib/data')
-const format = require('../lib/format.js')
+const format = require('../lib/format')
 const {getCommonPrefix, getWithoutCommonPrefix} = require('../lib/mqtt-topic')
 const {toggleKeyInArray} = require('../lib/array-helper')
 
