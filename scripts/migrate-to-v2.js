@@ -92,9 +92,11 @@ function createFileContent(filename, contents) {
 
 function migrate() {
   for (const entry of getOldEntries()) {
-    console.log('migrate', entry)
+    console.log(new Date(), 'migrate', entry)
     migrateEntry(entry)
   }
+
+  console.log(new Date(), 'done!')
 }
 
 migrate()
