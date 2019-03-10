@@ -35,10 +35,7 @@ function calculateSecondsFromTimeframeString(timeframe) {
 function defaultSettings() {
   return {
     positions: [],
-    types: [
-      'temp',
-      'hum'
-    ],
+    type: 'temp',
     timeframe: '48h'
   }
 }
@@ -48,10 +45,9 @@ menu.setCommand('graph')
 
 menu.select('type', typeOptions, {
   columns: 2,
-  multiselect: true,
-  isSetFunc: (ctx, key) => ctx.session.graph.types.indexOf(key) >= 0,
+  isSetFunc: (ctx, key) => key === (ctx.session.graph || defaultSettings()).type,
   setFunc: (ctx, key) => {
-    ctx.session.graph.types = toggleKeyInArray(ctx.session.graph.types, key)
+    ctx.session.graph.type = key
   }
 })
 
@@ -75,15 +71,11 @@ menu.submenu(ctx => '🕑 ' + (ctx.session.graph || defaultSettings()).timeframe
   })
 
 function getRelevantPositions(ctx) {
-  const selectedTypes = (ctx.session.graph || defaultSettings()).types
-  if (selectedTypes.length === 0) {
-    return []
-  }
+  const selectedType = (ctx.session.graph || defaultSettings()).type
 
   return data.getPositions(pos => {
     const typesOfPos = Object.keys(pos)
-    const posHasRequiredType = selectedTypes
-      .every(t => typesOfPos.indexOf(t) >= 0)
+    const posHasRequiredType = typesOfPos.indexOf(selectedType) >= 0
     return posHasRequiredType
   })
 }
@@ -166,6 +158,16 @@ menu.simpleButton('⚠️ Graph erstellen ⚠️', 'create-hint', {
 })
 
 const bot = new Telegraf.Composer()
+
+bot.use((ctx, next) => {
+  // Remove old settings
+  if (ctx.session.graph) {
+    delete ctx.session.graph.types
+  }
+
+  return next()
+})
+
 bot.use(menu.init({
   backButtonText: '🔙 zurück…',
   actionCode: 'graph'
@@ -177,16 +179,7 @@ function isCreationNotPossible(ctx) {
     return 'Ich hab den Faden verloren 🎈. Stimmt alles?'
   }
 
-  if ((ctx.session.graph.types || []).length === 0) {
-    return 'Ohne gewählte Datentypen kann ich das nicht! 😨'
-  }
-
   const availablePositions = getRelevantPositions(ctx)
-
-  if (availablePositions.length === 0) {
-    return 'Kein Sensor kann alle gewählten Datentypen! 😨'
-  }
-
   const selectedPositions = (ctx.session.graph.positions || [])
     .filter(o => availablePositions.indexOf(o) >= 0)
 
@@ -199,34 +192,25 @@ async function createGraph(ctx) {
   ctx.answerCbQuery()
   ctx.editMessageText('Die Graphen werden erstellt, habe einen Moment Geduld…')
 
-  const {types, positions, timeframe} = ctx.session.graph
+  const {type, timeframe} = ctx.session.graph
 
   const timeframeInSeconds = calculateSecondsFromTimeframeString(timeframe)
   const minDate = Date.now() - (timeframeInSeconds * 1000)
   const minUnixTimestamp = minDate / 1000
 
-  const graphs = []
+  const availablePositions = getRelevantPositions(ctx)
+  const selectedPositions = (ctx.session.graph.positions || [])
+    .filter(o => availablePositions.indexOf(o) >= 0)
 
-  for (const t of types) {
-    const g = new Graph(t, minUnixTimestamp)
-    for (const p of positions) {
-      g.addSeries(p)
-    }
-
-    graphs.push(g)
+  const graph = new Graph(type, minUnixTimestamp)
+  for (const p of selectedPositions) {
+    graph.addSeries(p)
   }
 
-  const pngBuffers = await Promise.all(
-    graphs.map(g => g.create())
-  )
+  const pngBuffer = await graph.create()
 
   ctx.replyWithChatAction('upload_photo')
-  if (pngBuffers.length > 1) {
-    const mediaArr = pngBuffers.map(o => ({media: {source: o}, type: 'photo'}))
-    await ctx.replyWithMediaGroup(mediaArr)
-  } else {
-    await ctx.replyWithPhoto({source: pngBuffers[0]})
-  }
+  await ctx.replyWithPhoto({source: pngBuffer})
 
   return ctx.deleteMessage()
 }
