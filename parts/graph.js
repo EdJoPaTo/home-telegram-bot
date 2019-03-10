@@ -60,15 +60,13 @@ function typeOptions() {
   return result
 }
 
-menu.submenu(ctx => '🕑 ' + (ctx.session.graph || defaultSettings()).timeframe, 'timeframe', new TelegrafInlineMenu('Welchen Zeitbereich soll der Graph zeigen?'))
-  .select('t', ['40min', '4h', '12h', '48h', '7d', '28d', '90d'], {
-    columns: 2,
-    setParentMenuAfter: true,
-    isSetFunc: (ctx, key) => key === ctx.session.graph.timeframe,
-    setFunc: (ctx, key) => {
-      ctx.session.graph.timeframe = key
-    }
-  })
+menu.select('t', ['40min', '4h', '12h', '48h', '7d', '28d', '90d'], {
+  columns: 4,
+  isSetFunc: (ctx, key) => key === ctx.session.graph.timeframe,
+  setFunc: (ctx, key) => {
+    ctx.session.graph.timeframe = key
+  }
+})
 
 function getRelevantPositions(ctx) {
   const selectedType = (ctx.session.graph || defaultSettings()).type
