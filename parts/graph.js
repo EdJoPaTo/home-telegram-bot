@@ -189,8 +189,11 @@ function isCreationNotPossible(ctx) {
 }
 
 async function createGraph(ctx) {
-  ctx.answerCbQuery()
-  ctx.editMessageText('Die Graphen werden erstellt, habe einen Moment Geduld…')
+  const startPromises = [
+    ctx.editMessageText('Die Graphen werden erstellt, habe einen Moment Geduld…'),
+    ctx.answerCbQuery(),
+    ctx.replyWithChatAction('upload_photo')
+  ]
 
   const {type, timeframe} = ctx.session.graph
 
@@ -209,10 +212,11 @@ async function createGraph(ctx) {
 
   const pngBuffer = await graph.create()
 
-  ctx.replyWithChatAction('upload_photo')
-  await ctx.replyWithPhoto({source: pngBuffer})
-
-  return ctx.deleteMessage()
+  return Promise.all([
+    ...startPromises,
+    ctx.replyWithPhoto({source: pngBuffer}),
+    ctx.deleteMessage()
+  ])
 }
 
 module.exports = {
