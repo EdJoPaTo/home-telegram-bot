@@ -32,6 +32,7 @@
     "xo": "^0.24.0"
   },
   "scripts": {
+    "migrate-to-v2": "node scripts/migrate-to-v2.js",
     "start": "node index.js",
     "pretest": "xo",
     "test": "nyc ava"
