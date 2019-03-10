@@ -32,9 +32,6 @@
     "xo": "^0.24.0"
   },
   "scripts": {
-    "ava": "ava",
-    "nyc": "nyc ava",
-    "xo": "xo",
     "start": "node index.js",
     "pretest": "xo",
     "test": "nyc ava"
