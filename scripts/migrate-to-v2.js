@@ -52,6 +52,7 @@ function migrateEntry({position, type}) {
   const oldContent = readFileSync(`data/${position}/${type}.log`, 'utf8').trim()
   const fileContents = oldContent.split('\n')
     .map((o, i) => {
+      /* eslint no-control-regex: "off" */
       const [timestamp, value] = o
         .replace(/\u0000/gu, '')
         .split(',')
