@@ -193,6 +193,16 @@ async function createGraph(ctx) {
     ctx.replyWithChatAction('upload_photo')
   ]
 
+  const graphFile = await createGraphPhoto(ctx)
+
+  return Promise.all([
+    ...startPromises,
+    ctx.replyWithPhoto(graphFile),
+    ctx.deleteMessage()
+  ])
+}
+
+async function createGraphPhoto(ctx) {
   const {type, timeframe} = ctx.session.graph
 
   const timeframeInSeconds = calculateSecondsFromTimeframeString(timeframe)
@@ -209,12 +219,7 @@ async function createGraph(ctx) {
   }
 
   const pngBuffer = await graph.create()
-
-  return Promise.all([
-    ...startPromises,
-    ctx.replyWithPhoto({source: pngBuffer}),
-    ctx.deleteMessage()
-  ])
+  return {source: pngBuffer}
 }
 
 module.exports = {
