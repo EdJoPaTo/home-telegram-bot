@@ -40,7 +40,9 @@ function defaultSettings() {
   }
 }
 
-const menu = new TelegrafInlineMenu('Wie möchtest du deine Graphen haben?')
+const menu = new TelegrafInlineMenu(isCreationNotPossible, {
+  photo: ctx => createGraphPhoto(ctx)
+})
 menu.setCommand('graph')
 
 menu.select('type', typeOptions, {
@@ -145,16 +147,6 @@ positionsMenu.select('p', positionsOptions, {
   }
 })
 
-menu.simpleButton('Graph erstellen', 'create', {
-  doFunc: ctx => createGraph(ctx),
-  hide: ctx => isCreationNotPossible(ctx)
-})
-
-menu.simpleButton('⚠️ Graph erstellen ⚠️', 'create-hint', {
-  doFunc: ctx => ctx.answerCbQuery(isCreationNotPossible(ctx)),
-  hide: ctx => !isCreationNotPossible(ctx)
-})
-
 const bot = new Telegraf.Composer()
 
 bot.use((ctx, next) => {
@@ -184,22 +176,6 @@ function isCreationNotPossible(ctx) {
   if (selectedPositions.length === 0) {
     return 'Ohne gewählte Sensoren kann ich das nicht! 😨'
   }
-}
-
-async function createGraph(ctx) {
-  const startPromises = [
-    ctx.editMessageText('Die Graphen werden erstellt, habe einen Moment Geduld…'),
-    ctx.answerCbQuery(),
-    ctx.replyWithChatAction('upload_photo')
-  ]
-
-  const graphFile = await createGraphPhoto(ctx)
-
-  return Promise.all([
-    ...startPromises,
-    ctx.replyWithPhoto(graphFile),
-    ctx.deleteMessage()
-  ])
 }
 
 async function createGraphPhoto(ctx) {
