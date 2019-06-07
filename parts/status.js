@@ -16,6 +16,9 @@ function getSelectedTypes(ctx) {
 
 function getStatusText(ctx) {
   const typesOfInterest = getSelectedTypes(ctx)
+  if (typesOfInterest.length === 0) {
+    return 'no type selected 😔'
+  }
 
   const positions = data.getPositions(o =>
     Object.keys(o).some(type => typesOfInterest.indexOf(type) >= 0)
