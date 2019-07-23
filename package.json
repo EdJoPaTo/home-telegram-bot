@@ -1,7 +1,7 @@
 {
   "name": "home-telegram-bot",
   "private": true,
-  "version": "2.1.1",
+  "version": "2.1.2",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/EdJoPaTo/home-telegram-bot.git"
