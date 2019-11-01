@@ -152,6 +152,7 @@ function compareToValueButtonText(ctx) {
 }
 
 addMenu.question(compareToValueButtonText, 'cv', {
+  uniqueIdentifier: 'notify-cv',
   questionText: 'Mit welchem Wert soll verglichen werden?',
   hide: ctx => {
     const {type, compare} = ctx.session.notify || {}
