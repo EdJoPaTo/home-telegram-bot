@@ -115,4 +115,9 @@ bot.catch(error => {
   console.error(error)
 })
 
-bot.startPolling()
+async function startup() {
+  await bot.launch()
+  console.log(new Date(), 'Bot started as', bot.options.username)
+}
+
+startup()
