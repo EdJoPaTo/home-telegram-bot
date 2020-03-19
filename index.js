@@ -61,7 +61,7 @@ client.on('message', (topic, message, packet) => {
   const topicSplitted = topic.split('/')
   const type = topicSplitted.slice(-1)[0]
   const position = topicSplitted
-    .slice(0, topicSplitted.length - 1)
+    .slice(0, -1)
     .filter((o, i) => i !== 1 || o !== 'status')
     .join('/')
 

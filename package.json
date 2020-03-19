@@ -42,7 +42,6 @@
     "semicolon": false,
     "rules": {
       "unicorn/no-for-loop": "warn",
-      "unicorn/prefer-negative-index": "warn",
       "unicorn/prevent-abbreviations": "warn"
     }
   },
