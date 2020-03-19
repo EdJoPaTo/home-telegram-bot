@@ -41,7 +41,6 @@
     "space": true,
     "semicolon": false,
     "rules": {
-      "no-unused-vars": "warn",
       "unicorn/no-for-loop": "warn",
       "unicorn/prefer-negative-index": "warn",
       "unicorn/prevent-abbreviations": "warn"
