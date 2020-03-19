@@ -46,7 +46,7 @@ menu.setCommand('notify')
 const addMenu = menu.submenu('Regel hinzufügen…', 'add', new TelegrafInlineMenu('Spezifiziere die Regel…'))
 
 function positionButtonText(position) {
-  const exists = data.getPositions().indexOf(position) >= 0
+  const exists = data.getPositions().includes(position)
   const prefix = '📡 '
   if (!position || !exists) {
     return prefix + 'Position'
@@ -94,7 +94,7 @@ function typeOptions(position) {
 addMenu.submenu(selectTypeButtonText, 't', new TelegrafInlineMenu('Wähle den Typ…'), {
   hide: ctx => {
     const {position} = ctx.session.notify || {}
-    return !position || data.getPositions().indexOf(position) < 0
+    return !position || !data.getPositions().includes(position)
   }
 })
   .select('t', ctx => typeOptions(ctx.session.notify.position), {
@@ -114,7 +114,7 @@ addMenu.submenu(selectTypeButtonText, 't', new TelegrafInlineMenu('Wähle den Ty
 addMenu.select('change', CHANGE_TYPES, {
   multiselect: true,
   hide: ctx => !(ctx.session.notify || {}).type,
-  isSetFunc: (ctx, key) => ((ctx.session.notify || {}).change || []).indexOf(key) >= 0,
+  isSetFunc: (ctx, key) => ((ctx.session.notify || {}).change || []).includes(key),
   setFunc: (ctx, key) => {
     ctx.session.notify.change = toggleKeyInArray(ctx.session.notify.change || [], key)
 
@@ -139,7 +139,7 @@ addMenu.select('compare', {value: '🔢 Wert', position: '📡 Position'}, {
 
 function possibleCompareToSensors(ctx) {
   const {position, type} = ctx.session.notify || {}
-  return data.getPositions(o => Object.keys(o).indexOf(type) >= 0)
+  return data.getPositions(o => Object.keys(o).includes(type))
     .filter(o => o !== position)
 }
 
@@ -216,7 +216,7 @@ addMenu.button('Erstellen', 'addRule', {
       return true
     }
 
-    const exists = data.getPositions().indexOf(compareTo) >= 0
+    const exists = data.getPositions().includes(compareTo)
     return !exists
   },
   doFunc: ctx => {

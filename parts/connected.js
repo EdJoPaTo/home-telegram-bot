@@ -6,7 +6,7 @@ const format = require('../lib/format')
 const bot = new Telegraf.Composer()
 
 bot.command('connected', ctx => {
-  const positions = data.getPositions(o => Object.keys(o).indexOf('connected') >= 0)
+  const positions = data.getPositions(o => Object.keys(o).includes('connected'))
 
   const lines = positions.map(position => {
     const connected = data.getLastValue(position, 'connected')

@@ -75,7 +75,7 @@ function getRelevantPositions(ctx) {
 
   return data.getPositions(pos => {
     const typesOfPos = Object.keys(pos)
-    const posHasRequiredType = typesOfPos.indexOf(selectedType) >= 0
+    const posHasRequiredType = typesOfPos.includes(selectedType)
     return posHasRequiredType
   })
 }
@@ -95,7 +95,7 @@ function positionsOptions(ctx) {
 function positionsButtonText(ctx) {
   const relevantPositions = getRelevantPositions(ctx)
   const selectedPositions = (ctx.session.graph || defaultSettings()).positions
-    .filter(o => relevantPositions.indexOf(o) >= 0)
+    .filter(o => relevantPositions.includes(o))
 
   let text = ''
   if (selectedPositions.length === 0 && relevantPositions.length > 0) {
@@ -116,7 +116,7 @@ function positionsText(ctx) {
   const relevantPositions = getRelevantPositions(ctx)
   const commonPrefix = getCommonPrefix(relevantPositions)
   const selectedPositions = ctx.session.graph.positions
-    .filter(o => relevantPositions.indexOf(o) >= 0)
+    .filter(o => relevantPositions.includes(o))
     .map(o => o.slice(commonPrefix.length))
     .sort()
 
@@ -137,7 +137,7 @@ positionsMenu.select('p', positionsOptions, {
   columns: 1,
   maxRows: POSITIONS_PER_MENU_PAGE,
   multiselect: true,
-  isSetFunc: (ctx, key) => ctx.session.graph.positions.indexOf(key) >= 0,
+  isSetFunc: (ctx, key) => ctx.session.graph.positions.includes(key),
   setFunc: (ctx, key) => {
     ctx.session.graph.positions = toggleKeyInArray(ctx.session.graph.positions, key)
   },
@@ -171,7 +171,7 @@ function isCreationNotPossible(ctx) {
 
   const availablePositions = getRelevantPositions(ctx)
   const selectedPositions = (ctx.session.graph.positions || [])
-    .filter(o => availablePositions.indexOf(o) >= 0)
+    .filter(o => availablePositions.includes(o))
 
   if (selectedPositions.length === 0) {
     return 'Ohne gewählte Sensoren kann ich das nicht! 😨'
@@ -187,7 +187,7 @@ async function createGraphPhoto(ctx) {
 
   const availablePositions = getRelevantPositions(ctx)
   const selectedPositions = (ctx.session.graph.positions || [])
-    .filter(o => availablePositions.indexOf(o) >= 0)
+    .filter(o => availablePositions.includes(o))
 
   const graph = new Graph(type, minUnixTimestamp)
   for (const p of selectedPositions) {

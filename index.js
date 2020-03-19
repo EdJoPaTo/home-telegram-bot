@@ -77,7 +77,7 @@ client.on('message', (topic, message, packet) => {
 
 if (config.telegramUserWhitelist.length > 0) {
   bot.use((ctx, next) => {
-    const isWhitelisted = config.telegramUserWhitelist.indexOf(ctx.from.id) >= 0
+    const isWhitelisted = config.telegramUserWhitelist.includes(ctx.from.id)
     if (isWhitelisted) {
       return next()
     }

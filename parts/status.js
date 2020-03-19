@@ -21,13 +21,13 @@ function getStatusText(ctx) {
   }
 
   const positions = data.getPositions(o =>
-    Object.keys(o).some(type => typesOfInterest.indexOf(type) >= 0)
+    Object.keys(o).some(type => typesOfInterest.includes(type))
   )
   const commonPrefix = getCommonPrefix(positions)
 
   const lines = positions.map(position => {
     const types = data.getTypesOfPosition(position)
-      .filter(o => typesOfInterest.indexOf(o) >= 0)
+      .filter(o => typesOfInterest.includes(o))
 
     let parts = ''
     const connected = data.getLastValue(position, 'connected')
@@ -61,7 +61,7 @@ function typeOptions() {
 menu.select('type', typeOptions, {
   columns: 2,
   multiselect: true,
-  isSetFunc: (ctx, key) => getSelectedTypes(ctx).indexOf(key) >= 0,
+  isSetFunc: (ctx, key) => getSelectedTypes(ctx).includes(key),
   setFunc: (ctx, key) => {
     if (!ctx.session.status) {
       ctx.session.status = {}
