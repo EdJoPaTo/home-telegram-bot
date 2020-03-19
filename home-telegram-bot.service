@@ -5,6 +5,7 @@ After=network-online.target
 
 [Service]
 Type=simple
+Environment="NODE_ENV=production"
 ExecStart=/usr/bin/node index.js
 WorkingDirectory=
 User=
