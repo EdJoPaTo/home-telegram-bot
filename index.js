@@ -1,6 +1,6 @@
-const MQTT = require('async-mqtt')
-const Telegraf = require('telegraf')
+const {Telegraf} = require('telegraf')
 const LocalSession = require('telegraf-session-local')
+const MQTT = require('async-mqtt')
 
 const data = require('./lib/data')
 const notify = require('./lib/notify')
@@ -116,6 +116,13 @@ bot.catch(error => {
 })
 
 async function startup() {
+  await bot.telegram.setMyCommands([
+    {command: 'status', description: 'betrachte den aktuellen Status der Temperatur Sensoren'},
+    {command: 'connected', description: 'zeige den Verbindungsstatus'},
+    {command: 'graph', description: 'sende Graphen der Sensordaten'},
+    {command: 'notify', description: 'ändere zu welchen Sensoren du benachrichtigt werden willst'}
+  ])
+
   await bot.launch()
   console.log(new Date(), 'Bot started as', bot.options.username)
 }

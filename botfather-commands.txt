@@ -1,4 +1,0 @@
-status - betrachte den aktuellen Status der Temperatur Sensoren
-connected - zeige den Verbindungsstatus
-graph - sende Graphen der Sensordaten
-notify - ändere zu welchen Sensoren du benachrichtigt werden willst
