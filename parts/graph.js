@@ -98,11 +98,7 @@ function positionsButtonText(ctx) {
     .filter(o => relevantPositions.includes(o))
 
   let text = ''
-  if (selectedPositions.length === 0 && relevantPositions.length > 0) {
-    text += '⚠️'
-  } else {
-    text += '📡'
-  }
+  text += selectedPositions.length === 0 && relevantPositions.length > 0 ? '⚠️' : '📡'
 
   text += ' '
   text += `${selectedPositions.length} / ${relevantPositions.length}`
