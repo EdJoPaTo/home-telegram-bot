@@ -13,6 +13,8 @@ const partStatus = require('./parts/status')
 
 const config = loadConfig()
 
+process.title = config.name
+
 const bot = new Telegraf(config.telegramBotToken)
 bot.use(new LocalSession({
   getSessionKey: ctx => ctx.from.id,
