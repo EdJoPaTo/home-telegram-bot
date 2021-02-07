@@ -67,7 +67,7 @@ function migrateEntry({position, type}) {
       }
     })
     .sort((a, b) => a.timestamp - b.timestamp)
-    // eslint-disable-next-line unicorn/no-reduce
+    // eslint-disable-next-line unicorn/no-array-reduce
     .reduce((coll, add) => {
       const key = newFilenameOf(position, type, add.timestamp * 1000).filename
       if (!coll[key]) {
