@@ -10,7 +10,6 @@
     "url": "https://github.com/EdJoPaTo/home-telegram-bot/issues"
   },
   "homepage": "https://github.com/EdJoPaTo/home-telegram-bot#readme",
-  "main": "index.js",
   "engines": {
     "node": ">=12"
   },
@@ -33,9 +32,8 @@
   },
   "scripts": {
     "migrate-to-v2": "node scripts/migrate-to-v2.js",
-    "start": "node index.js",
-    "pretest": "xo",
-    "test": "nyc ava"
+    "start": "node source/index.js",
+    "test": "xo && nyc ava"
   },
   "xo": {
     "space": true,
