@@ -30,6 +30,10 @@ export const information: Readonly<Record<string, InformationSet>> = {
 	on: {
 		label: 'On (enabled)'
 	},
+	pres: {
+		label: 'Luftdruck',
+		unit: ' Pa'
+	},
 	rssi: {
 		label: 'RSSI',
 		unit: ' dBm'
