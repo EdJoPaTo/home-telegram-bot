@@ -6,7 +6,7 @@ After=network-online.target
 [Service]
 Type=simple
 Environment="NODE_ENV=production"
-ExecStart=/usr/bin/node --unhandled-rejections=strict index.js
+ExecStart=/usr/bin/node --unhandled-rejections=strict -r source-map-support/register dist/index.js
 WorkingDirectory=
 User=
 Group=

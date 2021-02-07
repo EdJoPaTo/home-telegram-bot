@@ -2,6 +2,7 @@
 set -e
 
 nice npm ci --production
+nice npm run build
 
 echo
 echo WARNING

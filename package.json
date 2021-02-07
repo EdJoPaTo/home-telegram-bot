@@ -1,49 +1,72 @@
 {
-  "name": "home-telegram-bot",
-  "private": true,
-  "version": "2.1.3",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/EdJoPaTo/home-telegram-bot.git"
-  },
-  "bugs": {
-    "url": "https://github.com/EdJoPaTo/home-telegram-bot/issues"
-  },
-  "homepage": "https://github.com/EdJoPaTo/home-telegram-bot#readme",
-  "engines": {
-    "node": ">=12"
-  },
-  "dependencies": {
-    "array-filter-unique": "^2.0.0",
-    "async-mqtt": "^2.0.0",
-    "d3": "^6.5.0",
-    "d3-node": "^2.1.0",
-    "debounce-promise": "^3.1.0",
-    "json-stable-stringify": "^1.0.1",
-    "sharp": "^0.27.1",
-    "telegraf": "^3.38.0",
-    "telegraf-inline-menu": "^4.0.0",
-    "telegraf-session-local": "^2.0.0"
-  },
-  "devDependencies": {
-    "ava": "^3.5.0",
-    "nyc": "^15.0.0",
-    "xo": "^0.37.1"
-  },
-  "scripts": {
-    "migrate-to-v2": "node scripts/migrate-to-v2.js",
-    "start": "node source/index.js",
-    "test": "xo && nyc ava"
-  },
-  "xo": {
-    "space": true,
-    "semicolon": false,
-    "rules": {
-      "unicorn/no-fn-reference-in-iterator": "off",
-      "unicorn/no-for-loop": "warn",
-      "unicorn/prefer-number-properties": "warn",
-      "unicorn/prevent-abbreviations": "warn"
-    }
-  },
-  "license": "MIT"
+	"name": "home-telegram-bot",
+	"private": true,
+	"version": "2.1.3",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/EdJoPaTo/home-telegram-bot.git"
+	},
+	"bugs": {
+		"url": "https://github.com/EdJoPaTo/home-telegram-bot/issues"
+	},
+	"homepage": "https://github.com/EdJoPaTo/home-telegram-bot#readme",
+	"engines": {
+		"node": ">=12"
+	},
+	"dependencies": {
+		"@sindresorhus/tsconfig": "^0.8.0",
+		"@types/d3": "^6.3.0",
+		"@types/debounce-promise": "^3.1.3",
+		"@types/json-stable-stringify": "^1.0.32",
+		"@types/node": "^14.14.25",
+		"@types/sharp": "^0.27.1",
+		"array-filter-unique": "^2.0.0",
+		"async-mqtt": "^2.0.0",
+		"ava": "^3.5.0",
+		"d3": "^6.5.0",
+		"d3-node": "^2.1.0",
+		"debounce-promise": "^3.1.0",
+		"json-stable-stringify": "^1.0.1",
+		"sharp": "^0.27.1",
+		"source-map-support": "^0.5.19",
+		"telegraf": "^4.0.3",
+		"telegraf-inline-menu": "^6.1.0",
+		"telegraf-session-local": "^2.0.0",
+		"telegraf-stateless-question": "^2.0.0",
+		"typescript": "^4.1.3"
+	},
+	"devDependencies": {
+		"nyc": "^15.0.0",
+		"ts-node": "^9.1.1",
+		"xo": "^0.37.1"
+	},
+	"scripts": {
+		"build": "rm -rf dist && tsc",
+		"start": "ts-node source/index.ts",
+		"test": "tsc && xo && nyc ava"
+	},
+	"nyc": {
+		"all": true,
+		"extension": [
+			".ts"
+		],
+		"include": [
+			"dist/source",
+			"source"
+		],
+		"exclude": [
+			"**/*.d.ts",
+			"**/*.test.ts"
+		],
+		"reporter": [
+			"lcov",
+			"text"
+		]
+	},
+	"xo": {
+		"rules": {
+			"ava/no-ignored-test-files": "off"
+		}
+	},
+	"license": "MIT"
 }

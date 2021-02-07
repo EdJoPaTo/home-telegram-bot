@@ -1,6 +1,6 @@
 .nyc_output
-
-# node
+coverage
+dist
 node_modules
 
 # botfiles
