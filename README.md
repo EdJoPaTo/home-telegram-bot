@@ -1,6 +1,5 @@
 # Home Telegram Bot
 
-[![Build Status](https://travis-ci.org/EdJoPaTo/home-telegram-bot.svg?branch=master)](https://travis-ci.org/EdJoPaTo/home-telegram-bot)
 [![Dependency Status](https://david-dm.org/edjopato/home-telegram-bot/status.svg)](https://david-dm.org/edjopato/home-telegram-bot)
 [![Dependency Status](https://david-dm.org/edjopato/home-telegram-bot/dev-status.svg)](https://david-dm.org/edjopato/home-telegram-bot?type=dev)
 [![mqtt-smarthome](https://img.shields.io/badge/mqtt-smarthome-blue.svg)](https://github.com/mqtt-smarthome/mqtt-smarthome)
