@@ -14,4 +14,5 @@ sudo cp -uv *.service /etc/systemd/system
 sudo systemctl daemon-reload
 
 # start
-sudo systemctl enable --now home-telegram-bot.service
+sudo systemctl restart home-telegram-bot.service
+sudo systemctl enable home-telegram-bot.service
