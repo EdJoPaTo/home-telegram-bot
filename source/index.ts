@@ -2,6 +2,7 @@ import {MenuMiddleware} from 'telegraf-inline-menu';
 import {Telegraf} from 'telegraf';
 import * as LocalSession from 'telegraf-session-local';
 import * as MQTT from 'async-mqtt';
+import {html as format} from 'telegram-format';
 
 import * as data from './lib/data';
 import * as notify from './lib/notify';
@@ -99,7 +100,7 @@ if (config.telegramUserWhitelist.length > 0) {
 			return;
 		}
 
-		let text = `Hey ${context.from.first_name}!`;
+		let text = `Hey ${format.escape(context.from.first_name)}!`;
 		text += '\n';
 		text += 'Looks like you are not approved to use this bot.';
 
@@ -107,11 +108,9 @@ if (config.telegramUserWhitelist.length > 0) {
 		text += 'Forward this message to the owner of the bot if you think you should be approved.';
 		text += '\n';
 		text += 'Your Telegram user id: ';
-		text += '`';
-		text += context.from.id;
-		text += '`';
+		text += format.monospace(String(context.from.id));
 
-		await context.replyWithMarkdown(text);
+		await context.reply(text, {parse_mode: format.parse_mode});
 	});
 }
 

@@ -33,6 +33,7 @@
 		"telegraf-inline-menu": "^6.1.0",
 		"telegraf-session-local": "^2.0.0",
 		"telegraf-stateless-question": "^2.0.0",
+		"telegram-format": "^2.0.1",
 		"typescript": "^4.1.3"
 	},
 	"devDependencies": {

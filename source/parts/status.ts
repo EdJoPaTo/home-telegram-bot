@@ -1,16 +1,17 @@
 import {Body, MenuTemplate} from 'telegraf-inline-menu';
+import {html as format} from 'telegram-format';
 
+import {connectionStatus, information as informationFormat, typeValue} from '../lib/format';
 import {getCommonPrefix} from '../lib/mqtt-topic';
+import {getLastValue, getPositions, getTypes, getTypesOfPosition} from '../lib/data';
 import {toggleKeyInArray} from '../lib/array-helper';
-import * as data from '../lib/data';
-import * as format from '../lib/format';
 
 import {MyContext} from './context';
 
 export const menu = new MenuTemplate(getStatusText);
 
 function getSelectedTypes(context: MyContext) {
-	return (context.session.status?.types ?? data.getTypes())
+	return (context.session.status?.types ?? getTypes())
 		.filter(o => o !== 'connected');
 }
 
@@ -20,40 +21,42 @@ function getStatusText(context: MyContext): Body {
 		return 'no type selected 😔';
 	}
 
-	const positions = data.getPositions(o =>
+	const positions = getPositions(o =>
 		Object.keys(o).some(type => typesOfInterest.includes(type))
 	);
 	const commonPrefix = getCommonPrefix(positions);
 
 	const lines = positions.map(position => {
-		const types = data.getTypesOfPosition(position)
+		const types = getTypesOfPosition(position)
 			.filter(o => typesOfInterest.includes(o));
 
 		let parts = '';
-		const connected = data.getLastValue(position, 'connected');
-		parts += format.connectionStatus(connected?.value).emoji;
+		const connected = getLastValue(position, 'connected');
+		parts += connectionStatus(connected?.value).emoji;
 		parts += ' ';
 
-		parts += `*${position.slice(commonPrefix.length)}*`;
+		parts += format.monospace(position.slice(commonPrefix.length));
 		parts += ' ';
 		parts += types.map(type =>
-			format.typeValue(type, data.getLastValue(position, type)!.value)
+			typeValue(type, getLastValue(position, type)!.value)
 		).join(', ');
 
 		return parts;
 	});
 
-	let text = `*${commonPrefix}*\n`;
+	let text = '';
+	text += format.bold(format.escape(commonPrefix));
+	text += '\n';
 	text += lines.join('\n');
-	return {text, parse_mode: 'Markdown'};
+	return {text, parse_mode: format.parse_mode};
 }
 
 function typeOptions() {
-	const allTypes = data.getTypes()
+	const allTypes = getTypes()
 		.filter(o => o !== 'connected');
 	const result: Record<string, string> = {};
 	for (const type of allTypes) {
-		result[type] = format.information[type]?.label ?? type;
+		result[type] = informationFormat[type]?.label ?? type;
 	}
 
 	return result;

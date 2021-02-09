@@ -1,10 +1,11 @@
+import {html as format} from 'telegram-format';
 import {MenuTemplate, Body} from 'telegraf-inline-menu';
 
 import {getCommonPrefix, getWithoutCommonPrefix} from '../lib/mqtt-topic';
+import {getTypes, getPositions} from '../lib/data';
 import {Graph} from '../lib/graph';
+import {information as informationFormat} from '../lib/format';
 import {toggleKeyInArray} from '../lib/array-helper';
-import * as data from '../lib/data';
-import * as format from '../lib/format';
 
 import {MyContext} from './context';
 
@@ -47,10 +48,10 @@ menu.select('type', typeOptions, {
 });
 
 function typeOptions() {
-	const allTypes = data.getTypes();
+	const allTypes = getTypes();
 	const result: Record<string, string> = {};
 	for (const type of allTypes) {
-		result[type] = format.information[type]?.label ?? type;
+		result[type] = informationFormat[type]?.label ?? type;
 	}
 
 	return result;
@@ -68,7 +69,7 @@ menu.select('t', ['40min', '4h', '12h', '48h', '7d', '28d', '90d'], {
 function getRelevantPositions(context: MyContext) {
 	const selectedType = context.session.graph.type ?? DEFAULT_TYPE;
 
-	return data.getPositions(pos => {
+	return getPositions(pos => {
 		const typesOfPos = Object.keys(pos);
 		const posHasRequiredType = typesOfPos.includes(selectedType);
 		return posHasRequiredType;
@@ -100,7 +101,7 @@ function positionsButtonText(context: MyContext) {
 	return text;
 }
 
-function positionsText(context: MyContext) {
+function positionsBody(context: MyContext): Body {
 	let text = 'Welche Daten soll der Graph zeigen?';
 	text += '\n\n';
 
@@ -112,15 +113,17 @@ function positionsText(context: MyContext) {
 		.sort();
 
 	if (selectedPositions.length > 0) {
-		text += '*Datenquellen*\n';
+		text += format.bold('Datenquellen');
+		text += '\n';
 		text += selectedPositions
+			.map(o => format.monospace(o))
 			.join('\n');
 	}
 
-	return text;
+	return {text, parse_mode: format.parse_mode};
 }
 
-const positionsMenu = new MenuTemplate(positionsText);
+const positionsMenu = new MenuTemplate(positionsBody);
 
 positionsMenu.select('p', positionsOptions, {
 	columns: 1,

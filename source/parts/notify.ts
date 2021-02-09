@@ -1,10 +1,11 @@
 import {Composer} from 'telegraf';
+import {html as format} from 'telegram-format';
 import {MenuTemplate, Body, replyMenuToContext} from 'telegraf-inline-menu';
 import TelegrafStatelessQuestion from 'telegraf-stateless-question';
 
 import {toggleKeyInArray} from '../lib/array-helper';
-import * as data from '../lib/data';
-import * as format from '../lib/format';
+import {getPositions, getTypesOfPosition} from '../lib/data';
+import {information as informationFormat, typeValue} from '../lib/format';
 import * as notifyRules from '../lib/notify-rules';
 
 import {MyContext} from './context';
@@ -20,9 +21,10 @@ function myRuleList(context: MyContext) {
 	}
 
 	let text = '';
-	text += '*Deine Regeln*\n';
+	text += format.bold('Deine Regeln');
+	text += '\n';
 	text += rules
-		.map(o => notifyRules.asString(o, true))
+		.map(o => notifyRules.asString(o, format.parse_mode === 'HTML' ? 'HTML' : undefined))
 		.sort()
 		.join('\n');
 
@@ -30,7 +32,8 @@ function myRuleList(context: MyContext) {
 }
 
 function notifyOverviewText(context: MyContext): Body {
-	let text = '*Benachrichtigungen*\n';
+	let text = format.bold('Benachrichtigungen');
+	text += '\n';
 
 	text += 'Du kannst benachrichtigt werden, wenn Geräte bestimmte Bedinungen erfüllen.';
 
@@ -40,7 +43,7 @@ function notifyOverviewText(context: MyContext): Body {
 		text += ruleList;
 	}
 
-	return {text, parse_mode: 'Markdown'};
+	return {text, parse_mode: format.parse_mode};
 }
 
 export const menu = new MenuTemplate(notifyOverviewText);
@@ -50,7 +53,7 @@ const addMenu = new MenuTemplate<MyContext>('Spezifiziere die Regel…');
 menu.submenu('Regel hinzufügen…', 'add', addMenu);
 
 function positionButtonText(position: string | undefined) {
-	const exists = Boolean(position && data.getPositions().includes(position));
+	const exists = Boolean(position && getPositions().includes(position));
 	const prefix = '📡 ';
 	if (!position || !exists) {
 		return prefix + 'Position';
@@ -61,7 +64,7 @@ function positionButtonText(position: string | undefined) {
 
 const positionMenu = new MenuTemplate<MyContext>('Wähle das Gerät…');
 
-positionMenu.select('p', () => data.getPositions(), {
+positionMenu.select('p', () => getPositions(), {
 	columns: 1,
 	isSet: (context, key) => context.session.notify?.position === key,
 	set: (context, key) => {
@@ -89,14 +92,14 @@ function selectTypeButtonText(context: MyContext) {
 		return prefix + 'Typ';
 	}
 
-	return prefix + (format.information[type]?.label ?? type);
+	return prefix + (informationFormat[type]?.label ?? type);
 }
 
 function typeOptions(position: string | undefined) {
-	const allTypes = position ? data.getTypesOfPosition(position) : [];
+	const allTypes = position ? getTypesOfPosition(position) : [];
 	const result: Record<string, string> = {};
 	for (const type of allTypes) {
-		result[type] = format.information[type]?.label ?? type;
+		result[type] = informationFormat[type]?.label ?? type;
 	}
 
 	return result;
@@ -107,7 +110,7 @@ const typeMenu = new MenuTemplate<MyContext>('Wähle den Typ…');
 addMenu.submenu(selectTypeButtonText, 't', typeMenu, {
 	hide: context => {
 		const position = context.session.notify?.position;
-		return !position || !data.getPositions().includes(position);
+		return !position || !getPositions().includes(position);
 	}
 });
 typeMenu.select('t', context => typeOptions(context.session.notify?.position), {
@@ -175,7 +178,7 @@ addMenu.select('compare', {value: '🔢 Wert', position: '📡 Position'}, {
 
 function possibleCompareToSensors(context: MyContext) {
 	const {position, type} = context.session.notify ?? {};
-	return data.getPositions(o => Object.keys(o).includes(type!))
+	return getPositions(o => Object.keys(o).includes(type!))
 		.filter(o => o !== position);
 }
 
@@ -183,7 +186,7 @@ function compareToValueButtonText(context: MyContext) {
 	const prefix = '🔢 ';
 	const {type, compareTo} = context.session.notify ?? {};
 	const number = Number.isFinite(compareTo) ? Number(compareTo) : 42;
-	const formatted = format.typeValue(type!, number);
+	const formatted = typeValue(type!, number);
 	return prefix + formatted;
 }
 
@@ -272,7 +275,7 @@ addMenu.interact('Erstellen', 'addRule', {
 		}
 
 		if (notify.compare === 'position') {
-			const exists = data.getPositions().includes(notify.compareTo);
+			const exists = getPositions().includes(notify.compareTo);
 			return !exists;
 		}
 
@@ -301,7 +304,7 @@ function removeOptions(context: MyContext) {
 	const rules = notifyRules.getByChat(context.chat!.id);
 	const result: Record<number, string> = {};
 	for (const [i, rule] of rules.entries()) {
-		result[i] = notifyRules.asString(rule);
+		result[i] = notifyRules.asString(rule, undefined);
 	}
 
 	return result;

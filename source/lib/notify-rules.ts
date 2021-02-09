@@ -1,5 +1,6 @@
 import {readFileSync, writeFileSync} from 'fs';
 
+import {html} from 'telegram-format';
 import * as stringify from 'json-stable-stringify';
 
 import {typeValue} from './format';
@@ -107,11 +108,11 @@ export function remove(rule: Rule): void {
 	saveRules();
 }
 
-export function asString(rule: Rule, markdown = false): string {
+export function asString(rule: Rule, parse_mode: 'HTML' | undefined): string {
 	const {position, type, change, stableSeconds} = rule;
 
 	let text = type + ' ';
-	text += markdown ? `*${position}*` : position;
+	text += parse_mode === 'HTML' ? html.monospace(position) : position;
 
 	text += ' ';
 

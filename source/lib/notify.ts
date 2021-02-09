@@ -1,6 +1,7 @@
-import * as stringify from 'json-stable-stringify';
-import * as debounce from 'debounce-promise';
+import {html as format} from 'telegram-format';
 import {Telegraf} from 'telegraf';
+import * as debounce from 'debounce-promise';
+import * as stringify from 'json-stable-stringify';
 
 import * as data from './data';
 import {Change, Position, Type, CHANGE_TYPES, Rule, getByPosition, getByCompareTo} from './notify-rules';
@@ -139,7 +140,7 @@ async function initiateNotificationDebounced(rule: Rule, change: Change, argsArr
 		text += ' ';
 	}
 
-	text += `*${rule.position}*`;
+	text += format.monospace(rule.position);
 	text += '\n';
 	text += typeValue(rule.type, compareTo);
 	text += ' ';
@@ -147,5 +148,5 @@ async function initiateNotificationDebounced(rule: Rule, change: Change, argsArr
 	text += ' ';
 	text += typeValue(rule.type, currentValue);
 
-	await telegram.sendMessage(rule.chat, text, {parse_mode: 'Markdown'});
+	await telegram.sendMessage(rule.chat, text, {parse_mode: format.parse_mode});
 }
