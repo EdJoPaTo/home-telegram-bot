@@ -62,16 +62,26 @@ function positionButtonText(position: string | undefined) {
 	return prefix + position;
 }
 
+function positionOptions() {
+	const result: Record<string, string> = {};
+	for (const position of getPositions()) {
+		result[position.replace(/\//g, '#')] = position;
+	}
+
+	return result;
+}
+
 const positionMenu = new MenuTemplate<MyContext>('Wähle das Gerät…');
 
-positionMenu.select('p', () => getPositions(), {
+positionMenu.select('p', positionOptions, {
 	columns: 1,
-	isSet: (context, key) => context.session.notify?.position === key,
+	isSet: (context, key) => context.session.notify?.position === key.replace(/#/g, '/'),
 	set: (context, key) => {
+		const position = key.replace(/#/g, '/');
 		context.session.notify = {
 			...DEFAULT_RULE,
 			change: [...(DEFAULT_RULE.change ?? [])],
-			position: key
+			position
 		};
 		return '..';
 	},
@@ -178,8 +188,19 @@ addMenu.select('compare', {value: '🔢 Wert', position: '📡 Position'}, {
 
 function possibleCompareToSensors(context: MyContext) {
 	const {position, type} = context.session.notify ?? {};
-	return getPositions(o => Object.keys(o).includes(type!))
+	if (!type) {
+		return {};
+	}
+
+	const positions = getPositions(o => Object.keys(o).includes(type))
 		.filter(o => o !== position);
+
+	const result: Record<string, string> = {};
+	for (const p of positions) {
+		result[p.replace(/\//g, '#')] = p;
+	}
+
+	return result;
 }
 
 function compareToValueButtonText(context: MyContext) {
@@ -227,12 +248,13 @@ addMenu.submenu(context => String(context.session.notify?.compare === 'position'
 
 comparePositionMenu.select('p', possibleCompareToSensors, {
 	columns: 1,
-	isSet: (context, key) => context.session.notify?.compareTo === key,
+	isSet: (context, key) => context.session.notify?.compareTo === key.replace(/#/g, '/'),
 	set: (context, key) => {
+		const compareTo = key.replace(/#/g, '/');
 		context.session.notify! = {
 			...context.session.notify!,
 			compare: 'position',
-			compareTo: key
+			compareTo
 		};
 		return '..';
 	},
