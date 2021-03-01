@@ -1,5 +1,5 @@
 import {html as format} from 'telegram-format';
-import {Telegraf} from 'telegraf';
+import {Telegram} from 'telegraf';
 import * as debounce from 'debounce-promise';
 import * as stringify from 'json-stable-stringify';
 
@@ -7,8 +7,6 @@ import * as data from './data';
 import {Change, Position, Type, CHANGE_TYPES, Rule, getByPosition, getByCompareTo} from './notify-rules';
 import {isRising, isFalling, isUnequal} from './notify-math';
 import {typeValue} from './format';
-
-type Telegram = Telegraf['telegram'];
 
 let telegram: Telegram;
 
