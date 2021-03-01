@@ -12,9 +12,11 @@ bot.command('connected', async ctx => {
 	const lines = positions.map(position => {
 		const connected = getLastValue(position, 'connected')!;
 
-		const parts = [];
-		parts.push(connectionStatus(connected.value).emoji);
-		parts.push(format.monospace(position));
+		const parts = [
+			connectionStatus(connected.value).emoji,
+			format.monospace(position)
+		];
+
 		if (connected.value !== 2) {
 			parts.push(connectionStatus(connected.value).text);
 		}

@@ -130,7 +130,7 @@ bot.use(notifyMiddleware);
 bot.use(notifyBot);
 
 bot.command('start', async context =>
-	context.reply(`Hi ${context.from!.first_name}!\n\nWenn du den Status der aktuellen Sensoren sehen willst, nutze /status oder /graph.\nWenn du eine Benachrichtigung haben möchtest, wenn es draußen wärmer wird als drinnen, nutze /notify.`)
+	context.reply(`Hi ${context.from.first_name}!\n\nWenn du den Status der aktuellen Sensoren sehen willst, nutze /status oder /graph.\nWenn du eine Benachrichtigung haben möchtest, wenn es draußen wärmer wird als drinnen, nutze /notify.`)
 );
 
 bot.catch(error => {
