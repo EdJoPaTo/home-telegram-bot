@@ -1,12 +1,12 @@
-import {Composer} from 'telegraf';
+import {Body, MenuTemplate} from 'telegraf-inline-menu';
 import {html as format} from 'telegram-format';
 
 import {connectionStatus, timespan} from '../lib/format';
 import {getPositions, getLastValue} from '../lib/data';
 
-export const bot = new Composer();
+export const menu = new MenuTemplate(menuBody);
 
-bot.command('connected', async ctx => {
+function menuBody(): Body {
 	const positions = getPositions(o => Object.keys(o).includes('connected'));
 
 	const lines = positions.map(position => {
@@ -29,5 +29,7 @@ bot.command('connected', async ctx => {
 	});
 
 	const text = lines.join('\n');
-	return ctx.reply(text, {parse_mode: format.parse_mode});
-});
+	return {text, parse_mode: format.parse_mode};
+}
+
+menu.navigate('Update', '.');

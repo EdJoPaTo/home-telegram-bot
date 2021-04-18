@@ -62,6 +62,8 @@ function typeOptions() {
 	return result;
 }
 
+menu.navigate('Update', '.');
+
 menu.select('type', typeOptions, {
 	columns: 2,
 	showFalseEmoji: true,

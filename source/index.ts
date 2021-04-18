@@ -10,7 +10,7 @@ import {loadConfig} from './lib/config';
 
 import {MyContext} from './parts/context';
 
-import {bot as connectedBot} from './parts/connected';
+import {menu as connectedMenu} from './parts/connected';
 import {menu as graphMenu} from './parts/graph';
 import {menu as notifyMenu, bot as notifyBot} from './parts/notify';
 import {menu as statusMenu} from './parts/status';
@@ -119,7 +119,9 @@ const statusMiddleware = new MenuMiddleware('status/', statusMenu);
 bot.command('status', async context => statusMiddleware.replyToContext(context));
 bot.use(statusMiddleware);
 
-bot.use(connectedBot);
+const connectedMiddleware = new MenuMiddleware('connected/', connectedMenu);
+bot.command('connected', async context => connectedMiddleware.replyToContext(context));
+bot.use(connectedMiddleware);
 
 const graphMiddleware = new MenuMiddleware('graph/', graphMenu);
 bot.command('graph', async context => graphMiddleware.replyToContext(context));
