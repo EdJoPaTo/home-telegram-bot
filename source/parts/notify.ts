@@ -131,13 +131,13 @@ typeMenu.select('t', context => typeOptions(context.session.notify?.position), {
 			context.session.notify = {};
 		}
 
-		context.session.notify! = {
+		context.session.notify = {
 			...context.session.notify,
 			type: key
 		};
 
 		if (key === 'connected') {
-			context.session.notify! = {
+			context.session.notify = {
 				...context.session.notify,
 				change: ['unequal'],
 				compare: 'value',
@@ -156,13 +156,13 @@ addMenu.select('change', CHANGE_TYPES, {
 	hide: context => !context.session.notify?.type,
 	isSet: (context, key) => (context.session.notify?.change ?? []).includes(key as notifyRules.Change),
 	set: (context, key) => {
-		context.session.notify! = {
+		context.session.notify = {
 			...context.session.notify!,
 			change: toggleKeyInArray(context.session.notify!.change ?? [], key as notifyRules.Change)
 		};
 
 		if (context.session.notify.change!.length === 0) {
-			context.session.notify! = {
+			context.session.notify = {
 				...context.session.notify,
 				change: key === 'unequal' ? ['rising', 'falling'] : ['unequal']
 			};
@@ -176,7 +176,7 @@ addMenu.select('compare', {value: '🔢 Wert', position: '📡 Position'}, {
 	hide: context => !context.session.notify?.type,
 	isSet: (context, key) => context.session.notify?.compare === key,
 	set: (context, key) => {
-		context.session.notify! = {
+		context.session.notify = {
 			...context.session.notify!,
 			compare: key as any,
 			compareTo: undefined
@@ -214,7 +214,7 @@ function compareToValueButtonText(context: MyContext) {
 const compareToValueQuestion = new TelegrafStatelessQuestion<MyContext>('notify-cv', async context => {
 	if ('text' in context.message) {
 		const justDigits = Number(context.message.text.replace(/[^\d,.-]/g, '').replace(',', '.'));
-		context.session.notify! = {
+		context.session.notify = {
 			...context.session.notify!,
 			compare: 'value',
 			compareTo: Number.isFinite(justDigits) ? justDigits : 42
@@ -251,7 +251,7 @@ comparePositionMenu.select('p', possibleCompareToSensors, {
 	isSet: (context, key) => context.session.notify?.compareTo === key.replace(/#/g, '/'),
 	set: (context, key) => {
 		const compareTo = key.replace(/#/g, '/');
-		context.session.notify! = {
+		context.session.notify = {
 			...context.session.notify!,
 			compare: 'position',
 			compareTo
@@ -276,7 +276,7 @@ addMenu.select('stableSeconds', stableSecondsOptions, {
 	hide: context => !context.session.notify?.type,
 	isSet: (context, key) => context.session.notify?.stableSeconds === Number(key),
 	set: (context, key) => {
-		context.session.notify! = {
+		context.session.notify = {
 			...context.session.notify!,
 			stableSeconds: Number(key)
 		};
