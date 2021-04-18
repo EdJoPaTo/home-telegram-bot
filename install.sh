@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -e
 
 nice npm ci --production
@@ -10,7 +10,7 @@ echo Service will fail when some values are not filled out
 echo
 
 # systemd
-sudo cp -uv *.service /etc/systemd/system
+sudo cp -uv ./*.service /etc/systemd/system
 sudo systemctl daemon-reload
 
 # start
