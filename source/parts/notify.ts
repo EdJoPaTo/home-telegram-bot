@@ -157,8 +157,8 @@ addMenu.select('change', CHANGE_TYPES, {
 	isSet: (context, key) => (context.session.notify?.change ?? []).includes(key as notifyRules.Change),
 	set: (context, key) => {
 		context.session.notify = {
-			...context.session.notify!,
-			change: toggleKeyInArray(context.session.notify!.change ?? [], key as notifyRules.Change)
+			...context.session.notify,
+			change: toggleKeyInArray(context.session.notify?.change ?? [], key as notifyRules.Change)
 		};
 
 		if (context.session.notify.change!.length === 0) {
@@ -177,7 +177,7 @@ addMenu.select('compare', {value: '🔢 Wert', position: '📡 Position'}, {
 	isSet: (context, key) => context.session.notify?.compare === key,
 	set: (context, key) => {
 		context.session.notify = {
-			...context.session.notify!,
+			...context.session.notify,
 			compare: key as any,
 			compareTo: undefined
 		};
@@ -207,7 +207,7 @@ function compareToValueButtonText(context: MyContext) {
 	const prefix = '🔢 ';
 	const {type, compareTo} = context.session.notify ?? {};
 	const number = Number.isFinite(compareTo) ? Number(compareTo) : 42;
-	const formatted = typeValue(type!, number);
+	const formatted = typeValue(type, number);
 	return prefix + formatted;
 }
 
@@ -215,7 +215,7 @@ const compareToValueQuestion = new TelegrafStatelessQuestion<MyContext>('notify-
 	if ('text' in context.message) {
 		const justDigits = Number(context.message.text.replace(/[^\d,.-]/g, '').replace(',', '.'));
 		context.session.notify = {
-			...context.session.notify!,
+			...context.session.notify,
 			compare: 'value',
 			compareTo: Number.isFinite(justDigits) ? justDigits : 42
 		};
@@ -252,7 +252,7 @@ comparePositionMenu.select('p', possibleCompareToSensors, {
 	set: (context, key) => {
 		const compareTo = key.replace(/#/g, '/');
 		context.session.notify = {
-			...context.session.notify!,
+			...context.session.notify,
 			compare: 'position',
 			compareTo
 		};
@@ -277,7 +277,7 @@ addMenu.select('stableSeconds', stableSecondsOptions, {
 	isSet: (context, key) => context.session.notify?.stableSeconds === Number(key),
 	set: (context, key) => {
 		context.session.notify = {
-			...context.session.notify!,
+			...context.session.notify,
 			stableSeconds: Number(key)
 		};
 		return true;
@@ -304,6 +304,7 @@ addMenu.interact('Erstellen', 'addRule', {
 		throw new TypeError('how did you end up here?');
 	},
 	do: async context => {
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 		notifyRules.add({
 			...context.session.notify,
 			chat: context.chat!.id
@@ -336,8 +337,11 @@ removeMenu.choose('r', removeOptions, {
 	columns: 1,
 	do: (context, key) => {
 		const rules = notifyRules.getByChat(context.chat!.id);
-		const ruleToRemove = rules[Number(key)]!;
-		notifyRules.remove(ruleToRemove);
+		const ruleToRemove = rules[Number(key)];
+		if (ruleToRemove) {
+			notifyRules.remove(ruleToRemove);
+		}
+
 		return true;
 	},
 	getCurrentPage: context => context.session.page,

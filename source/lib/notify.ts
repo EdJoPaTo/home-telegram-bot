@@ -96,6 +96,7 @@ async function initiateNotification(rule: Rule, change: Change, currentValue: nu
 	if (!debouncers[identifier]) {
 		debouncers[identifier] = debounce(
 			async argsArray => {
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 				await initiateNotificationDebounced(rule, change, argsArray);
 
 				// Fix required. See https://github.com/bjoerge/debounce-promise/pull/19

@@ -66,7 +66,7 @@ async function loadSeries(position: Position, type: Type, minUnixTimestamp: Unix
 	};
 }
 
-function createSvgString(minUnixTimestamp: UnixTimestamp, unit: string, ...series: readonly Series[]) {
+function createSvgString(minUnixTimestamp: UnixTimestamp, unit: string, ...series: readonly Series[]): string {
 	const margin = {top: 20, right: 170, bottom: 20, left: 0};
 	const height = 450;
 	const width = 800;
@@ -88,9 +88,9 @@ function createSvgString(minUnixTimestamp: UnixTimestamp, unit: string, ...serie
 		.domain([min, max]).nice()
 		.range([height - margin.bottom, margin.top]);
 
-	const line = d3.line()
-		.x(d => x((d as any).timestamp))
-		.y(d => y((d as any).value));
+	const line = d3.line<Point>()
+		.x(d => x(d.timestamp))
+		.y(d => y(d.value));
 
 	const svg = d3n.createSVG(width, height);
 

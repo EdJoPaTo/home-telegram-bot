@@ -102,8 +102,8 @@ export function connectionStatus(value: number | undefined) {
 	return connectionStatusParts[-1];
 }
 
-export function typeValue(type: string, value: number) {
+export function typeValue(type: string | undefined, value: number) {
 	let text = String(value);
-	text += information[type] ? (information[type]?.unit ?? '') : ` (${type})`;
+	text += type && information[type] ? (information[type]?.unit ?? '') : ` (${String(type)})`;
 	return text;
 }

@@ -81,10 +81,12 @@ export async function loadLastValues(position: Position, type: Type, minTimestam
 	const minTimestampDay = Math.floor(minTimestamp / SECONDS_PER_DAY) * SECONDS_PER_DAY;
 	for (let cur = minTimestampDay * 1000; cur <= Date.now(); cur += 1000 * SECONDS_PER_DAY) {
 		const {filename} = filenameOf(position, type, cur);
-		contentPromises.push(
-			readFile(filename, 'utf8')
-				.catch(() => { /* if there is no value in that timeframe just ignore it */ })
-		);
+		try {
+			// eslint-disable-next-line no-await-in-loop
+			contentPromises.push(await readFile(filename, 'utf8'));
+		} catch {
+			// If there is no value in that timeframe just ignore it
+		}
 	}
 
 	const contents = await Promise.all(contentPromises);
