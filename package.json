@@ -46,7 +46,7 @@
 	"devDependencies": {
 		"nyc": "^15.0.0",
 		"ts-node": "^9.1.1",
-		"xo": "^0.38.2"
+		"xo": "^0.39.1"
 	},
 	"nyc": {
 		"all": true,
