@@ -27,7 +27,6 @@ bot.use(new LocalSession({
 
 notify.init(bot.telegram);
 
-// eslint-disable-next-line @typescript-eslint/dot-notation
 const mqttRetain = process.env['NODE_ENV'] === 'production';
 const mqttOptions: MQTT.IClientOptions = {
 	will: {

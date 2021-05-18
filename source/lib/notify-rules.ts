@@ -48,8 +48,8 @@ export const CHANGE_TYPES: Readonly<Record<Change, string>> = {
 
 function loadRules(): Record<string, Rule[]> {
 	try {
-		const json = JSON.parse(readFileSync(RULE_FILE, 'utf8'));
-		return json;
+		const content = readFileSync(RULE_FILE, 'utf8');
+		return JSON.parse(content) as Record<string, Rule[]>;
 	} catch {
 		return {};
 	}

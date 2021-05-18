@@ -46,7 +46,7 @@
 	"devDependencies": {
 		"nyc": "^15.0.0",
 		"ts-node": "^9.1.1",
-		"xo": "^0.39.1"
+		"xo": "^0.40.1"
 	},
 	"nyc": {
 		"all": true,
@@ -58,7 +58,14 @@
 	"xo": {
 		"rules": {
 			"@typescript-eslint/no-non-null-assertion": "off",
-			"ava/no-ignored-test-files": "off"
+			"@typescript-eslint/no-require-imports": "off",
+			"@typescript-eslint/no-unsafe-assignment": "off",
+			"@typescript-eslint/no-unsafe-call": "off",
+			"@typescript-eslint/no-unsafe-member-access": "off",
+			"@typescript-eslint/no-unsafe-return": "off",
+			"ava/no-ignored-test-files": "off",
+			"unicorn/prefer-module": "off",
+			"unicorn/prefer-node-protocol": "off"
 		}
 	}
 }
