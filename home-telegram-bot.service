@@ -7,9 +7,9 @@ After=network-online.target
 Type=simple
 Environment="NODE_ENV=production"
 ExecStart=/usr/bin/node --unhandled-rejections=strict -r source-map-support/register dist/index.js
-WorkingDirectory=
-User=
-Group=
+WorkingDirectory=/home/pi/git/home-telegram-bot/
+User=pi
+Group=pi
 
 [Install]
 WantedBy=multi-user.target
