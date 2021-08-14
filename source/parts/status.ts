@@ -22,7 +22,7 @@ function getStatusText(context: MyContext): Body {
 	}
 
 	const positions = getPositions(o =>
-		Object.keys(o).some(type => typesOfInterest.includes(type))
+		Object.keys(o).some(type => typesOfInterest.includes(type)),
 	);
 	const commonPrefix = getCommonPrefix(positions);
 
@@ -38,7 +38,7 @@ function getStatusText(context: MyContext): Body {
 		parts += format.monospace(position.slice(commonPrefix.length));
 		parts += ' ';
 		parts += types.map(type =>
-			typeValue(type, getLastValue(position, type)!.value)
+			typeValue(type, getLastValue(position, type)!.value),
 		).join(', ');
 
 		return parts;
@@ -75,5 +75,5 @@ menu.select('type', typeOptions, {
 
 		context.session.status.types = toggleKeyInArray(getSelectedTypes(context), key);
 		return true;
-	}
+	},
 });

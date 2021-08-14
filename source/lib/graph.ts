@@ -1,3 +1,5 @@
+import {Buffer} from 'buffer';
+
 import * as d3 from 'd3';
 import * as sharp from 'sharp';
 
@@ -30,7 +32,7 @@ export class Graph {
 
 	constructor(
 		private readonly type: Type,
-		private readonly minUnixTimestamp: UnixTimestamp
+		private readonly minUnixTimestamp: UnixTimestamp,
 	) {
 		this.seriesPromises = [];
 		this.unit = format.information[type]?.unit ?? '';
@@ -57,12 +59,12 @@ async function loadSeries(position: Position, type: Type, minUnixTimestamp: Unix
 	const withDateLikeTimestamps = lastValues
 		.map(({timestamp, value}) => ({
 			timestamp: timestamp * 1000,
-			value
+			value,
 		}));
 
 	return {
 		position,
-		points: withDateLikeTimestamps
+		points: withDateLikeTimestamps,
 	};
 }
 
@@ -110,13 +112,13 @@ function createSvgString(minUnixTimestamp: UnixTimestamp, unit: string, ...serie
 				.attr('y', yValue)
 				.attr('text-anchor', 'end')
 				.attr('font-weight', 'bold')
-				.text(lastValue.toFixed(1))
+				.text(lastValue.toFixed(1)),
 			)
 			.call((g: any) => g.append('text')
 				.attr('x', width - margin.right + 70)
 				.attr('y', yValue)
 				.attr('text-anchor', 'begin')
-				.text(element.position)
+				.text(element.position),
 			);
 	}
 
@@ -130,10 +132,10 @@ function createSvgString(minUnixTimestamp: UnixTimestamp, unit: string, ...serie
 				}
 
 				return multiFormat(new Date(
-					typeof date === 'number' ? date : date.valueOf()
+					typeof date === 'number' ? date : date.valueOf(),
 				));
 			})
-			.tickSizeOuter(0)
+			.tickSizeOuter(0),
 		);
 
 	// Y Axis
@@ -147,7 +149,7 @@ function createSvgString(minUnixTimestamp: UnixTimestamp, unit: string, ...serie
 			.attr('text-anchor', 'end')
 			.attr('font-weight', 'bold')
 			.attr('font-size', 15)
-			.text(unit)
+			.text(unit),
 		);
 
 	// X Grid
@@ -156,7 +158,7 @@ function createSvgString(minUnixTimestamp: UnixTimestamp, unit: string, ...serie
 		.attr('opacity', 0.1)
 		.call(d3.axisBottom(x)
 			.tickFormat(null)
-			.tickSize(height - margin.top - margin.bottom)
+			.tickSize(height - margin.top - margin.bottom),
 		)
 		.call((g: any) => g.select('.domain').remove());
 
@@ -166,7 +168,7 @@ function createSvgString(minUnixTimestamp: UnixTimestamp, unit: string, ...serie
 		.attr('opacity', 0.1)
 		.call(d3.axisRight(y)
 			.tickFormat(null)
-			.tickSize(width - margin.left - margin.right)
+			.tickSize(width - margin.left - margin.right),
 		)
 		.call((g: any) => g.select('.domain').remove());
 

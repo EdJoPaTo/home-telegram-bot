@@ -44,7 +44,7 @@ menu.select('type', typeOptions, {
 	set: (context, key) => {
 		context.session.graph.type = key;
 		return true;
-	}
+	},
 });
 
 function typeOptions() {
@@ -63,7 +63,7 @@ menu.select('t', ['40min', '4h', '12h', '48h', '7d', '28d', '90d'], {
 	set: (context, key) => {
 		context.session.graph.timeframe = key;
 		return true;
-	}
+	},
 });
 
 function getRelevantPositions(context: MyContext) {
@@ -137,7 +137,7 @@ positionsMenu.select('p', positionsOptions, {
 	getCurrentPage: context => context.session.graph.positionsPage,
 	setPage: (context, page) => {
 		context.session.graph.positionsPage = page;
-	}
+	},
 });
 
 positionsMenu.navigate('🔙 zurück…', '..');

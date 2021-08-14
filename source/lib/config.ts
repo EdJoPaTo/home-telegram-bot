@@ -14,11 +14,11 @@ const DEFAULT_CONFIG: Config = {
 	mqttServer: 'tcp://localhost:1883',
 	mqttTopics: [
 		'+/connected',
-		'+/status/#'
+		'+/status/#',
 	],
 	name: 'home-telegram-bot',
 	telegramBotToken: '123:abc',
-	telegramUserWhitelist: []
+	telegramUserWhitelist: [],
 };
 
 export function loadConfig(): Config {
@@ -27,7 +27,7 @@ export function loadConfig(): Config {
 		const config = JSON.parse(content) as Config;
 		const withDefaults = {
 			...DEFAULT_CONFIG,
-			...config
+			...config,
 		};
 
 		// Save again to fix possible formatting issues

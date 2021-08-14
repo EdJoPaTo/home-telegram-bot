@@ -81,14 +81,14 @@ positionMenu.select('p', positionOptions, {
 		context.session.notify = {
 			...DEFAULT_RULE,
 			change: [...(DEFAULT_RULE.change ?? [])],
-			position
+			position,
 		};
 		return '..';
 	},
 	getCurrentPage: context => context.session.page,
 	setPage: (context, page) => {
 		context.session.page = page;
-	}
+	},
 });
 
 positionMenu.navigate('🔙 zurück…', '..');
@@ -121,7 +121,7 @@ addMenu.submenu(selectTypeButtonText, 't', typeMenu, {
 	hide: context => {
 		const position = context.session.notify?.position;
 		return !position || !getPositions().includes(position);
-	}
+	},
 });
 typeMenu.select('t', context => typeOptions(context.session.notify?.position), {
 	columns: 2,
@@ -133,7 +133,7 @@ typeMenu.select('t', context => typeOptions(context.session.notify?.position), {
 
 		context.session.notify = {
 			...context.session.notify,
-			type: key
+			type: key,
 		};
 
 		if (key === 'connected') {
@@ -141,12 +141,12 @@ typeMenu.select('t', context => typeOptions(context.session.notify?.position), {
 				...context.session.notify,
 				change: ['unequal'],
 				compare: 'value',
-				compareTo: 2
+				compareTo: 2,
 			};
 		}
 
 		return '..';
-	}
+	},
 });
 
 typeMenu.navigate('🔙 zurück…', '..');
@@ -158,18 +158,18 @@ addMenu.select('change', CHANGE_TYPES, {
 	set: (context, key) => {
 		context.session.notify = {
 			...context.session.notify,
-			change: toggleKeyInArray(context.session.notify?.change ?? [], key as notifyRules.Change)
+			change: toggleKeyInArray(context.session.notify?.change ?? [], key as notifyRules.Change),
 		};
 
 		if (context.session.notify.change!.length === 0) {
 			context.session.notify = {
 				...context.session.notify,
-				change: key === 'unequal' ? ['rising', 'falling'] : ['unequal']
+				change: key === 'unequal' ? ['rising', 'falling'] : ['unequal'],
 			};
 		}
 
 		return true;
-	}
+	},
 });
 
 addMenu.select('compare', {value: '🔢 Wert', position: '📡 Position'}, {
@@ -179,11 +179,11 @@ addMenu.select('compare', {value: '🔢 Wert', position: '📡 Position'}, {
 		context.session.notify = {
 			...context.session.notify,
 			compare: key as any,
-			compareTo: undefined
+			compareTo: undefined,
 		};
 
 		return true;
-	}
+	},
 });
 
 function possibleCompareToSensors(context: MyContext) {
@@ -217,7 +217,7 @@ const compareToValueQuestion = new TelegrafStatelessQuestion<MyContext>('notify-
 		context.session.notify = {
 			...context.session.notify,
 			compare: 'value',
-			compareTo: Number.isFinite(justDigits) ? justDigits : 42
+			compareTo: Number.isFinite(justDigits) ? justDigits : 42,
 		};
 	}
 
@@ -234,7 +234,7 @@ addMenu.interact(compareToValueButtonText, 'cv', {
 	do: async context => {
 		await compareToValueQuestion.replyWithHTML(context, 'Mit welchem Wert soll verglichen werden?');
 		return false;
-	}
+	},
 });
 
 const comparePositionMenu = new MenuTemplate<MyContext>('Mit welchem Sensor willst du den Wert vergleichen?');
@@ -243,7 +243,7 @@ addMenu.submenu(context => String(context.session.notify?.compare === 'position'
 	hide: context => {
 		const {type, compare} = context.session.notify ?? {};
 		return !type || compare !== 'position';
-	}
+	},
 });
 
 comparePositionMenu.select('p', possibleCompareToSensors, {
@@ -254,14 +254,14 @@ comparePositionMenu.select('p', possibleCompareToSensors, {
 		context.session.notify = {
 			...context.session.notify,
 			compare: 'position',
-			compareTo
+			compareTo,
 		};
 		return '..';
 	},
 	getCurrentPage: context => context.session.page,
 	setPage: (context, page) => {
 		context.session.page = page;
-	}
+	},
 });
 
 comparePositionMenu.navigate('🔙 zurück…', '..');
@@ -269,7 +269,7 @@ comparePositionMenu.navigate('🔙 zurück…', '..');
 const stableSecondsOptions = {
 	0: 'instant',
 	60: '1 min',
-	300: '5 min'
+	300: '5 min',
 };
 
 addMenu.select('stableSeconds', stableSecondsOptions, {
@@ -278,10 +278,10 @@ addMenu.select('stableSeconds', stableSecondsOptions, {
 	set: (context, key) => {
 		context.session.notify = {
 			...context.session.notify,
-			stableSeconds: Number(key)
+			stableSeconds: Number(key),
 		};
 		return true;
-	}
+	},
 });
 
 addMenu.interact('Erstellen', 'addRule', {
@@ -304,15 +304,14 @@ addMenu.interact('Erstellen', 'addRule', {
 		throw new TypeError('how did you end up here?');
 	},
 	do: async context => {
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 		notifyRules.add({
 			...context.session.notify,
-			chat: context.chat!.id
+			chat: context.chat!.id,
 		} as any);
 		delete context.session.notify;
 		await context.answerCbQuery('👍');
 		return '..';
-	}
+	},
 });
 
 addMenu.navigate('🔙 zurück…', '..');
@@ -320,7 +319,7 @@ addMenu.navigate('🔙 zurück…', '..');
 const removeMenu = new MenuTemplate<MyContext>('Welche Regel möchtest du entfernen?');
 
 menu.submenu('Regel entfernen…', 'r', removeMenu, {
-	hide: context => notifyRules.getByChat(context.chat!.id).length === 0
+	hide: context => notifyRules.getByChat(context.chat!.id).length === 0,
 });
 
 function removeOptions(context: MyContext) {
@@ -347,7 +346,7 @@ removeMenu.choose('r', removeOptions, {
 	getCurrentPage: context => context.session.page,
 	setPage: (context, page) => {
 		context.session.page = page;
-	}
+	},
 });
 
 removeMenu.navigate('🔙 zurück…', '..');

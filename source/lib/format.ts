@@ -6,50 +6,50 @@ interface InformationSet {
 export const information: Readonly<Record<string, InformationSet>> = {
 	bri: {
 		label: 'Brightness',
-		unit: '%'
+		unit: '%',
 	},
 	connected: {
-		label: 'Connected'
+		label: 'Connected',
 	},
 	current: {
 		label: 'Current',
-		unit: 'A'
+		unit: 'A',
 	},
 	hue: {
 		label: 'Hue',
-		unit: '°'
+		unit: '°',
 	},
 	hum: {
 		label: 'Humidity',
-		unit: '%'
+		unit: '%',
 	},
 	lux: {
 		label: 'Lux',
-		unit: ' lux'
+		unit: ' lux',
 	},
 	on: {
-		label: 'On (enabled)'
+		label: 'On (enabled)',
 	},
 	pres: {
 		label: 'Luftdruck',
-		unit: ' Pa'
+		unit: ' Pa',
 	},
 	rssi: {
 		label: 'RSSI',
-		unit: ' dBm'
+		unit: ' dBm',
 	},
 	sat: {
 		label: 'Saturation',
-		unit: '%'
+		unit: '%',
 	},
 	temp: {
 		label: 'Temperature',
-		unit: '°C'
+		unit: '°C',
 	},
 	voltage: {
 		label: 'Voltage',
-		unit: 'V'
-	}
+		unit: 'V',
+	},
 };
 
 export function enabledEmoji(truthy: boolean): string {
@@ -78,20 +78,20 @@ function pad(number: number, size: number): string {
 export const connectionStatusParts = {
 	'-1': {
 		emoji: '❓',
-		text: 'unknown'
+		text: 'unknown',
 	},
 	0: {
 		emoji: '😴',
-		text: 'offline'
+		text: 'offline',
 	},
 	1: {
 		emoji: '😨',
-		text: 'faulty'
+		text: 'faulty',
 	},
 	2: {
 		emoji: '✅',
-		text: 'connected'
-	}
+		text: 'connected',
+	},
 };
 
 export function connectionStatus(value: number | undefined) {

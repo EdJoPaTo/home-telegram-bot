@@ -22,7 +22,7 @@ process.title = config.name;
 const bot = new Telegraf<MyContext>(config.telegramBotToken);
 bot.use(new LocalSession({
 	getSessionKey: ctx => String(ctx.from?.id),
-	database: './persistent/sessions.json'
+	database: './persistent/sessions.json',
 }));
 
 notify.init(bot.telegram);
@@ -33,8 +33,8 @@ const mqttOptions: MQTT.IClientOptions = {
 		topic: `${config.name}/connected`,
 		payload: '0',
 		qos: 1,
-		retain: mqttRetain
-	}
+		retain: mqttRetain,
+	},
 };
 console.log('MQTT connecting to', config.mqttServer, mqttOptions);
 const client = MQTT.connect(config.mqttServer, mqttOptions);
@@ -43,7 +43,7 @@ client.on('connect', async () => {
 	console.log('connected to mqtt server');
 	await client.publish(`${config.name}/connected`, '2', {retain: mqttRetain});
 	await Promise.all(
-		config.mqttTopics.map(async topic => client.subscribe(topic))
+		config.mqttTopics.map(async topic => client.subscribe(topic)),
 	);
 	console.log('subscribed to topics', config.mqttTopics);
 });
@@ -132,7 +132,7 @@ bot.use(notifyMiddleware);
 bot.use(notifyBot);
 
 bot.command('start', async context =>
-	context.reply(`Hi ${context.from.first_name}!\n\nWenn du den Status der aktuellen Sensoren sehen willst, nutze /status oder /graph.\nWenn du eine Benachrichtigung haben möchtest, wenn es draußen wärmer wird als drinnen, nutze /notify.`)
+	context.reply(`Hi ${context.from.first_name}!\n\nWenn du den Status der aktuellen Sensoren sehen willst, nutze /status oder /graph.\nWenn du eine Benachrichtigung haben möchtest, wenn es draußen wärmer wird als drinnen, nutze /notify.`),
 );
 
 bot.catch(error => {
@@ -148,7 +148,7 @@ async function startup() {
 		{command: 'status', description: 'betrachte den aktuellen Status der Temperatur Sensoren'},
 		{command: 'connected', description: 'zeige den Verbindungsstatus'},
 		{command: 'graph', description: 'sende Graphen der Sensordaten'},
-		{command: 'notify', description: 'ändere zu welchen Sensoren du benachrichtigt werden willst'}
+		{command: 'notify', description: 'ändere zu welchen Sensoren du benachrichtigt werden willst'},
 	]);
 
 	await bot.launch();

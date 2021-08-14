@@ -49,9 +49,9 @@ export function check(position: Position, type: Type, value: number) {
 }
 
 function checkRulePosition(rule: Rule, currentValue: number, lastValue: number) {
-	const compareTo = rule.compare === 'value' ?
-		rule.compareTo :
-		data.getLastValue(rule.compareTo, rule.type)?.value;
+	const compareTo = rule.compare === 'value'
+		? rule.compareTo
+		: data.getLastValue(rule.compareTo, rule.type)?.value;
 
 	if (compareTo === undefined) {
 		return;
@@ -96,20 +96,19 @@ async function initiateNotification(rule: Rule, change: Change, currentValue: nu
 	if (!debouncers[identifier]) {
 		debouncers[identifier] = debounce(
 			async argsArray => {
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 				await initiateNotificationDebounced(rule, change, argsArray);
 
 				// Fix required. See https://github.com/bjoerge/debounce-promise/pull/19
 				return argsArray.map(() => null);
 			},
 			rule.stableSeconds * 1000,
-			{accumulate: true}
+			{accumulate: true},
 		);
 	}
 
 	return debouncers[identifier]!({
 		currentValue,
-		compareTo
+		compareTo,
 	});
 }
 

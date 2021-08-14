@@ -24,7 +24,7 @@ export function setLastValue(position: Position, type: Type, time: MsTimestamp |
 
 	last[position]![type] = {
 		time,
-		value
+		value,
 	};
 }
 
@@ -35,7 +35,7 @@ function filenameOf(position: Position, type: Type, time: MsTimestamp) {
 
 	return {
 		dir,
-		filename
+		filename,
 	};
 }
 
@@ -110,7 +110,7 @@ function parseCsv(content: string) {
 
 		return {
 			timestamp,
-			value
+			value,
 		};
 	})
 		.filter(({timestamp, value}) => !Number.isNaN(timestamp) && !Number.isNaN(value));

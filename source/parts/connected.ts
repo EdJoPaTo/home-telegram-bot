@@ -14,7 +14,7 @@ function menuBody(): Body {
 
 		const parts = [
 			connectionStatus(connected.value).emoji,
-			format.monospace(position)
+			format.monospace(position),
 		];
 
 		if (connected.value !== 2) {

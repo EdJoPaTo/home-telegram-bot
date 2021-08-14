@@ -37,13 +37,13 @@ export const DEFAULT_RULE: Partial<Rule> = {
 	compare: 'value',
 	stableSeconds: 60,
 	change: ['rising', 'falling'],
-	compareTo: 42
+	compareTo: 42,
 };
 
 export const CHANGE_TYPES: Readonly<Record<Change, string>> = {
 	unequal: '≠',
 	rising: '📈',
-	falling: '📉'
+	falling: '📉',
 };
 
 function loadRules(): Record<string, Rule[]> {
