@@ -28,7 +28,7 @@
 		"array-filter-unique": "^2.0.0",
 		"async-mqtt": "^2.0.0",
 		"ava": "^3.5.0",
-		"d3": "^6.0.0",
+		"d3": "^7.0.0",
 		"d3-node": "^2.1.0",
 		"debounce-promise": "^3.1.0",
 		"json-stable-stringify": "^1.0.1",
