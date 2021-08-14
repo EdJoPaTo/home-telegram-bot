@@ -3,14 +3,12 @@
 	"private": true,
 	"version": "2.2.0",
 	"license": "MIT",
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/EdJoPaTo/home-telegram-bot.git"
+	"repository": "EdJoPaTo/home-telegram-bot",
+	"author": {
+		"name": "EdJoPaTo",
+		"email": "home-telegram-bot-tgbot@edjopato.de",
+		"url": "https://edjopato.de"
 	},
-	"bugs": {
-		"url": "https://github.com/EdJoPaTo/home-telegram-bot/issues"
-	},
-	"homepage": "https://github.com/EdJoPaTo/home-telegram-bot#readme",
 	"scripts": {
 		"build": "rm -rf dist && tsc",
 		"start": "ts-node source/index.ts",
