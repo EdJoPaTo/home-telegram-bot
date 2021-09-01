@@ -32,7 +32,7 @@
 		"d3-node": "^2.1.0",
 		"debounce-promise": "^3.1.0",
 		"json-stable-stringify": "^1.0.1",
-		"sharp": "^0.28.0",
+		"sharp": "^0.29.0",
 		"source-map-support": "^0.5.19",
 		"telegraf": "^4.3.0",
 		"telegraf-inline-menu": "^6.1.0",
