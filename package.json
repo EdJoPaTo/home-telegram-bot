@@ -33,7 +33,7 @@
 		"d3": "^6.0.0",
 		"d3-node": "^2.1.0",
 		"debounce-promise": "^3.1.0",
-		"grammy": "^1.5.4",
+		"grammy": "^1.5.5",
 		"grammy-inline-menu": "^7.0.2",
 		"json-stable-stringify": "^1.0.1",
 		"sharp": "^0.29.0",

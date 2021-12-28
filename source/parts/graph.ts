@@ -171,7 +171,5 @@ async function menuBody(context: MyContext): Promise<Body> {
 	}
 
 	const pngBuffer = await graph.create();
-
-	// TODO: https://github.com/grammyjs/grammY/issues/144
-	return {type: 'photo', media: new InputFile(pngBuffer), text: '', parse_mode: 'Markdown'};
+	return {type: 'photo', media: new InputFile(pngBuffer)};
 }
