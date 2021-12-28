@@ -92,7 +92,7 @@ interface Arguments {
 
 const debouncers: Record<string, (a: Arguments) => Promise<void>> = {};
 async function initiateNotification(rule: Rule, change: Change, currentValue: number, compareTo: number) {
-	const identifier = stringify(rule) + change;
+	const identifier = `${stringify(rule)}${change}`;
 	if (!debouncers[identifier]) {
 		debouncers[identifier] = debounce(
 			async argsArray => {
