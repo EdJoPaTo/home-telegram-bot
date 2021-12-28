@@ -7,8 +7,6 @@
 This is a Telegram Bot for a home environment based on [mqtt-smarthome](https://github.com/mqtt-smarthome/mqtt-smarthome).
 Currently it's only made for read-only reading of numeric values.
 
-As Telegram Bot Framework [telegraf](https://github.com/telegraf/telegraf) is used.
-
 ## Features
 
 ### Graph

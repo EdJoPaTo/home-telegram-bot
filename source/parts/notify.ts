@@ -1,7 +1,7 @@
-import {Composer} from 'telegraf';
+import {Composer} from 'grammy';
 import {html as format} from 'telegram-format';
-import {MenuTemplate, Body, replyMenuToContext} from 'telegraf-inline-menu';
-import TelegrafStatelessQuestion from 'telegraf-stateless-question';
+import {MenuTemplate, Body, replyMenuToContext} from 'grammy-inline-menu';
+import {StatelessQuestion} from '@grammyjs/stateless-question';
 
 import {toggleKeyInArray} from '../lib/array-helper';
 import {getPositions, getTypesOfPosition} from '../lib/data';
@@ -211,8 +211,8 @@ function compareToValueButtonText(context: MyContext) {
 	return prefix + formatted;
 }
 
-const compareToValueQuestion = new TelegrafStatelessQuestion<MyContext>('notify-cv', async context => {
-	if ('text' in context.message) {
+const compareToValueQuestion = new StatelessQuestion<MyContext>('notify-cv', async context => {
+	if (context.message.text) {
 		const justDigits = Number(context.message.text.replace(/[^\d,.-]/g, '').replace(',', '.'));
 		context.session.notify = {
 			...context.session.notify,
@@ -309,7 +309,7 @@ addMenu.interact('Erstellen', 'addRule', {
 			chat: context.chat!.id,
 		} as any);
 		delete context.session.notify;
-		await context.answerCbQuery('👍');
+		await context.answerCallbackQuery('👍');
 		return '..';
 	},
 });

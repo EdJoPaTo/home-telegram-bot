@@ -1,4 +1,4 @@
-import {Body, MenuTemplate} from 'telegraf-inline-menu';
+import {Body, MenuTemplate} from 'grammy-inline-menu';
 import {html as format} from 'telegram-format';
 
 import {connectionStatus, timespan} from '../lib/format';

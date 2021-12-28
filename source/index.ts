@@ -1,14 +1,15 @@
-import {MenuMiddleware} from 'telegraf-inline-menu';
-import {Telegraf} from 'telegraf';
-import * as LocalSession from 'telegraf-session-local';
-import * as MQTT from 'async-mqtt';
+import {Bot, session} from 'grammy';
+import {FileAdapter} from '@satont/grammy-file-storage';
+import {generateUpdateMiddleware} from 'telegraf-middleware-console-time';
 import {html as format} from 'telegram-format';
+import {MenuMiddleware} from 'grammy-inline-menu';
+import * as MQTT from 'async-mqtt';
 
 import * as data from './lib/data';
 import * as notify from './lib/notify';
 import {loadConfig} from './lib/config';
 
-import {MyContext} from './parts/context';
+import {MyContext, Session} from './parts/context';
 
 import {menu as connectedMenu} from './parts/connected';
 import {menu as graphMenu} from './parts/graph';
@@ -19,13 +20,18 @@ const config = loadConfig();
 
 process.title = config.name;
 
-const bot = new Telegraf<MyContext>(config.telegramBotToken);
-bot.use(new LocalSession({
-	getSessionKey: ctx => String(ctx.from?.id),
-	database: './persistent/sessions.json',
+const bot = new Bot<MyContext>(config.telegramBotToken);
+bot.use(session({
+	getSessionKey: context => String(context.from?.id),
+	initial: (): Session => ({graph: {positions: []}}),
+	storage: new FileAdapter({
+		dirName: 'tmp/sessions',
+	}),
 }));
 
-notify.init(bot.telegram);
+bot.use(generateUpdateMiddleware());
+
+notify.init(bot.api);
 
 const mqttRetain = process.env['NODE_ENV'] === 'production';
 const mqttOptions: MQTT.IClientOptions = {
@@ -132,7 +138,7 @@ bot.use(notifyMiddleware);
 bot.use(notifyBot);
 
 bot.command('start', async context =>
-	context.reply(`Hi ${context.from.first_name}!\n\nWenn du den Status der aktuellen Sensoren sehen willst, nutze /status oder /graph.\nWenn du eine Benachrichtigung haben möchtest, wenn es draußen wärmer wird als drinnen, nutze /notify.`),
+	context.reply(`Hey ${context.from?.first_name ?? 'du'}!\n\nWenn du den Status der aktuellen Sensoren sehen willst, nutze /status oder /graph.\nWenn du eine Benachrichtigung haben möchtest, wenn es draußen wärmer wird als drinnen, nutze /notify.`),
 );
 
 bot.catch(error => {
@@ -144,15 +150,18 @@ bot.catch(error => {
 });
 
 async function startup() {
-	await bot.telegram.setMyCommands([
+	await bot.api.setMyCommands([
 		{command: 'status', description: 'betrachte den aktuellen Status der Temperatur Sensoren'},
 		{command: 'connected', description: 'zeige den Verbindungsstatus'},
 		{command: 'graph', description: 'sende Graphen der Sensordaten'},
 		{command: 'notify', description: 'ändere zu welchen Sensoren du benachrichtigt werden willst'},
 	]);
 
-	await bot.launch();
-	console.log(new Date(), 'Bot started as', bot.botInfo?.username);
+	await bot.start({
+		onStart: botInfo => {
+			console.log(new Date(), 'Bot starts as', botInfo.username);
+		},
+	});
 }
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises

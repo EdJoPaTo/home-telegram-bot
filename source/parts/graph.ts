@@ -1,5 +1,6 @@
 import {html as format} from 'telegram-format';
-import {MenuTemplate, Body} from 'telegraf-inline-menu';
+import {InputFile} from 'grammy';
+import {MenuTemplate, Body} from 'grammy-inline-menu';
 
 import {getCommonPrefix, getWithoutCommonPrefix} from '../lib/mqtt-topic';
 import {getTypes, getPositions} from '../lib/data';
@@ -170,5 +171,7 @@ async function menuBody(context: MyContext): Promise<Body> {
 	}
 
 	const pngBuffer = await graph.create();
-	return {type: 'photo', media: {source: pngBuffer}};
+
+	// TODO: https://github.com/grammyjs/grammY/issues/144
+	return {type: 'photo', media: new InputFile(pngBuffer), text: '', parse_mode: 'Markdown'};
 }

@@ -1,4 +1,4 @@
-import {Context as TelegrafContext} from 'telegraf';
+import {Context as BaseContext, SessionFlavor} from 'grammy';
 
 import {Position, Rule, Type} from '../lib/notify-rules';
 
@@ -20,6 +20,4 @@ export interface Session {
 	status?: Status;
 }
 
-export interface MyContext extends TelegrafContext {
-	readonly session: Session;
-}
+export type MyContext = BaseContext & SessionFlavor<Session>;

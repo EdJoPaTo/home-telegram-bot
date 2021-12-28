@@ -1,5 +1,5 @@
+import {Api as Telegram} from 'grammy';
 import {html as format} from 'telegram-format';
-import {Telegram} from 'telegraf';
 import * as debounce from 'debounce-promise';
 import * as stringify from 'json-stable-stringify';
 
@@ -146,5 +146,8 @@ async function initiateNotificationDebounced(rule: Rule, change: Change, argsArr
 	text += ' ';
 	text += typeValue(rule.type, currentValue);
 
-	await telegram.sendMessage(rule.chat, text, {parse_mode: format.parse_mode});
+	await telegram.sendMessage(rule.chat, text, {
+		parse_mode: format.parse_mode,
+		reply_markup: {remove_keyboard: true},
+	});
 }
