@@ -2,9 +2,12 @@
 Description=Run Home Telegram Bot
 Wants=network-online.target
 After=network-online.target
+StartLimitIntervalSec=0
 
 [Service]
 Type=simple
+Restart=always
+RestartSec=20
 Environment="NODE_ENV=production"
 ExecStart=/usr/bin/node --enable-source-maps dist/index.js
 WorkingDirectory=/home/pi/git/home-telegram-bot/
