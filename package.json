@@ -11,7 +11,7 @@
 	},
 	"scripts": {
 		"build": "rm -rf dist && tsc",
-		"start": "ts-node source/index.ts",
+		"start": "node --enable-source-maps dist/index.js",
 		"test": "tsc --sourceMap && xo && nyc ava"
 	},
 	"type": "commonjs",
@@ -43,7 +43,6 @@
 	},
 	"devDependencies": {
 		"nyc": "^15.0.0",
-		"ts-node": "^10.0.0",
 		"xo": "^0.47.0"
 	},
 	"nyc": {
