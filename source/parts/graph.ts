@@ -42,7 +42,7 @@ export const menu = new MenuTemplate<MyContext>(menuBody);
 menu.select('type', typeOptions, {
 	columns: 2,
 	isSet: (context, key) => key === context.session.graph.type,
-	set: (context, key) => {
+	set(context, key) {
 		context.session.graph.type = key;
 		return true;
 	},
@@ -61,7 +61,7 @@ function typeOptions() {
 menu.select('t', ['40min', '4h', '12h', '48h', '7d', '28d', '90d'], {
 	columns: 4,
 	isSet: (context, key) => key === context.session.graph?.timeframe,
-	set: (context, key) => {
+	set(context, key) {
 		context.session.graph.timeframe = key;
 		return true;
 	},
@@ -131,12 +131,12 @@ positionsMenu.select('p', positionsOptions, {
 	maxRows: POSITIONS_PER_MENU_PAGE,
 	showFalseEmoji: true,
 	isSet: (context, key) => context.session.graph.positions.includes(key),
-	set: (context, key) => {
+	set(context, key) {
 		context.session.graph.positions = toggleKeyInArray(context.session.graph.positions, key);
 		return true;
 	},
 	getCurrentPage: context => context.session.graph.positionsPage,
-	setPage: (context, page) => {
+	setPage(context, page) {
 		context.session.graph.positionsPage = page;
 	},
 });

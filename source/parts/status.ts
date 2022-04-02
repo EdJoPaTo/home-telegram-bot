@@ -68,7 +68,7 @@ menu.select('type', typeOptions, {
 	columns: 2,
 	showFalseEmoji: true,
 	isSet: (context, key) => getSelectedTypes(context).includes(key),
-	set: (context, key) => {
+	set(context, key) {
 		if (!context.session.status) {
 			context.session.status = {};
 		}

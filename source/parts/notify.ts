@@ -76,7 +76,7 @@ const positionMenu = new MenuTemplate<MyContext>('Wähle das Gerät…');
 positionMenu.select('p', positionOptions, {
 	columns: 1,
 	isSet: (context, key) => context.session.notify?.position === key.replace(/#/g, '/'),
-	set: (context, key) => {
+	set(context, key) {
 		const position = key.replace(/#/g, '/');
 		context.session.notify = {
 			...DEFAULT_RULE,
@@ -86,7 +86,7 @@ positionMenu.select('p', positionOptions, {
 		return '..';
 	},
 	getCurrentPage: context => context.session.page,
-	setPage: (context, page) => {
+	setPage(context, page) {
 		context.session.page = page;
 	},
 });
@@ -118,7 +118,7 @@ function typeOptions(position: string | undefined) {
 const typeMenu = new MenuTemplate<MyContext>('Wähle den Typ…');
 
 addMenu.submenu(selectTypeButtonText, 't', typeMenu, {
-	hide: context => {
+	hide(context) {
 		const position = context.session.notify?.position;
 		return !position || !getPositions().includes(position);
 	},
@@ -126,7 +126,7 @@ addMenu.submenu(selectTypeButtonText, 't', typeMenu, {
 typeMenu.select('t', context => typeOptions(context.session.notify?.position), {
 	columns: 2,
 	isSet: (context, key) => context.session.notify?.type === key,
-	set: (context, key) => {
+	set(context, key) {
 		if (!context.session.notify) {
 			context.session.notify = {};
 		}
@@ -155,7 +155,7 @@ addMenu.select('change', CHANGE_TYPES, {
 	showFalseEmoji: true,
 	hide: context => !context.session.notify?.type,
 	isSet: (context, key) => (context.session.notify?.change ?? []).includes(key as notifyRules.Change),
-	set: (context, key) => {
+	set(context, key) {
 		context.session.notify = {
 			...context.session.notify,
 			change: toggleKeyInArray(context.session.notify?.change ?? [], key as notifyRules.Change),
@@ -175,7 +175,7 @@ addMenu.select('change', CHANGE_TYPES, {
 addMenu.select('compare', {value: '🔢 Wert', position: '📡 Position'}, {
 	hide: context => !context.session.notify?.type,
 	isSet: (context, key) => context.session.notify?.compare === key,
-	set: (context, key) => {
+	set(context, key) {
 		context.session.notify = {
 			...context.session.notify,
 			compare: key as any,
@@ -227,11 +227,11 @@ const compareToValueQuestion = new StatelessQuestion<MyContext>('notify-cv', asy
 bot.use(compareToValueQuestion);
 
 addMenu.interact(compareToValueButtonText, 'cv', {
-	hide: context => {
+	hide(context) {
 		const {type, compare} = context.session.notify ?? {};
 		return !type || compare !== 'value';
 	},
-	do: async context => {
+	async do(context) {
 		await compareToValueQuestion.replyWithHTML(context, 'Mit welchem Wert soll verglichen werden?');
 		return false;
 	},
@@ -240,7 +240,7 @@ addMenu.interact(compareToValueButtonText, 'cv', {
 const comparePositionMenu = new MenuTemplate<MyContext>('Mit welchem Sensor willst du den Wert vergleichen?');
 
 addMenu.submenu(context => String(context.session.notify?.compare === 'position' && positionButtonText(context.session.notify.compareTo)), 'cp', comparePositionMenu, {
-	hide: context => {
+	hide(context) {
 		const {type, compare} = context.session.notify ?? {};
 		return !type || compare !== 'position';
 	},
@@ -249,7 +249,7 @@ addMenu.submenu(context => String(context.session.notify?.compare === 'position'
 comparePositionMenu.select('p', possibleCompareToSensors, {
 	columns: 1,
 	isSet: (context, key) => context.session.notify?.compareTo === key.replace(/#/g, '/'),
-	set: (context, key) => {
+	set(context, key) {
 		const compareTo = key.replace(/#/g, '/');
 		context.session.notify = {
 			...context.session.notify,
@@ -259,7 +259,7 @@ comparePositionMenu.select('p', possibleCompareToSensors, {
 		return '..';
 	},
 	getCurrentPage: context => context.session.page,
-	setPage: (context, page) => {
+	setPage(context, page) {
 		context.session.page = page;
 	},
 });
@@ -275,7 +275,7 @@ const stableSecondsOptions = {
 addMenu.select('stableSeconds', stableSecondsOptions, {
 	hide: context => !context.session.notify?.type,
 	isSet: (context, key) => context.session.notify?.stableSeconds === Number(key),
-	set: (context, key) => {
+	set(context, key) {
 		context.session.notify = {
 			...context.session.notify,
 			stableSeconds: Number(key),
@@ -285,7 +285,7 @@ addMenu.select('stableSeconds', stableSecondsOptions, {
 });
 
 addMenu.interact('Erstellen', 'addRule', {
-	hide: context => {
+	hide(context) {
 		const {notify} = context.session;
 
 		if (!notify || !notify.type || !notify.compare || notify.compareTo === undefined) {
@@ -303,7 +303,7 @@ addMenu.interact('Erstellen', 'addRule', {
 
 		throw new TypeError('how did you end up here?');
 	},
-	do: async context => {
+	async do(context) {
 		notifyRules.add({
 			...context.session.notify,
 			chat: context.chat!.id,
@@ -334,7 +334,7 @@ function removeOptions(context: MyContext) {
 
 removeMenu.choose('r', removeOptions, {
 	columns: 1,
-	do: (context, key) => {
+	do(context, key) {
 		const rules = notifyRules.getByChat(context.chat!.id);
 		const ruleToRemove = rules[Number(key)];
 		if (ruleToRemove) {
@@ -344,7 +344,7 @@ removeMenu.choose('r', removeOptions, {
 		return true;
 	},
 	getCurrentPage: context => context.session.page,
-	setPage: (context, page) => {
+	setPage(context, page) {
 		context.session.page = page;
 	},
 });
