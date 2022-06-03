@@ -1,4 +1,4 @@
-import {readFile, mkdir, appendFile} from 'fs/promises';
+import {readFile, mkdir, appendFile} from 'node:fs/promises';
 
 import arrayFilterUnique from 'array-filter-unique';
 import * as d3 from 'd3';

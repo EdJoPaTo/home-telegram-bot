@@ -3,12 +3,12 @@ import {html as format} from 'telegram-format';
 import {MenuTemplate, Body, replyMenuToContext} from 'grammy-inline-menu';
 import {StatelessQuestion} from '@grammyjs/stateless-question';
 
-import {toggleKeyInArray} from '../lib/array-helper';
-import {getPositions, getTypesOfPosition} from '../lib/data';
-import {information as informationFormat, typeValue} from '../lib/format';
-import * as notifyRules from '../lib/notify-rules';
+import {toggleKeyInArray} from '../lib/array-helper.js';
+import {getPositions, getTypesOfPosition} from '../lib/data.js';
+import {information as informationFormat, typeValue} from '../lib/format.js';
+import * as notifyRules from '../lib/notify-rules.js';
 
-import {MyContext} from './context';
+import {MyContext} from './context.js';
 
 const {DEFAULT_RULE, CHANGE_TYPES} = notifyRules;
 

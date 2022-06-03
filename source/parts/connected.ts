@@ -1,8 +1,8 @@
 import {Body, MenuTemplate} from 'grammy-inline-menu';
 import {html as format} from 'telegram-format';
 
-import {connectionStatus, timespan} from '../lib/format';
-import {getPositions, getLastValue} from '../lib/data';
+import {connectionStatus, timespan} from '../lib/format.js';
+import {getPositions, getLastValue} from '../lib/data.js';
 
 export const menu = new MenuTemplate(menuBody);
 

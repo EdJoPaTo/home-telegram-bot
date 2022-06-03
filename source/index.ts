@@ -5,16 +5,16 @@ import {html as format} from 'telegram-format';
 import {MenuMiddleware} from 'grammy-inline-menu';
 import * as MQTT from 'async-mqtt';
 
-import * as data from './lib/data';
-import * as notify from './lib/notify';
-import {loadConfig} from './lib/config';
+import * as data from './lib/data.js';
+import * as notify from './lib/notify.js';
+import {loadConfig} from './lib/config.js';
 
-import {MyContext, Session} from './parts/context';
+import {MyContext, Session} from './parts/context.js';
 
-import {menu as connectedMenu} from './parts/connected';
-import {menu as graphMenu} from './parts/graph';
-import {menu as notifyMenu, bot as notifyBot} from './parts/notify';
-import {menu as statusMenu} from './parts/status';
+import {menu as connectedMenu} from './parts/connected.js';
+import {menu as graphMenu} from './parts/graph.js';
+import {menu as notifyMenu, bot as notifyBot} from './parts/notify.js';
+import {menu as statusMenu} from './parts/status.js';
 
 const config = loadConfig();
 

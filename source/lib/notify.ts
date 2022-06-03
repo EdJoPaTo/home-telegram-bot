@@ -3,10 +3,10 @@ import {html as format} from 'telegram-format';
 import * as debounce from 'debounce-promise';
 import * as stringify from 'json-stable-stringify';
 
-import * as data from './data';
-import {Change, Position, Type, CHANGE_TYPES, Rule, getByPosition, getByCompareTo} from './notify-rules';
-import {isRising, isFalling, isUnequal} from './notify-math';
-import {typeValue} from './format';
+import * as data from './data.js';
+import {Change, Position, Type, CHANGE_TYPES, Rule, getByPosition, getByCompareTo} from './notify-rules.js';
+import {isRising, isFalling, isUnequal} from './notify-math.js';
+import {typeValue} from './format.js';
 
 let telegram: Telegram;
 

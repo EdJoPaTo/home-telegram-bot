@@ -1,4 +1,4 @@
-import {readFileSync, writeFileSync} from 'fs';
+import {readFileSync, writeFileSync} from 'node:fs';
 
 const CONFIG_FILE = 'persistent/config.json';
 

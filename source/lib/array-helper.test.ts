@@ -1,6 +1,6 @@
 import test from 'ava';
 
-import {setKeyInArray, toggleKeyInArray} from './array-helper';
+import {setKeyInArray, toggleKeyInArray} from './array-helper.js';
 
 test('setKeyInArray true', t => {
 	const result = setKeyInArray(['a', 'b'], 'c', true);

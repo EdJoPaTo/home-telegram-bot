@@ -1,6 +1,6 @@
 import test from 'ava';
 
-import {isRising, isFalling, isUnequal} from './notify-math';
+import {isRising, isFalling, isUnequal} from './notify-math.js';
 
 test('isRising', t => {
 	t.false(isRising(1, 2));

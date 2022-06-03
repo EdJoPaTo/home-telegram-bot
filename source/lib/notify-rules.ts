@@ -1,9 +1,9 @@
-import {readFileSync, writeFileSync} from 'fs';
+import {readFileSync, writeFileSync} from 'node:fs';
 
 import {html} from 'telegram-format';
 import * as stringify from 'json-stable-stringify';
 
-import {typeValue} from './format';
+import {typeValue} from './format.js';
 
 export type Change = 'unequal' | 'rising' | 'falling';
 

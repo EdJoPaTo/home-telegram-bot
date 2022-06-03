@@ -1,12 +1,12 @@
 import {Body, MenuTemplate} from 'grammy-inline-menu';
 import {html as format} from 'telegram-format';
 
-import {connectionStatus, information as informationFormat, typeValue} from '../lib/format';
-import {getCommonPrefix} from '../lib/mqtt-topic';
-import {getLastValue, getPositions, getTypes, getTypesOfPosition} from '../lib/data';
-import {toggleKeyInArray} from '../lib/array-helper';
+import {connectionStatus, information as informationFormat, typeValue} from '../lib/format.js';
+import {getCommonPrefix} from '../lib/mqtt-topic.js';
+import {getLastValue, getPositions, getTypes, getTypesOfPosition} from '../lib/data.js';
+import {toggleKeyInArray} from '../lib/array-helper.js';
 
-import {MyContext} from './context';
+import {MyContext} from './context.js';
 
 export const menu = new MenuTemplate(getStatusText);
 

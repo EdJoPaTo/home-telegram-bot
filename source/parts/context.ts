@@ -1,6 +1,6 @@
 import {Context as BaseContext, SessionFlavor} from 'grammy';
 
-import {Position, Rule, Type} from '../lib/notify-rules';
+import {Position, Rule, Type} from '../lib/notify-rules.js';
 
 export interface Status {
 	types?: readonly string[];

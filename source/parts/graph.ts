@@ -2,13 +2,13 @@ import {html as format} from 'telegram-format';
 import {InputFile} from 'grammy';
 import {MenuTemplate, Body} from 'grammy-inline-menu';
 
-import {getCommonPrefix, getWithoutCommonPrefix} from '../lib/mqtt-topic';
-import {getTypes, getPositions} from '../lib/data';
-import {Graph} from '../lib/graph';
-import {information as informationFormat} from '../lib/format';
-import {toggleKeyInArray} from '../lib/array-helper';
+import {getCommonPrefix, getWithoutCommonPrefix} from '../lib/mqtt-topic.js';
+import {getTypes, getPositions} from '../lib/data.js';
+import {Graph} from '../lib/graph.js';
+import {information as informationFormat} from '../lib/format.js';
+import {toggleKeyInArray} from '../lib/array-helper.js';
 
-import {MyContext} from './context';
+import {MyContext} from './context.js';
 
 const MINUTES_IN_SECONDS = 60;
 const HOUR_IN_SECONDS = 60 * MINUTES_IN_SECONDS;

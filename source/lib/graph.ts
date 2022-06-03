@@ -1,11 +1,11 @@
-import {Buffer} from 'buffer';
+import {Buffer} from 'node:buffer';
 
 import * as d3 from 'd3';
 import * as sharp from 'sharp';
 
-import {Position, Type} from './notify-rules';
-import * as data from './data';
-import * as format from './format';
+import {Position, Type} from './notify-rules.js';
+import * as data from './data.js';
+import * as format from './format.js';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const D3Node = require('d3-node');

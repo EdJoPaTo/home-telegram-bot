@@ -1,6 +1,6 @@
 import test from 'ava';
 
-import {getCommonPrefix, getWithoutCommonPrefix} from './mqtt-topic';
+import {getCommonPrefix, getWithoutCommonPrefix} from './mqtt-topic.js';
 
 const getCommonPrefixMacro = test.macro((t, input: readonly string[], expected: string) => {
 	t.is(getCommonPrefix(input), expected);

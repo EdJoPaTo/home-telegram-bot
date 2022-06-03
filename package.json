@@ -58,13 +58,10 @@
 			"@typescript-eslint/no-require-imports": "off",
 			"@typescript-eslint/no-unsafe-assignment": "off",
 			"@typescript-eslint/no-unsafe-call": "off",
-			"@typescript-eslint/no-unsafe-member-access": "off",
 			"@typescript-eslint/no-unsafe-return": "off",
 			"ava/no-ignored-test-files": "off",
-			"import/extensions": "off",
 			"node/prefer-global/process": "off",
-			"unicorn/prefer-module": "off",
-			"unicorn/prefer-node-protocol": "off"
+			"unicorn/prefer-module": "off"
 		}
 	}
 }
