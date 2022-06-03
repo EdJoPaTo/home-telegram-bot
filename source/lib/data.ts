@@ -91,7 +91,7 @@ export async function loadLastValues(position: Position, type: Type, minTimestam
 
 	const contents = await Promise.all(contentPromises);
 	const entries = contents
-		.filter((o): o is string => Boolean(o))
+		.filter(Boolean)
 		.flatMap(o => parseCsv(o))
 		.filter(o => o.timestamp >= minTimestamp)
 		.sort((a, b) => a.timestamp - b.timestamp);
