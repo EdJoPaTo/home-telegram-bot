@@ -5,7 +5,7 @@ nice npm ci --production
 nice npm run build
 
 # systemd
-sudo cp -uv ./*.service /etc/systemd/system
+sudo cp -v ./*.service /etc/systemd/system
 sudo systemctl daemon-reload
 
 # start
