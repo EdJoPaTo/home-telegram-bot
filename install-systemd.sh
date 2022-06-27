@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-nice npm ci --production
+nice npm ci --omit=dev
 nice npm run build
 
 # systemd
