@@ -2,7 +2,8 @@
 set -e
 
 nice npm ci --omit=dev
-nice npm run build
+rm -rf dist
+nice ./node_modules/.bin/tsc
 
 # systemd
 sudo cp -v ./*.service /etc/systemd/system

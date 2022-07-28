@@ -10,7 +10,6 @@
 		"url": "https://edjopato.de"
 	},
 	"scripts": {
-		"build": "rm -rf dist && tsc",
 		"start": "tsc --sourceMap && node --enable-source-maps dist/index.js",
 		"test": "tsc --sourceMap && xo && nyc ava"
 	},
