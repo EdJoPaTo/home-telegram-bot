@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-nice npm ci --omit=dev
+nice npm ci
 rm -rf dist
 nice ./node_modules/.bin/tsc
 
