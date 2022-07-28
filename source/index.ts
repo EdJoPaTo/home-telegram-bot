@@ -1,3 +1,5 @@
+import * as process from 'node:process';
+
 import {Bot, session} from 'grammy';
 import {FileAdapter} from '@grammyjs/storage-file';
 import {generateUpdateMiddleware} from 'telegraf-middleware-console-time';
@@ -18,7 +20,7 @@ import {menu as statusMenu} from './parts/status.js';
 
 const config = loadConfig();
 
-process.title = config.name;
+(process as any).title = config.name;
 
 const bot = new Bot<MyContext>(config.telegramBotToken);
 bot.use(session({
