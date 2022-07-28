@@ -1,9 +1,5 @@
 # Home Telegram Bot
 
-[![Dependency Status](https://david-dm.org/edjopato/home-telegram-bot/status.svg)](https://david-dm.org/edjopato/home-telegram-bot)
-[![Dependency Status](https://david-dm.org/edjopato/home-telegram-bot/dev-status.svg)](https://david-dm.org/edjopato/home-telegram-bot?type=dev)
-[![mqtt-smarthome](https://img.shields.io/badge/mqtt-smarthome-blue.svg)](https://github.com/mqtt-smarthome/mqtt-smarthome)
-
 This is a Telegram Bot for a home environment based on [mqtt-smarthome](https://github.com/mqtt-smarthome/mqtt-smarthome).
 Currently it's only made for read-only reading of numeric values.
 
@@ -32,7 +28,7 @@ NodeJS is already installed.
   * `User` and `Group` are propably `pi` and `pi`
   * `WorkingDirectory` is your repositiory directory. Use the full path (see `pwd`).
 * Call the `install.sh`
-* Start the bot with `npm start`. The bot will stop and tell you, it created a `config.json`. Adapt it to your needs. See <a href="#config">Config</a>.
+* Start the bot with `npm start`. The bot will stop and tell you, it created a `config.json`. Adapt it to your needs. See [Config](#config).
 * When everything is ready start the bot with systemd: `sudo systemctl start home-telegram-bot.service`
   * When the bot shall start on system bootup run: `sudo systemctl enable home-telegram-bot.service`
 
@@ -52,7 +48,6 @@ Edit it to fit your needs.
   "telegramBotToken": "123:abc",
   "telegramUserWhitelist": []
 }
-
 ```
 
 ### MQTT Settings
