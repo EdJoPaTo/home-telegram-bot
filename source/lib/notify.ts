@@ -104,7 +104,6 @@ async function initiateNotification(
 	const identifier = `${stringify(rule)}${change}`;
 	if (!debouncers[identifier]) {
 		// @ts-expect-error debounce typings are for accumulate false, I use accumulate true...
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 		debouncers[identifier] = debounce(
 			async (argsArray: ArgumentArrayArray) => {
 				await initiateNotificationDebounced(rule, change, argsArray);
