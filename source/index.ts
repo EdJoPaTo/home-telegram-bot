@@ -1,33 +1,29 @@
-import * as process from 'node:process';
-
 import {Bot, session} from 'grammy';
 import {FileAdapter} from '@grammyjs/storage-file';
 import {generateUpdateMiddleware} from 'telegraf-middleware-console-time';
 import {html as format} from 'telegram-format';
 import {MenuMiddleware} from 'grammy-inline-menu';
 import * as MQTT from 'async-mqtt';
-
-import * as data from './lib/data.js';
-import * as notify from './lib/notify.js';
+import {bot as notifyBot, menu as notifyMenu} from './notify.js';
+import {bot as topicFilterMiddleware} from './topic-filter.js';
 import {loadConfig} from './lib/config.js';
-
-import {MyContext, Session} from './parts/context.js';
-
-import {menu as connectedMenu} from './parts/connected.js';
-import {menu as graphMenu} from './parts/graph.js';
-import {menu as notifyMenu, bot as notifyBot} from './parts/notify.js';
-import {menu as statusMenu} from './parts/status.js';
+import {menu as connectedMenu} from './connected.js';
+import {menu as statusMenu} from './status.js';
+import {payloadToNumber} from './lib/payload.js';
+import * as history from './lib/mqtt-history.js';
+import * as notify from './lib/notify.js';
+import type {MyContext, Session} from './context.js';
 
 const config = loadConfig();
 
-(process as any).title = config.name;
+(process as any).title = 'home-telegram-bot';
 
 const bot = new Bot<MyContext>(config.telegramBotToken);
 bot.use(session({
-	getSessionKey: context => String(context.from?.id),
-	initial: (): Session => ({graph: {positions: []}}),
+	getSessionKey: ctx => String(ctx.from?.id),
+	initial: (): Session => ({}),
 	storage: new FileAdapter({
-		dirName: 'tmp/sessions',
+		dirName: 'sessions',
 	}),
 }));
 
@@ -38,7 +34,7 @@ notify.init(bot.api);
 const mqttRetain = process.env['NODE_ENV'] === 'production';
 const mqttOptions: MQTT.IClientOptions = {
 	will: {
-		topic: `${config.name}/connected`,
+		topic: 'home-telegram-bot/connected',
 		payload: '0',
 		qos: 1,
 		retain: mqttRetain,
@@ -49,66 +45,66 @@ const client = MQTT.connect(config.mqttServer, mqttOptions);
 
 client.on('connect', async () => {
 	console.log('connected to mqtt server');
-	await client.publish(`${config.name}/connected`, '2', {retain: mqttRetain});
 	await Promise.all(
 		config.mqttTopics.map(async topic => client.subscribe(topic)),
 	);
+	await client.publish('home-telegram-bot/connected', '2', {retain: mqttRetain});
 	console.log('subscribed to topics', config.mqttTopics);
 });
 
-client.on('message', async (topic, message, packet) => {
+client.on('message', async (topic, payload, packet) => {
 	if (packet.cmd !== 'publish') {
 		// Only handle publish packages
 		return;
 	}
 
-	const time = Date.now();
-	const messageString = message.toString();
-	// Debug
-	// console.log('incoming message', topic, messageString, packet)
-	const value = Number(messageString);
+	const time = new Date();
 
-	if (!messageString || !Number.isFinite(value)) {
-		console.log('dropping non finite number', topic, messageString);
+	if (payload.byteLength === 0) {
+		// Cleanup message -> remove the history entry
+		history.removeLastValue(topic);
 		return;
 	}
 
-	if (packet.retain && topic === `${config.name}/connected`) {
-		// Thats my own, old/retained connectionStatus. Ignore it.
+	if (payload.byteLength > 40) {
+		// Debug
+		// console.log('dropping large payload', payload.byteLength, topic);
 		return;
 	}
 
-	const topicSplitted = topic.split('/');
-	const type = topicSplitted.slice(-1)[0]!;
-	const position = topicSplitted
-		.slice(0, -1)
-		.filter((o, i) => i !== 1 || o !== 'status')
-		.join('/');
-
-	if (packet.retain) {
-		// The retained value is an old one the MQTT broker still knows about
-		data.setLastValue(position, type, undefined, value);
-	} else {
-		notify.check(position, type, value);
-		// Not retained -> new value
-		await data.logValue(position, type, time, value);
+	if (topic === 'home-telegram-bot/connected') {
+		// Thats my own connection status. Ignore it.
+		return;
 	}
+
+	const messageString = payload.toString();
+	const value = payloadToNumber(messageString);
+	if (value === undefined) {
+		console.log('dropping unknown payload', topic, messageString);
+		return;
+	}
+
+	if (!packet.retain) {
+		notify.check(topic, value);
+	}
+
+	history.setLastValue(topic, packet.retain ? undefined : time, value);
 });
 
-if (config.telegramUserWhitelist.length > 0) {
-	bot.use(async (context, next) => {
-		if (!context.from) {
+if (config.telegramUserAllowlist.length > 0) {
+	bot.use(async (ctx, next) => {
+		if (!ctx.from) {
 			// Whatever it is, its nothing useful for this bot
 			return;
 		}
 
-		const isWhitelisted = config.telegramUserWhitelist.includes(context.from.id);
-		if (isWhitelisted) {
+		const isAllowed = config.telegramUserAllowlist.includes(ctx.from.id);
+		if (isAllowed) {
 			await next();
 			return;
 		}
 
-		let text = `Hey ${format.escape(context.from.first_name)}!`;
+		let text = `Hey ${format.escape(ctx.from.first_name)}!`;
 		text += '\n';
 		text += 'Looks like you are not approved to use this bot.';
 
@@ -116,31 +112,29 @@ if (config.telegramUserWhitelist.length > 0) {
 		text += 'Forward this message to the owner of the bot if you think you should be approved.';
 		text += '\n';
 		text += 'Your Telegram user id: ';
-		text += format.monospace(String(context.from.id));
+		text += format.monospace(String(ctx.from.id));
 
-		await context.reply(text, {parse_mode: format.parse_mode});
+		await ctx.reply(text, {parse_mode: format.parse_mode});
 	});
 }
 
+bot.use(topicFilterMiddleware);
+
 const statusMiddleware = new MenuMiddleware('status/', statusMenu);
-bot.command('status', async context => statusMiddleware.replyToContext(context));
+bot.command('status', async ctx => statusMiddleware.replyToContext(ctx));
 bot.use(statusMiddleware);
 
 const connectedMiddleware = new MenuMiddleware('connected/', connectedMenu);
-bot.command('connected', async context => connectedMiddleware.replyToContext(context));
+bot.command('connected', async ctx => connectedMiddleware.replyToContext(ctx));
 bot.use(connectedMiddleware);
 
-const graphMiddleware = new MenuMiddleware('graph/', graphMenu);
-bot.command('graph', async context => graphMiddleware.replyToContext(context));
-bot.use(graphMiddleware);
-
 const notifyMiddleware = new MenuMiddleware('notify/', notifyMenu);
-bot.command('notify', async context => notifyMiddleware.replyToContext(context));
+bot.command('notify', async ctx => notifyMiddleware.replyToContext(ctx));
 bot.use(notifyMiddleware);
 bot.use(notifyBot);
 
-bot.command('start', async context =>
-	context.reply(`Hey ${context.from?.first_name ?? 'du'}!\n\nWenn du den Status der aktuellen Sensoren sehen willst, nutze /status oder /graph.\nWenn du eine Benachrichtigung haben möchtest, wenn es draußen wärmer wird als drinnen, nutze /notify.`),
+bot.command('start', async ctx =>
+	ctx.reply(`Hey ${ctx.from?.first_name ?? 'du'}!\n\nWenn du den Status der aktuellen Sensoren sehen willst, nutze /status.\nWenn du eine Benachrichtigung haben möchtest, wenn es draußen wärmer wird als drinnen, nutze /notify.`),
 );
 
 bot.catch(error => {
@@ -153,9 +147,8 @@ bot.catch(error => {
 
 async function startup() {
 	await bot.api.setMyCommands([
-		{command: 'status', description: 'betrachte den aktuellen Status der Temperatur Sensoren'},
+		{command: 'status', description: 'betrachte die aktuellen Werte von MQTT Topics'},
 		{command: 'connected', description: 'zeige den Verbindungsstatus'},
-		{command: 'graph', description: 'sende Graphen der Sensordaten'},
 		{command: 'notify', description: 'ändere zu welchen Sensoren du benachrichtigt werden willst'},
 	]);
 

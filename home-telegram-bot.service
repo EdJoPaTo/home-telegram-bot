@@ -1,18 +1,34 @@
 [Unit]
 Description=Run Home Telegram Bot
-Wants=network-online.target
+Wants=network.target
 After=network-online.target
 StartLimitIntervalSec=0
 
 [Service]
-Type=simple
+Type=forking
+PIDFile=%t/containter-%N.pid
 Restart=always
 RestartSec=20
-Environment="NODE_ENV=production"
-ExecStart=/usr/bin/node --enable-source-maps dist/index.js
-WorkingDirectory=/home/pi/git/home-telegram-bot/
-User=pi
-Group=pi
+
+Environment=PODMAN_SYSTEMD_UNIT=%n
+Environment=PODMAN_IMAGE=ghcr.io/edjopato/home-telegram-bot
+Environment=PODMAN_VERSION=edge
+
+ExecStartPre=/bin/rm -f %t/containter-%N.pid
+# TODO: use io.containers.autoupdate=registry when possible with debian stable
+ExecStart=/usr/bin/podman run \
+	--name %N \
+	--cgroups=no-conmon \
+	--conmon-pidfile %t/containter-%N.pid \
+	--detach \
+	--label "io.containers.autoupdate=image" \
+	--log-driver=journald \
+	--network host \
+	--replace \
+	--volume "/srv/%N/sessions:/app/sessions:rw" \
+	--volume "/srv/%N/persist:/app/persist:rw" \
+	${PODMAN_IMAGE}:${PODMAN_VERSION}
+ExecStop=/usr/bin/podman stop --ignore %N
 
 [Install]
 WantedBy=multi-user.target

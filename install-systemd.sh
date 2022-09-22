@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-set -e
+set -eu
 
-nice npm ci
-rm -rf dist
-nice ./node_modules/.bin/tsc
+sudo nice podman pull ghcr.io/edjopato/home-telegram-bot:edge
+
+sudo mkdir -p /srv/home-telegram-bot/{persist,sessions}
 
 # systemd
 sudo cp -v ./*.service /etc/systemd/system

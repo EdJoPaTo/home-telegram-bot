@@ -1,12 +1,11 @@
-import {Api as Telegram} from 'grammy';
 import {html as format} from 'telegram-format';
-import * as debounce from 'debounce-promise';
-import * as stringify from 'json-stable-stringify';
-
-import * as data from './data.js';
-import {Change, Position, Type, CHANGE_TYPES, Rule, getByPosition, getByCompareTo} from './notify-rules.js';
-import {isRising, isFalling, isUnequal} from './notify-math.js';
-import {typeValue} from './format.js';
+import debounce from 'debounce-promise';
+import stringify from 'json-stable-stringify';
+import type {Api as Telegram} from 'grammy';
+import {CHANGE_TYPES, getByCompareTo, getByTopic} from './notify-rules.js';
+import {isFalling, isRising, isUnequal} from './notify-math.js';
+import * as history from './mqtt-history.js';
+import type {Change, Rule} from './notify-rules.js';
 
 let telegram: Telegram;
 
@@ -30,28 +29,28 @@ function getChangeCheckFunction(change: Change) {
 	throw new TypeError('unknown change: ' + String(change));
 }
 
-export function check(position: Position, type: Type, value: number) {
-	const last = data.getLastValue(position, type);
+export function check(topic: string, value: number) {
+	const last = history.getLastValue(topic);
 	if (!last) {
 		// There is nothing to compare yet
 		return;
 	}
 
-	const rulesByPosition = getByPosition(position, type);
-	for (const rule of rulesByPosition) {
-		checkRulePosition(rule, value, last.value);
+	const rulesByTopic = getByTopic(topic);
+	for (const rule of rulesByTopic) {
+		checkRuleTopic(rule, value, last.value);
 	}
 
-	const rulesByCompareTo = getByCompareTo(position, type);
+	const rulesByCompareTo = getByCompareTo(topic);
 	for (const rule of rulesByCompareTo) {
 		checkRuleCompareTo(rule, value, last.value);
 	}
 }
 
-function checkRulePosition(rule: Rule, currentValue: number, lastValue: number) {
+function checkRuleTopic(rule: Rule, currentValue: number, lastValue: number) {
 	const compareTo = rule.compare === 'value'
 		? rule.compareTo
-		: data.getLastValue(rule.compareTo, rule.type)?.value;
+		: history.getLastValue(rule.compareTo)?.value;
 
 	if (compareTo === undefined) {
 		return;
@@ -68,34 +67,46 @@ function checkRulePosition(rule: Rule, currentValue: number, lastValue: number) 
 	}
 }
 
-function checkRuleCompareTo(rule: Rule, currentValue: number, lastValue: number) {
-	const positionLastValue = data.getLastValue(rule.position, rule.type)?.value;
-	if (positionLastValue === undefined) {
+function checkRuleCompareTo(
+	rule: Rule,
+	currentValue: number,
+	lastValue: number,
+) {
+	const topicLastValue = history.getLastValue(rule.topic)?.value;
+	if (topicLastValue === undefined) {
 		return;
 	}
 
 	for (const change of rule.change) {
 		const checkFunction = getChangeCheckFunction(change);
-		const isLast = checkFunction(positionLastValue, lastValue);
-		const isNow = checkFunction(positionLastValue, currentValue);
+		const isLast = checkFunction(topicLastValue, lastValue);
+		const isNow = checkFunction(topicLastValue, currentValue);
 		if (isLast !== isNow) {
 			// eslint-disable-next-line @typescript-eslint/no-floating-promises
-			initiateNotification(rule, change, positionLastValue, currentValue);
+			initiateNotification(rule, change, topicLastValue, currentValue);
 		}
 	}
 }
 
-interface Arguments {
+type Arguments = {
 	readonly currentValue: number;
 	readonly compareTo: number;
-}
+};
 
-const debouncers: Record<string, (a: Arguments) => Promise<void>> = {};
-async function initiateNotification(rule: Rule, change: Change, currentValue: number, compareTo: number) {
+type ArgumentArrayArray = ReadonlyArray<readonly Arguments[]>;
+const debouncers: Record<string, (a: Arguments) => Promise<unknown[]>> = {};
+async function initiateNotification(
+	rule: Rule,
+	change: Change,
+	currentValue: number,
+	compareTo: number,
+) {
 	const identifier = `${stringify(rule)}${change}`;
 	if (!debouncers[identifier]) {
+		// @ts-expect-error debounce typings are for accumulate false, I use accumulate true...
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 		debouncers[identifier] = debounce(
-			async argsArray => {
+			async (argsArray: ArgumentArrayArray) => {
 				await initiateNotificationDebounced(rule, change, argsArray);
 
 				// Fix required. See https://github.com/bjoerge/debounce-promise/pull/19
@@ -112,7 +123,11 @@ async function initiateNotification(rule: Rule, change: Change, currentValue: nu
 	});
 }
 
-async function initiateNotificationDebounced(rule: Rule, change: Change, argsArray: ReadonlyArray<readonly Arguments[]>) {
+async function initiateNotificationDebounced(
+	rule: Rule,
+	change: Change,
+	argsArray: ArgumentArrayArray,
+) {
 	// The argsArr contains arrays or arguments per call.
 	// As only one argument is used (values) this array of arrays is annoying so simplify it with .flat().
 	const values = argsArray.flat();
@@ -131,20 +146,20 @@ async function initiateNotificationDebounced(rule: Rule, change: Change, argsArr
 
 	let text = '';
 
-	if (rule.compare === 'position') {
-		text += rule.compareTo;
+	if (rule.compare === 'topic') {
+		text += format.monospace(rule.compareTo);
 		text += ' ';
 		text += CHANGE_TYPES[change];
 		text += ' ';
 	}
 
-	text += format.monospace(rule.position);
+	text += format.monospace(rule.topic);
 	text += '\n';
-	text += typeValue(rule.type, compareTo);
+	text += String(compareTo);
 	text += ' ';
 	text += CHANGE_TYPES[change];
 	text += ' ';
-	text += typeValue(rule.type, currentValue);
+	text += String(currentValue);
 
 	await telegram.sendMessage(rule.chat, text, {
 		parse_mode: format.parse_mode,

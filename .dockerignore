@@ -13,7 +13,5 @@ node_modules
 test
 
 # botfiles
-data/
-history/
-persistent/
-tmp/
+persist
+sessions

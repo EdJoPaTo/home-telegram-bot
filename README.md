@@ -1,15 +1,11 @@
 # Home Telegram Bot
 
-This is a Telegram Bot for a home environment based on [mqtt-smarthome](https://github.com/mqtt-smarthome/mqtt-smarthome).
+This is a Telegram Bot for a home environment based on MQTT.
+
+The goal of this project is to suit my personal needs.
 Currently it's only made for read-only reading of numeric values.
 
 ## Features
-
-### Graph
-
-Users can plot dynamic graphs of the history sensor values.
-Plotting is made with [d3](https://d3js.org/).
-As Telegram sadly does not support SVG [Sharp](https://github.com/lovell/sharp/) is used to create images to send via Telegram.
 
 ### Notifications
 
@@ -46,7 +42,7 @@ Edit it to fit your needs.
   ],
   "name": "home-telegram-bot",
   "telegramBotToken": "123:abc",
-  "telegramUserWhitelist": []
+  "telegramUserAllowlist": []
 }
 ```
 
@@ -63,8 +59,8 @@ He will provide you with a token you have to place in here.
 Also give the BotFather the commands the bot shall show.
 A list for Copy & Paste is in `botfather-commands.txt`.
 
-### Telegram User Whitelist
+### Telegram User Allowlist
 
 The userids of telegram users have to be specified in here.
 Everyone can use the bot when it is empty.
-You can add a random number, start the bot and write to the bot.
+You can add a random number, start the bot and write to the bot to find out your own id.

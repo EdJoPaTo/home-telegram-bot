@@ -1,10 +1,6 @@
-.nyc_output
-coverage
 dist
 node_modules
 
 # botfiles
-data/
-history/
-persistent/
-tmp/
+persist
+sessions

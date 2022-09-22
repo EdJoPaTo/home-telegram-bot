@@ -1,4 +1,8 @@
-export function setKeyInArray<T>(array: readonly T[], key: T, newState: boolean): T[] {
+export function setKeyInArray<T>(
+	array: readonly T[],
+	key: T,
+	newState: boolean,
+): T[] {
 	if (newState) {
 		return [...array, key];
 	}

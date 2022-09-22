@@ -20,6 +20,7 @@ RUN apk upgrade --no-cache
 
 WORKDIR /app
 VOLUME /app/persist
+VOLUME /app/sessions
 
 COPY package.json ./
 COPY --from=packages /build/node_modules ./node_modules

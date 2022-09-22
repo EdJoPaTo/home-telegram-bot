@@ -1,43 +1,59 @@
-import {readFileSync, writeFileSync} from 'node:fs';
+import {existsSync, readFileSync, writeFileSync} from 'node:fs';
+import {exit} from 'node:process';
 
-const CONFIG_FILE = 'persistent/config.json';
+const CONFIG_FILE = 'persist/config.json';
 
-interface Config {
+type Config = {
 	readonly mqttServer: string;
 	readonly mqttTopics: readonly string[];
-	readonly name: string;
 	readonly telegramBotToken: string;
-	readonly telegramUserWhitelist: readonly number[];
-}
+	readonly telegramUserAllowlist: readonly number[];
+};
 
 const DEFAULT_CONFIG: Config = {
 	mqttServer: 'tcp://localhost:1883',
 	mqttTopics: [
+		// MQTT Smarthome
 		'+/connected',
 		'+/status/#',
+
+		// ESPHome
+		'+/status',
+		'+/+/+/state',
+
+		'shellies/+/input/+',
+		'shellies/+/online',
+		'shellies/+/relay/#',
+		'shellies/+/temperature',
+		'shellies/+/voltage',
 	],
-	name: 'home-telegram-bot',
 	telegramBotToken: '123:abc',
-	telegramUserWhitelist: [],
+	telegramUserAllowlist: [],
 };
 
 export function loadConfig(): Config {
-	try {
-		const content = readFileSync(CONFIG_FILE, 'utf8');
-		const config = JSON.parse(content) as Config;
-		const withDefaults = {
-			...DEFAULT_CONFIG,
-			...config,
-		};
-
-		// Save again to fix possible formatting issues
-		saveConfig(withDefaults);
-
-		return withDefaults;
-	} catch {
+	if (!existsSync(CONFIG_FILE)) {
 		saveConfig(DEFAULT_CONFIG);
-		throw new Error('No config file found. Created one. Edit ' + CONFIG_FILE + ' to your needs and restart the bot.');
+		console.error(
+			'No config file found. Created one. Edit',
+			CONFIG_FILE,
+			'to your needs and restart the bot.',
+		);
+
+		exit(1);
 	}
+
+	const content = readFileSync(CONFIG_FILE, 'utf8');
+	const config = JSON.parse(content) as Config;
+	const withDefaults = {
+		...DEFAULT_CONFIG,
+		...config,
+	};
+
+	// Save again to fix possible formatting issues
+	saveConfig(withDefaults);
+
+	return withDefaults;
 }
 
 function saveConfig(config: Config): void {

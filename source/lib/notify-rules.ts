@@ -1,36 +1,30 @@
 import {readFileSync, writeFileSync} from 'node:fs';
-
 import {html} from 'telegram-format';
-import * as stringify from 'json-stable-stringify';
-
-import {typeValue} from './format.js';
+import stringify from 'json-stable-stringify';
 
 export type Change = 'unequal' | 'rising' | 'falling';
+type Topic = string;
 
-export type Position = string;
-export type Type = string;
-
-interface BaseRule {
-	readonly position: Position;
-	readonly type: Type;
+type BaseRule = {
+	readonly topic: Topic;
 	readonly change: readonly Change[];
 	readonly chat: number;
 	readonly stableSeconds: number;
-}
+};
 
-interface PositionRule extends BaseRule {
-	readonly compare: 'position';
-	readonly compareTo: string;
-}
+type TopicRule = BaseRule & {
+	readonly compare: 'topic';
+	readonly compareTo: Topic;
+};
 
-interface ValueRule extends BaseRule {
+type ValueRule = BaseRule & {
 	readonly compare: 'value';
 	readonly compareTo: number;
-}
+};
 
-export type Rule = ValueRule | PositionRule;
+export type Rule = ValueRule | TopicRule;
 
-const RULE_FILE = 'persistent/rules.json';
+const RULE_FILE = 'persist/rules.json';
 const rules = loadRules();
 
 export const DEFAULT_RULE: Partial<Rule> = {
@@ -46,10 +40,10 @@ export const CHANGE_TYPES: Readonly<Record<Change, string>> = {
 	falling: '📉',
 };
 
-function loadRules(): Record<string, Rule[]> {
+function loadRules(): Record<Topic, Rule[]> {
 	try {
 		const content = readFileSync(RULE_FILE, 'utf8');
-		return JSON.parse(content) as Record<string, Rule[]>;
+		return JSON.parse(content) as Record<Topic, Rule[]>;
 	} catch {
 		return {};
 	}
@@ -60,16 +54,15 @@ function saveRules() {
 	writeFileSync(RULE_FILE, content, 'utf8');
 }
 
-export function getByPosition(position: Position, type: Type) {
-	return rules[position + '/' + type] ?? [];
+export function getByTopic(topic: Topic) {
+	return rules[topic] ?? [];
 }
 
-export function getByCompareTo(position: Position, type: Type) {
+export function getByCompareTo(topic: Topic) {
 	return Object.values(rules)
 		.flat()
-		.filter(o => o.compare === 'position')
-		.filter(o => o.type === type)
-		.filter(o => o.compareTo === position);
+		.filter(o => o.compare === 'topic')
+		.filter(o => o.compareTo === topic);
 }
 
 export function getByChat(chat: number) {
@@ -79,40 +72,38 @@ export function getByChat(chat: number) {
 }
 
 export function add(rule: Rule): void {
-	const {position, type} = rule;
-	const key = position + '/' + type;
-	if (!rules[key]) {
-		rules[key] = [];
+	const {topic} = rule;
+	if (!rules[topic]) {
+		rules[topic] = [];
 	}
 
-	rules[key]!.push(rule);
+	rules[topic]!.push(rule);
 	saveRules();
 }
 
 export function remove(rule: Rule): void {
-	const {position, type} = rule;
-	const key = position + '/' + type;
-	if (!rules[key]) {
+	const {topic} = rule;
+	if (!rules[topic]) {
 		return;
 	}
 
 	const stringifiedRule = stringify(rule);
-	rules[key] = rules[key]!
+	rules[topic] = rules[topic]!
 		.filter(o => stringify(o) !== stringifiedRule);
 
-	if (rules[key]!.length === 0) {
+	if (rules[topic]!.length === 0) {
 		// eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-		delete rules[key];
+		delete rules[topic];
 	}
 
 	saveRules();
 }
 
 export function asString(rule: Rule, parse_mode: 'HTML' | undefined): string {
-	const {position, type, change, stableSeconds} = rule;
+	const {topic, change, stableSeconds} = rule;
 
-	let text = type + ' ';
-	text += parse_mode === 'HTML' ? html.monospace(position) : position;
+	let text = '';
+	text += parse_mode === 'HTML' ? html.monospace(topic) : topic;
 
 	text += ' ';
 
@@ -121,7 +112,9 @@ export function asString(rule: Rule, parse_mode: 'HTML' | undefined): string {
 		.map(o => CHANGE_TYPES[o]);
 	text += changeSymbols.join('') + ' ';
 
-	text += rule.compare === 'value' ? typeValue(rule.type, rule.compareTo) : rule.compareTo;
+	text += (parse_mode === 'HTML' && rule.compare === 'topic')
+		? html.monospace(rule.compareTo)
+		: String(rule.compareTo);
 
 	text += ' ';
 	const stableMinutes = Math.round(stableSeconds / 6) / 10;
