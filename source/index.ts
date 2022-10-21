@@ -23,7 +23,7 @@ bot.use(session({
 	getSessionKey: ctx => String(ctx.from?.id),
 	initial: (): Session => ({}),
 	storage: new FileAdapter({
-		dirName: 'sessions',
+		dirName: 'persist/sessions',
 	}),
 }));
 
