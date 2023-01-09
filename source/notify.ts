@@ -97,7 +97,11 @@ topicMenu.select('p', topicOptions, {
 
 topicMenu.navigate('🔙 zurück…', '..');
 
-addMenu.submenu(ctx => topicButtonText(ctx.session.notify?.topic), 't', topicMenu);
+addMenu.submenu(
+	ctx => topicButtonText(ctx.session.notify?.topic),
+	't',
+	topicMenu,
+);
 
 addMenu.select('change', CHANGE_TYPES, {
 	showFalseEmoji: true,
@@ -166,7 +170,9 @@ const compareToValueQuestion = new StatelessQuestion<MyContext>(
 	'notify-cv',
 	async ctx => {
 		if (ctx.message.text) {
-			const justDigits = Number(ctx.message.text.replace(/[^\d,.-]/g, '').replace(',', '.'));
+			const justDigits = Number(
+				ctx.message.text.replace(/[^\d,.-]/g, '').replace(',', '.'),
+			);
 			ctx.session.notify = {
 				...ctx.session.notify,
 				compare: 'value',
@@ -194,7 +200,9 @@ addMenu.interact(compareToValueButtonText, 'cv', {
 	},
 });
 
-const compareTopicMenu = new MenuTemplate<MyContext>('Mit welchem Sensor willst du den Wert vergleichen?');
+const compareTopicMenu = new MenuTemplate<MyContext>(
+	'Mit welchem Sensor willst du den Wert vergleichen?',
+);
 
 addFilterButtons(compareTopicMenu, 'notify-compateTopic');
 
@@ -253,7 +261,7 @@ addMenu.interact('Erstellen', 'addRule', {
 	hide(ctx) {
 		const {notify} = ctx.session;
 
-		if (!notify || !notify.topic || !notify.compare || notify.compareTo === undefined) {
+		if (!notify?.topic || !notify.compare || notify.compareTo === undefined) {
 			return true;
 		}
 
@@ -281,7 +289,9 @@ addMenu.interact('Erstellen', 'addRule', {
 
 addMenu.navigate('🔙 zurück…', '..');
 
-const removeMenu = new MenuTemplate<MyContext>('Welche Regel möchtest du entfernen?');
+const removeMenu = new MenuTemplate<MyContext>(
+	'Welche Regel möchtest du entfernen?',
+);
 
 menu.submenu('Regel entfernen…', 'r', removeMenu, {
 	hide: ctx => notifyRules.getByChat(ctx.chat!.id).length === 0,

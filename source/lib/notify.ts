@@ -103,7 +103,6 @@ async function initiateNotification(
 ) {
 	const identifier = `${stringify(rule)}${change}`;
 	if (!debouncers[identifier]) {
-		// @ts-expect-error debounce typings are for accumulate false, I use accumulate true...
 		debouncers[identifier] = debounce(
 			async (argsArray: ArgumentArrayArray) => {
 				await initiateNotificationDebounced(rule, change, argsArray);

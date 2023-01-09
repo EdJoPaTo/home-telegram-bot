@@ -125,7 +125,10 @@ bot.command('status', async ctx => statusMiddleware.replyToContext(ctx));
 bot.use(statusMiddleware);
 
 const connectedMiddleware = new MenuMiddleware('connected/', connectedMenu);
-bot.command('connected', async ctx => connectedMiddleware.replyToContext(ctx));
+bot.command(
+	'connected',
+	async ctx => connectedMiddleware.replyToContext(ctx),
+);
 bot.use(connectedMiddleware);
 
 const notifyMiddleware = new MenuMiddleware('notify/', notifyMenu);
@@ -133,10 +136,17 @@ bot.command('notify', async ctx => notifyMiddleware.replyToContext(ctx));
 bot.use(notifyMiddleware);
 bot.use(notifyBot);
 
-bot.command('start', async ctx =>
-	ctx.reply(`Hey ${ctx.from?.first_name ?? 'du'}!\n\nWenn du den Status der aktuellen Sensoren sehen willst, nutze /status.\nWenn du eine Benachrichtigung haben möchtest, wenn es draußen wärmer wird als drinnen, nutze /notify.`),
+bot.command(
+	'start',
+	async ctx =>
+		ctx.reply(
+			`Hey ${
+				ctx.from?.first_name ?? 'du'
+			}!\n\nWenn du den Status der aktuellen Sensoren sehen willst, nutze /status.\nWenn du eine Benachrichtigung haben möchtest, wenn es draußen wärmer wird als drinnen, nutze /notify.`,
+		),
 );
 
+// eslint-disable-next-line unicorn/prefer-top-level-await
 bot.catch(error => {
 	if (error instanceof Error && error.message.includes('message is not modified')) {
 		return;
@@ -145,19 +155,20 @@ bot.catch(error => {
 	console.error(error);
 });
 
-async function startup() {
-	await bot.api.setMyCommands([
-		{command: 'status', description: 'betrachte die aktuellen Werte von MQTT Topics'},
-		{command: 'connected', description: 'zeige den Verbindungsstatus'},
-		{command: 'notify', description: 'ändere zu welchen Sensoren du benachrichtigt werden willst'},
-	]);
+await bot.api.setMyCommands([
+	{
+		command: 'status',
+		description: 'betrachte die aktuellen Werte von MQTT Topics',
+	},
+	{command: 'connected', description: 'zeige den Verbindungsstatus'},
+	{
+		command: 'notify',
+		description: 'ändere zu welchen Sensoren du benachrichtigt werden willst',
+	},
+]);
 
-	await bot.start({
-		onStart(botInfo) {
-			console.log(new Date(), 'Bot starts as', botInfo.username);
-		},
-	});
-}
-
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
-startup();
+await bot.start({
+	onStart(botInfo) {
+		console.log(new Date(), 'Bot starts as', botInfo.username);
+	},
+});
