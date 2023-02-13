@@ -34,11 +34,11 @@ export const DEFAULT_RULE: Partial<Rule> = {
 	compareTo: 42,
 };
 
-export const CHANGE_TYPES: Readonly<Record<Change, string>> = {
+export const CHANGE_TYPES = {
 	unequal: '≠',
 	rising: '📈',
 	falling: '📉',
-};
+} as const;
 
 function loadRules(): Record<Topic, Rule[]> {
 	try {
