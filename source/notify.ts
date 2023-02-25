@@ -64,13 +64,7 @@ function topicButtonText(topic: string | undefined) {
 function topicOptions(ctx: MyContext) {
 	const filter = new RegExp(ctx.session.topicFilter ?? '.+', 'i');
 	const relevantTopics = history.getTopics().filter(o => filter.test(o));
-
-	const result: Record<string, string> = {};
-	for (const topic of relevantTopics) {
-		result[topic.replace(/\//g, '#')] = topic;
-	}
-
-	return result;
+	return Object.fromEntries(relevantTopics.map(topic => [topic.replace(/\//g, '#'), topic]));
 }
 
 const topicMenu = new MenuTemplate<MyContext>('Wähle das Topic…');
@@ -152,12 +146,7 @@ function possibleCompareToSensors(ctx: MyContext) {
 		.filter(o => o !== ctx.session.notify?.topic)
 		.filter(o => filter.test(o));
 
-	const result: Record<string, string> = {};
-	for (const t of relevantTopics) {
-		result[t.replace(/\//g, '#')] = t;
-	}
-
-	return result;
+	return Object.fromEntries(relevantTopics.map(topic => [topic.replace(/\//g, '#'), topic]));
 }
 
 function compareToValueButtonText(ctx: MyContext) {
@@ -299,12 +288,7 @@ menu.submenu('Regel entfernen…', 'r', removeMenu, {
 
 function removeOptions(ctx: MyContext) {
 	const rules = notifyRules.getByChat(ctx.chat!.id);
-	const result: Record<number, string> = {};
-	for (const [i, rule] of rules.entries()) {
-		result[i] = notifyRules.asString(rule, undefined);
-	}
-
-	return result;
+	return Object.fromEntries(rules.map((rule, i) => [i, notifyRules.asString(rule, undefined)]));
 }
 
 removeMenu.choose('r', removeOptions, {
