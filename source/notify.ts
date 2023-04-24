@@ -266,10 +266,11 @@ addMenu.interact('Erstellen', 'addRule', {
 		throw new TypeError('how did you end up here?');
 	},
 	async do(ctx) {
+		// @ts-expect-error type check done in hide function
 		notifyRules.add({
 			...ctx.session.notify,
 			chat: ctx.chat!.id,
-		} as any);
+		});
 		delete ctx.session.notify;
 		await ctx.answerCallbackQuery('👍');
 		return '..';

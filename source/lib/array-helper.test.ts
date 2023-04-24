@@ -1,5 +1,4 @@
 import test from 'ava';
-
 import {setKeyInArray, toggleKeyInArray} from './array-helper.js';
 
 test('setKeyInArray true', t => {

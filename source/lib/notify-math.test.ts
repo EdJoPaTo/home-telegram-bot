@@ -1,5 +1,4 @@
 import test from 'ava';
-
 import {isFalling, isRising, isUnequal} from './notify-math.js';
 
 test('isRising', t => {
