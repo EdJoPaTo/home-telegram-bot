@@ -3,7 +3,7 @@
 This is a Telegram Bot for a home environment based on MQTT.
 
 The goal of this project is to suit my personal needs.
-Currently it's only made for read-only reading of numeric values.
+Currently, it's only made for read-only reading of numeric values.
 
 ## Features
 
@@ -16,17 +16,10 @@ An example could be to be notified about temperature changes or unresponsive dev
 
 # Installation
 
-This was tested on a Raspberry Pi with Raspbian.
-NodeJS is already installed.
+This was tested on a Raspberry Pi with Raspberry Pi OS and Podman installed.
 
-* Clone this repositiory to a position you like.
-* modify `home-telegram-bot.service` to fit your needs
-  * `User` and `Group` are propably `pi` and `pi`
-  * `WorkingDirectory` is your repositiory directory. Use the full path (see `pwd`).
-* Call the `install.sh`
-* Start the bot with `npm start`. The bot will stop and tell you, it created a `config.json`. Adapt it to your needs. See [Config](#config).
-* When everything is ready start the bot with systemd: `sudo systemctl start home-telegram-bot.service`
-  * When the bot shall start on system bootup run: `sudo systemctl enable home-telegram-bot.service`
+Mount a persist folder into the container at `/app/persist`.
+Create a config file. See [Config](#config).
 
 ## Config
 
@@ -61,6 +54,6 @@ A list for Copy & Paste is in `botfather-commands.txt`.
 
 ### Telegram User Allowlist
 
-The userids of telegram users have to be specified in here.
+The user IDs of Telegram users have to be specified in here.
 Everyone can use the bot when it is empty.
 You can add a random number, start the bot and write to the bot to find out your own id.
