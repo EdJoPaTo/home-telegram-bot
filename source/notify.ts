@@ -64,7 +64,7 @@ function topicButtonText(topic: string | undefined) {
 function topicOptions(ctx: MyContext) {
 	const filter = new RegExp(ctx.session.topicFilter ?? '.+', 'i');
 	const relevantTopics = history.getTopics().filter(o => filter.test(o));
-	return Object.fromEntries(relevantTopics.map(topic => [topic.replace(/\//g, '#'), topic]));
+	return Object.fromEntries(relevantTopics.map(topic => [topic.replaceAll('/', '#'), topic]));
 }
 
 const topicMenu = new MenuTemplate<MyContext>('Wähle das Topic…');
@@ -73,9 +73,9 @@ addFilterButtons(topicMenu, 'notify-topic');
 
 topicMenu.select('p', topicOptions, {
 	columns: 1,
-	isSet: (ctx, key) => ctx.session.notify?.topic === key.replace(/#/g, '/'),
+	isSet: (ctx, key) => ctx.session.notify?.topic === key.replaceAll('#', '/'),
 	set(ctx, key) {
-		const topic = key.replace(/#/g, '/');
+		const topic = key.replaceAll('#', '/');
 		ctx.session.notify = {
 			...DEFAULT_RULE,
 			change: [...(DEFAULT_RULE.change ?? [])],
@@ -146,7 +146,7 @@ function possibleCompareToSensors(ctx: MyContext) {
 		.filter(o => o !== ctx.session.notify?.topic)
 		.filter(o => filter.test(o));
 
-	return Object.fromEntries(relevantTopics.map(topic => [topic.replace(/\//g, '#'), topic]));
+	return Object.fromEntries(relevantTopics.map(topic => [topic.replaceAll('/', '#'), topic]));
 }
 
 function compareToValueButtonText(ctx: MyContext) {
@@ -160,7 +160,7 @@ const compareToValueQuestion = new StatelessQuestion<MyContext>(
 	async ctx => {
 		if (ctx.message.text) {
 			const justDigits = Number(
-				ctx.message.text.replace(/[^\d,.-]/g, '').replace(',', '.'),
+				ctx.message.text.replaceAll(/[^\d,.-]/g, '').replace(',', '.'),
 			);
 			ctx.session.notify = {
 				...ctx.session.notify,
@@ -209,9 +209,9 @@ addMenu.submenu(
 
 compareTopicMenu.select('p', possibleCompareToSensors, {
 	columns: 1,
-	isSet: (ctx, key) => ctx.session.notify?.compareTo === key.replace(/#/g, '/'),
+	isSet: (ctx, key) => ctx.session.notify?.compareTo === key.replaceAll('#', '/'),
 	set(ctx, key) {
-		const compareTo = key.replace(/#/g, '/');
+		const compareTo = key.replaceAll('#', '/');
 		ctx.session.notify = {
 			...ctx.session.notify,
 			compare: 'topic',

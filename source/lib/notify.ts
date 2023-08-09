@@ -130,7 +130,7 @@ async function initiateNotificationDebounced(
 	// As only one argument is used (values) this array of arrays is annoying so simplify it with .flat().
 	const values = argsArray.flat();
 	const first = values[0]!;
-	const last = values.slice(-1)[0]!;
+	const last = values.at(-1)!;
 	const {currentValue, compareTo} = last;
 
 	const checkFunction = getChangeCheckFunction(change);
