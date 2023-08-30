@@ -1,3 +1,4 @@
+import {env} from 'node:process';
 import {Bot, session} from 'grammy';
 import {FileAdapter} from '@grammyjs/storage-file';
 import {generateUpdateMiddleware} from 'telegraf-middleware-console-time';
@@ -16,8 +17,6 @@ import type {MyContext, Session} from './context.js';
 
 const config = loadConfig();
 
-(process as any).title = 'home-telegram-bot';
-
 const bot = new Bot<MyContext>(config.telegramBotToken);
 bot.use(session({
 	getSessionKey: ctx => String(ctx.from?.id),
@@ -31,7 +30,7 @@ bot.use(generateUpdateMiddleware());
 
 notify.init(bot.api);
 
-const mqttRetain = process.env['NODE_ENV'] === 'production';
+const mqttRetain = env['NODE_ENV'] === 'production';
 const mqttOptions: MQTT.IClientOptions = {
 	will: {
 		topic: 'home-telegram-bot/connected',

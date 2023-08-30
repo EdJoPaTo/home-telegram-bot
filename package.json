@@ -10,7 +10,7 @@
 		"url": "https://edjopato.de"
 	},
 	"scripts": {
-		"start": "tsc --sourceMap && node --enable-source-maps dist/index.js",
+		"start": "tsc --sourceMap && node --enable-source-maps dist/home-telegram-bot.js",
 		"test": "tsc --sourceMap && xo && ava"
 	},
 	"type": "module",
@@ -40,8 +40,7 @@
 	"xo": {
 		"rules": {
 			"@typescript-eslint/naming-convention": "off",
-			"ava/no-ignored-test-files": "off",
-			"n/prefer-global/process": "off"
+			"ava/no-ignored-test-files": "off"
 		}
 	}
 }
