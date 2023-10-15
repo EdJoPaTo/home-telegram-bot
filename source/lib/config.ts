@@ -57,6 +57,6 @@ export function loadConfig(): Config {
 }
 
 function saveConfig(config: Config): void {
-	const content = JSON.stringify(config, null, '  ') + '\n';
+	const content = JSON.stringify(config, null, '\t') + '\n';
 	writeFileSync(CONFIG_FILE, content, 'utf8');
 }
