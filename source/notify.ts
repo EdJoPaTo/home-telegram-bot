@@ -185,6 +185,7 @@ addMenu.interact(compareToValueButtonText, 'cv', {
 			ctx,
 			'Mit welchem Wert soll verglichen werden?',
 		);
+		await ctx.answerCallbackQuery();
 		return false;
 	},
 });

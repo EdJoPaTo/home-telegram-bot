@@ -39,6 +39,7 @@ export function addFilterButtons(
 					'Wonach sollen die Topics gefiltert werden? (regulärer Ausdruck / RegEx)',
 					getMenuOfPath(path),
 				);
+				await ctx.answerCallbackQuery();
 				return false;
 			},
 		},
