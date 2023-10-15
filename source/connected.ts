@@ -1,9 +1,9 @@
-import {html as format} from 'telegram-format';
-import {MenuTemplate} from 'grammy-inline-menu';
 import type {Body} from 'grammy-inline-menu';
-import {getAll} from './lib/mqtt-history.js';
-import {timespan} from './lib/format.js';
+import {MenuTemplate} from 'grammy-inline-menu';
+import {html as format} from 'telegram-format';
 import * as connectedLogic from './lib/connected-logic.js';
+import {timespan} from './lib/format.js';
+import {getAll} from './lib/mqtt-history.js';
 
 export const menu = new MenuTemplate(menuBody);
 

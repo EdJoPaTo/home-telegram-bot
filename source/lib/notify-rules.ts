@@ -1,6 +1,6 @@
 import {readFileSync, writeFileSync} from 'node:fs';
-import {html} from 'telegram-format';
 import stringify from 'json-stable-stringify';
+import {html} from 'telegram-format';
 
 export type Change = 'unequal' | 'rising' | 'falling';
 type Topic = string;

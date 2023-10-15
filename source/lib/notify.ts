@@ -1,11 +1,11 @@
-import {html as format} from 'telegram-format';
 import debounce from 'debounce-promise';
-import stringify from 'json-stable-stringify';
 import type {Api as Telegram} from 'grammy';
-import {CHANGE_TYPES, getByCompareTo, getByTopic} from './notify-rules.js';
-import {isFalling, isRising, isUnequal} from './notify-math.js';
+import stringify from 'json-stable-stringify';
+import {html as format} from 'telegram-format';
 import * as history from './mqtt-history.js';
+import {isFalling, isRising, isUnequal} from './notify-math.js';
 import type {Change, Rule} from './notify-rules.js';
+import {CHANGE_TYPES, getByCompareTo, getByTopic} from './notify-rules.js';
 
 let telegram: Telegram;
 

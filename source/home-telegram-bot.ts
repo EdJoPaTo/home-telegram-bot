@@ -1,19 +1,19 @@
 import {env} from 'node:process';
-import {Bot, session} from 'grammy';
 import {FileAdapter} from '@grammyjs/storage-file';
+import * as MQTT from 'async-mqtt';
+import {Bot, session} from 'grammy';
+import {MenuMiddleware} from 'grammy-inline-menu';
 import {generateUpdateMiddleware} from 'telegraf-middleware-console-time';
 import {html as format} from 'telegram-format';
-import {MenuMiddleware} from 'grammy-inline-menu';
-import * as MQTT from 'async-mqtt';
-import {bot as notifyBot, menu as notifyMenu} from './notify.js';
-import {bot as topicFilterMiddleware} from './topic-filter.js';
-import {loadConfig} from './lib/config.js';
 import {menu as connectedMenu} from './connected.js';
-import {menu as statusMenu} from './status.js';
-import {payloadToNumber} from './lib/payload.js';
+import type {MyContext, Session} from './context.js';
+import {loadConfig} from './lib/config.js';
 import * as history from './lib/mqtt-history.js';
 import * as notify from './lib/notify.js';
-import type {MyContext, Session} from './context.js';
+import {payloadToNumber} from './lib/payload.js';
+import {bot as notifyBot, menu as notifyMenu} from './notify.js';
+import {menu as statusMenu} from './status.js';
+import {bot as topicFilterMiddleware} from './topic-filter.js';
 
 const config = loadConfig();
 

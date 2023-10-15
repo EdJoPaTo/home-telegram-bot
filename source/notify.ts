@@ -1,13 +1,13 @@
-import {Composer} from 'grammy';
-import {html as format} from 'telegram-format';
-import {MenuTemplate, replyMenuToContext} from 'grammy-inline-menu';
 import {StatelessQuestion} from '@grammyjs/stateless-question';
+import {Composer} from 'grammy';
 import type {Body} from 'grammy-inline-menu';
-import {addFilterButtons} from './topic-filter.js';
+import {MenuTemplate, replyMenuToContext} from 'grammy-inline-menu';
+import {html as format} from 'telegram-format';
+import type {MyContext} from './context.js';
 import {toggleKeyInArray} from './lib/array-helper.js';
 import * as history from './lib/mqtt-history.js';
 import * as notifyRules from './lib/notify-rules.js';
-import type {MyContext} from './context.js';
+import {addFilterButtons} from './topic-filter.js';
 
 const {DEFAULT_RULE, CHANGE_TYPES} = notifyRules;
 
