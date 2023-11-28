@@ -1,27 +1,28 @@
-import test from 'ava';
+import {deepStrictEqual} from 'node:assert';
+import {test} from 'node:test';
 import {setKeyInArray, toggleKeyInArray} from './array-helper.js';
 
-test('setKeyInArray true', t => {
+await test('setKeyInArray true', () => {
 	const result = setKeyInArray(['a', 'b'], 'c', true);
-	t.deepEqual(result, ['a', 'b', 'c']);
+	deepStrictEqual(result, ['a', 'b', 'c']);
 });
 
-test('setKeyInArray false without key in arr', t => {
+await test('setKeyInArray false without key in arr', () => {
 	const result = setKeyInArray(['a', 'b'], 'c', false);
-	t.deepEqual(result, ['a', 'b']);
+	deepStrictEqual(result, ['a', 'b']);
 });
 
-test('setKeyInArray false existing', t => {
+await test('setKeyInArray false existing', () => {
 	const result = setKeyInArray(['a', 'b'], 'b', false);
-	t.deepEqual(result, ['a']);
+	deepStrictEqual(result, ['a']);
 });
 
-test('toggleKeyInArray toggle in', t => {
+await test('toggleKeyInArray toggle in', () => {
 	const result = toggleKeyInArray(['a', 'b'], 'c');
-	t.deepEqual(result, ['a', 'b', 'c']);
+	deepStrictEqual(result, ['a', 'b', 'c']);
 });
 
-test('toggleKeyInArray toggle out', t => {
+await test('toggleKeyInArray toggle out', () => {
 	const result = toggleKeyInArray(['a', 'b', 'c'], 'c');
-	t.deepEqual(result, ['a', 'b']);
+	deepStrictEqual(result, ['a', 'b']);
 });

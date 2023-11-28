@@ -10,8 +10,8 @@
 		"url": "https://edjopato.de"
 	},
 	"scripts": {
-		"start": "tsc --sourceMap && node --enable-source-maps dist/home-telegram-bot.js",
-		"test": "tsc --sourceMap && xo && ava"
+		"start": "tsc && node --enable-source-maps dist/home-telegram-bot.js",
+		"test": "tsc && xo && node --enable-source-maps --test"
 	},
 	"type": "module",
 	"engines": {
@@ -33,14 +33,12 @@
 		"@types/debounce-promise": "^3.1.3",
 		"@types/json-stable-stringify": "^1.0.32",
 		"@types/node": "^18.11.3",
-		"ava": "^5.1.0",
 		"typescript": "^5.0.3",
 		"xo": "^0.56.0"
 	},
 	"xo": {
 		"rules": {
-			"@typescript-eslint/naming-convention": "off",
-			"ava/no-ignored-test-files": "off"
+			"@typescript-eslint/naming-convention": "off"
 		}
 	}
 }

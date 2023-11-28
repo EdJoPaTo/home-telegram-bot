@@ -1,20 +1,33 @@
-import test from 'ava';
+import {strictEqual} from 'node:assert';
+import {test} from 'node:test';
 import {isFalling, isRising, isUnequal} from './notify-math.js';
 
-test('isRising', t => {
-	t.false(isRising(1, 2));
-	t.false(isRising(2, 2));
-	t.true(isRising(3, 2));
+await test('isRising', async t => {
+	const macro = async (now: number, compareTo: number, expected: boolean) =>
+		t.test(`${now} ${compareTo}`, () => {
+			strictEqual(isRising(now, compareTo), expected);
+		});
+	await macro(1, 2, false);
+	await macro(2, 2, false);
+	await macro(3, 2, true);
 });
 
-test('isFalling', t => {
-	t.false(isFalling(3, 2));
-	t.false(isFalling(2, 2));
-	t.true(isFalling(1, 2));
+await test('isFalling', async t => {
+	const macro = async (now: number, compareTo: number, expected: boolean) =>
+		t.test(`${now} ${compareTo}`, () => {
+			strictEqual(isFalling(now, compareTo), expected);
+		});
+	await macro(3, 2, false);
+	await macro(2, 2, false);
+	await macro(1, 2, true);
 });
 
-test('isUnequal', t => {
-	t.false(isUnequal(2, 2));
-	t.true(isUnequal(1, 2));
-	t.true(isUnequal(2, 1));
+await test('isUnequal', async t => {
+	const macro = async (now: number, compareTo: number, expected: boolean) =>
+		t.test(`${now} ${compareTo}`, () => {
+			strictEqual(isUnequal(now, compareTo), expected);
+		});
+	await macro(2, 2, false);
+	await macro(1, 2, true);
+	await macro(2, 1, true);
 });
