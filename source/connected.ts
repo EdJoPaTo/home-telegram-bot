@@ -8,9 +8,11 @@ import {getAll} from './lib/mqtt-history.js';
 export const menu = new MenuTemplate(menuBody);
 
 function menuBody(): Body {
-	const lines = getAll().filter(([topic]) => connectedLogic.isRelevantTopic(topic))
+	const lines = getAll()
+		.filter(([topic]) => connectedLogic.isRelevantTopic(topic))
 		.map(([topic, data]) => {
-			const emoji = connectedLogic.fromTopic(topic, data.value) ?? connectedLogic.UNKNOWN;
+			const emoji = connectedLogic.fromTopic(topic, data.value)
+				?? connectedLogic.UNKNOWN;
 
 			const parts = [
 				emoji,

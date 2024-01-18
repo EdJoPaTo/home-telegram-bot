@@ -23,7 +23,7 @@ function myRuleList(ctx: MyContext) {
 	text += format.bold('Deine Regeln');
 	text += '\n';
 	text += rules
-		.map(o => notifyRules.asString(o, format.parse_mode === 'HTML' ? 'HTML' : undefined))
+		.map(rule => notifyRules.asString(rule, format.parse_mode))
 		.sort()
 		.join('\n');
 
@@ -64,7 +64,9 @@ function topicButtonText(topic: string | undefined) {
 function topicOptions(ctx: MyContext) {
 	const filter = new RegExp(ctx.session.topicFilter ?? '.+', 'i');
 	const relevantTopics = history.getTopics().filter(o => filter.test(o));
-	return Object.fromEntries(relevantTopics.map(topic => [topic.replaceAll('/', '#'), topic]));
+	return Object.fromEntries(
+		relevantTopics.map(topic => [topic.replaceAll('/', '#'), topic]),
+	);
 }
 
 const topicMenu = new MenuTemplate<MyContext>('Wähle das Topic…');
@@ -100,7 +102,9 @@ addMenu.submenu(
 addMenu.select('change', CHANGE_TYPES, {
 	showFalseEmoji: true,
 	hide: ctx => !ctx.session.notify?.topic,
-	isSet: (ctx, key) => (ctx.session.notify?.change ?? []).includes(key as notifyRules.Change),
+	isSet: (ctx, key) =>
+		(ctx.session.notify?.change ?? [])
+			.includes(key as notifyRules.Change),
 	set(ctx, key) {
 		ctx.session.notify = {
 			...ctx.session.notify,
@@ -146,7 +150,9 @@ function possibleCompareToSensors(ctx: MyContext) {
 		.filter(o => o !== ctx.session.notify?.topic)
 		.filter(o => filter.test(o));
 
-	return Object.fromEntries(relevantTopics.map(topic => [topic.replaceAll('/', '#'), topic]));
+	return Object.fromEntries(
+		relevantTopics.map(topic => [topic.replaceAll('/', '#'), topic]),
+	);
 }
 
 function compareToValueButtonText(ctx: MyContext) {
@@ -196,8 +202,15 @@ const compareTopicMenu = new MenuTemplate<MyContext>(
 
 addFilterButtons(compareTopicMenu, 'notify-compateTopic');
 
+function compareTopicMenuButtonText(ctx: MyContext): string {
+	return String(
+		ctx.session.notify?.compare === 'topic'
+			&& topicButtonText(ctx.session.notify.compareTo),
+	);
+}
+
 addMenu.submenu(
-	ctx => String(ctx.session.notify?.compare === 'topic' && topicButtonText(ctx.session.notify.compareTo)),
+	compareTopicMenuButtonText,
 	'cp',
 	compareTopicMenu,
 	{
@@ -210,7 +223,9 @@ addMenu.submenu(
 
 compareTopicMenu.select('p', possibleCompareToSensors, {
 	columns: 1,
-	isSet: (ctx, key) => ctx.session.notify?.compareTo === key.replaceAll('#', '/'),
+	isSet(ctx, key) {
+		return ctx.session.notify?.compareTo === key.replaceAll('#', '/');
+	},
 	set(ctx, key) {
 		const compareTo = key.replaceAll('#', '/');
 		ctx.session.notify = {
@@ -290,7 +305,9 @@ menu.submenu('Regel entfernen…', 'r', removeMenu, {
 
 function removeOptions(ctx: MyContext) {
 	const rules = notifyRules.getByChat(ctx.chat!.id);
-	return Object.fromEntries(rules.map((rule, i) => [i, notifyRules.asString(rule, undefined)]));
+	return Object.fromEntries(
+		rules.map((rule, i) => [i, notifyRules.asString(rule, undefined)]),
+	);
 }
 
 removeMenu.choose('r', removeOptions, {

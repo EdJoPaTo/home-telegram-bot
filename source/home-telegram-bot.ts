@@ -30,13 +30,13 @@ bot.use(generateUpdateMiddleware());
 
 notify.init(bot.api);
 
-const mqttRetain = env['NODE_ENV'] === 'production';
+const retain = env['NODE_ENV'] === 'production';
 const mqttOptions: MQTT.IClientOptions = {
 	will: {
 		topic: 'home-telegram-bot/connected',
 		payload: '0',
 		qos: 1,
-		retain: mqttRetain,
+		retain,
 	},
 };
 console.log('MQTT connecting to', config.mqttServer, mqttOptions);
@@ -47,7 +47,7 @@ client.on('connect', async () => {
 	await Promise.all(
 		config.mqttTopics.map(async topic => client.subscribe(topic)),
 	);
-	await client.publish('home-telegram-bot/connected', '2', {retain: mqttRetain});
+	await client.publish('home-telegram-bot/connected', '2', {retain});
 	console.log('subscribed to topics', config.mqttTopics);
 });
 
@@ -147,7 +147,9 @@ bot.command(
 
 // eslint-disable-next-line unicorn/prefer-top-level-await
 bot.catch(error => {
-	if (error instanceof Error && error.message.includes('message is not modified')) {
+	if (
+		error instanceof Error && error.message.includes('message is not modified')
+	) {
 		return;
 	}
 

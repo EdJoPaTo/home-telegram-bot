@@ -42,7 +42,7 @@ function getStatusText(ctx: MyContext): Body {
 	);
 
 	const lines = all
-		.slice((pageIndex) * PER_PAGE, (pageIndex + 1) * PER_PAGE)
+		.slice(pageIndex * PER_PAGE, (pageIndex + 1) * PER_PAGE)
 		.map(([topic, data]) => {
 			const parts: string[] = [
 				getRelatedConnectionStatus(topic),
