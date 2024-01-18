@@ -50,6 +50,9 @@ client.on('connect', async () => {
 	await client.publish('home-telegram-bot/connected', '2', {retain});
 	console.log('subscribed to topics', config.mqttTopics);
 });
+client.on('error', error => {
+	console.error('Error MQTT', error);
+});
 
 client.on('message', async (topic, payload, packet) => {
 	if (packet.cmd !== 'publish') {
