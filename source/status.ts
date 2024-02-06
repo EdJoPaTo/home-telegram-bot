@@ -1,5 +1,4 @@
-import type {Body} from 'grammy-inline-menu';
-import {MenuTemplate} from 'grammy-inline-menu';
+import {type Body, MenuTemplate} from 'grammy-inline-menu';
 import {html as format} from 'telegram-format';
 import type {MyContext} from './context.js';
 import {getRelatedConnectionStatus} from './lib/connected-logic.js';

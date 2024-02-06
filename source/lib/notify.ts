@@ -4,8 +4,13 @@ import stringify from 'json-stable-stringify';
 import {html as format} from 'telegram-format';
 import * as history from './mqtt-history.js';
 import {isFalling, isRising, isUnequal} from './notify-math.js';
-import type {Change, Rule} from './notify-rules.js';
-import {CHANGE_TYPES, getByCompareTo, getByTopic} from './notify-rules.js';
+import {
+	type Change,
+	CHANGE_TYPES,
+	getByCompareTo,
+	getByTopic,
+	type Rule,
+} from './notify-rules.js';
 
 let telegram: Telegram;
 
@@ -102,18 +107,16 @@ async function initiateNotification(
 	compareTo: number,
 ) {
 	const identifier = `${stringify(rule)}${change}`;
-	if (!debouncers[identifier]) {
-		debouncers[identifier] = debounce(
-			async (argsArray: ArgumentArrayArray) => {
-				await initiateNotificationDebounced(rule, change, argsArray);
+	debouncers[identifier] ??= debounce(
+		async (argsArray: ArgumentArrayArray) => {
+			await initiateNotificationDebounced(rule, change, argsArray);
 
-				// Fix required. See https://github.com/bjoerge/debounce-promise/pull/19
-				return argsArray.map(() => null);
-			},
-			rule.stableSeconds * 1000,
-			{accumulate: true},
-		);
-	}
+			// Fix required. See https://github.com/bjoerge/debounce-promise/pull/19
+			return argsArray.map(() => null);
+		},
+		rule.stableSeconds * 1000,
+		{accumulate: true},
+	);
 
 	return debouncers[identifier]!({
 		currentValue,

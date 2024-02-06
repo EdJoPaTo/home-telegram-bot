@@ -1,5 +1,4 @@
-import type {Body} from 'grammy-inline-menu';
-import {MenuTemplate} from 'grammy-inline-menu';
+import {type Body, MenuTemplate} from 'grammy-inline-menu';
 import {html as format} from 'telegram-format';
 import * as connectedLogic from './lib/connected-logic.js';
 import {timespan} from './lib/format.js';

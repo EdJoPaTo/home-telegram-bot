@@ -1,7 +1,10 @@
 import {StatelessQuestion} from '@grammyjs/stateless-question';
 import {Composer} from 'grammy';
-import type {MenuTemplate} from 'grammy-inline-menu';
-import {getMenuOfPath, replyMenuToContext} from 'grammy-inline-menu';
+import {
+	getMenuOfPath,
+	type MenuTemplate,
+	replyMenuToContext,
+} from 'grammy-inline-menu';
 import type {MyContext} from './context.js';
 
 export const bot = new Composer<MyContext>();

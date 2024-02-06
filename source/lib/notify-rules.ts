@@ -73,10 +73,7 @@ export function getByChat(chat: number) {
 
 export function add(rule: Rule): void {
 	const {topic} = rule;
-	if (!rules[topic]) {
-		rules[topic] = [];
-	}
-
+	rules[topic] ??= [];
 	rules[topic]!.push(rule);
 	saveRules();
 }

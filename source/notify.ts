@@ -1,7 +1,10 @@
 import {StatelessQuestion} from '@grammyjs/stateless-question';
 import {Composer} from 'grammy';
-import type {Body} from 'grammy-inline-menu';
-import {MenuTemplate, replyMenuToContext} from 'grammy-inline-menu';
+import {
+	type Body,
+	MenuTemplate,
+	replyMenuToContext,
+} from 'grammy-inline-menu';
 import {html as format} from 'telegram-format';
 import type {MyContext} from './context.js';
 import {toggleKeyInArray} from './lib/array-helper.js';
