@@ -29,7 +29,7 @@ const DEFAULT_CONFIG: Config = {
 	],
 	telegramBotToken: '123:abc',
 	telegramUserAllowlist: [],
-};
+} as const;
 
 export function loadConfig(): Config {
 	if (!existsSync(CONFIG_FILE)) {

@@ -27,12 +27,12 @@ export type Rule = ValueRule | TopicRule;
 const RULE_FILE = 'persist/rules.json';
 const rules = loadRules();
 
-export const DEFAULT_RULE: Partial<Rule> = {
+export const DEFAULT_RULE = {
 	compare: 'value',
 	stableSeconds: 60,
 	change: ['rising', 'falling'],
 	compareTo: 42,
-};
+} as const satisfies Partial<Rule>;
 
 export const CHANGE_TYPES = {
 	unequal: '≠',
