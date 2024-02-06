@@ -1,8 +1,3 @@
-export function enabledEmoji(truthy: boolean): string {
-	// ✅ ❎ ✔️ ❌
-	return truthy ? '✅' : '❌';
-}
-
 export function timespan(totalMs: number): string {
 	const ms = pad(totalMs % 1000, 3);
 	const s = pad(Math.floor(totalMs / 1000) % 60, 2);
