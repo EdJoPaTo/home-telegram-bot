@@ -1,10 +1,6 @@
 import {StatelessQuestion} from '@grammyjs/stateless-question';
 import {Composer} from 'grammy';
-import {
-	type Body,
-	MenuTemplate,
-	replyMenuToContext,
-} from 'grammy-inline-menu';
+import {MenuTemplate, replyMenuToContext} from 'grammy-inline-menu';
 import {html as format} from 'telegram-format';
 import type {MyContext} from './context.js';
 import {toggleKeyInArray} from './lib/array-helper.js';
@@ -33,10 +29,9 @@ function myRuleList(ctx: MyContext) {
 	return text;
 }
 
-function notifyOverviewText(ctx: MyContext): Body {
+export const menu = new MenuTemplate<MyContext>(ctx => {
 	let text = format.bold('Benachrichtigungen');
 	text += '\n';
-
 	text += 'Du kannst benachrichtigt werden, wenn Geräte bestimmte Bedinungen erfüllen.';
 
 	const ruleList = myRuleList(ctx);
@@ -46,9 +41,7 @@ function notifyOverviewText(ctx: MyContext): Body {
 	}
 
 	return {text, parse_mode: format.parse_mode};
-}
-
-export const menu = new MenuTemplate(notifyOverviewText);
+});
 
 const addMenu = new MenuTemplate<MyContext>('Spezifiziere die Regel…');
 

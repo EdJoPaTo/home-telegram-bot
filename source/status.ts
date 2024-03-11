@@ -1,4 +1,4 @@
-import {type Body, MenuTemplate} from 'grammy-inline-menu';
+import {MenuTemplate} from 'grammy-inline-menu';
 import {html as format} from 'telegram-format';
 import type {MyContext} from './context.js';
 import {getRelatedConnectionStatus} from './lib/connected-logic.js';
@@ -8,8 +8,6 @@ import {addFilterButtons} from './topic-filter.js';
 
 const MIN_AGE_MILLISECONDS = 1000 * 60 * 60 * 48;
 const PER_PAGE = 50;
-
-export const menu = new MenuTemplate(getStatusText);
 
 function getAllContent(ctx: MyContext) {
 	const filter = new RegExp(ctx.session.topicFilter ?? '.+', 'i');
@@ -28,7 +26,7 @@ function getAllContent(ctx: MyContext) {
 	return relevantData;
 }
 
-function getStatusText(ctx: MyContext): Body {
+export const menu = new MenuTemplate<MyContext>(async ctx => {
 	const all = getAllContent(ctx);
 	if (all.length === 0) {
 		return 'no topics match your filter 😔';
@@ -58,7 +56,7 @@ function getStatusText(ctx: MyContext): Body {
 
 	const text = lines.join('\n');
 	return {text, parse_mode: format.parse_mode};
-}
+});
 
 menu.navigate('Update', '.');
 
