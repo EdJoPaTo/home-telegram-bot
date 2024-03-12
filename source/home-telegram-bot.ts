@@ -145,6 +145,7 @@ bot.command(
 			`Hey ${
 				ctx.from?.first_name ?? 'du'
 			}!\n\nWenn du den Status der aktuellen Sensoren sehen willst, nutze /status.\nWenn du eine Benachrichtigung haben möchtest, wenn es draußen wärmer wird als drinnen, nutze /notify.`,
+			{reply_markup: {remove_keyboard: true}},
 		),
 );
 
