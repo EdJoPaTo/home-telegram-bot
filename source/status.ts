@@ -58,7 +58,7 @@ export const menu = new MenuTemplate<MyContext>(async ctx => {
 	return {text, parse_mode: format.parse_mode};
 });
 
-menu.navigate('Update', '.');
+menu.navigate('.', {text: 'Update'});
 
 addFilterButtons(menu, 'status-filter');
 

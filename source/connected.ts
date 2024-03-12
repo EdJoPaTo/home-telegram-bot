@@ -27,4 +27,4 @@ export const menu = new MenuTemplate(() => {
 	return {text, parse_mode: format.parse_mode};
 });
 
-menu.navigate('Update', '.');
+menu.navigate('.', {text: 'Update'});

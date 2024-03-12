@@ -32,24 +32,22 @@ export function addFilterButtons(
 
 	bot.use(question.middleware());
 
-	menu.interact(
-		ctx => '🔎 ' + (ctx.session.topicFilter ?? 'Set Filter'),
-		'filter',
-		{
-			async do(ctx, path) {
-				await question.replyWithHTML(
-					ctx,
-					'Wonach sollen die Topics gefiltert werden? (regulärer Ausdruck / RegEx)',
-					getMenuOfPath(path),
-				);
-				await ctx.answerCallbackQuery();
-				return false;
-			},
+	menu.interact('filter', {
+		text: ctx => '🔎 ' + (ctx.session.topicFilter ?? 'Set Filter'),
+		async do(ctx, path) {
+			await question.replyWithHTML(
+				ctx,
+				'Wonach sollen die Topics gefiltert werden? (regulärer Ausdruck / RegEx)',
+				getMenuOfPath(path),
+			);
+			await ctx.answerCallbackQuery();
+			return false;
 		},
-	);
+	});
 
-	menu.interact('Clear Filter', 'clear-filter', {
+	menu.interact('clear-filter', {
 		joinLastRow: true,
+		text: 'Clear Filter',
 		hide: ctx => !ctx.session.topicFilter,
 		async do(ctx) {
 			delete ctx.session.topicFilter;

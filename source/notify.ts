@@ -45,7 +45,7 @@ export const menu = new MenuTemplate<MyContext>(ctx => {
 
 const addMenu = new MenuTemplate<MyContext>('Spezifiziere die Regel…');
 
-menu.submenu('Regel hinzufügen…', 'add', addMenu);
+menu.submenu('add', addMenu, {text: 'Regel hinzufügen…'});
 
 function topicButtonText(topic: string | undefined) {
 	const prefix = '📡 ';
@@ -57,20 +57,19 @@ function topicButtonText(topic: string | undefined) {
 	return prefix + topic;
 }
 
-function topicOptions(ctx: MyContext) {
-	const filter = new RegExp(ctx.session.topicFilter ?? '.+', 'i');
-	const relevantTopics = history.getTopics().filter(o => filter.test(o));
-	return Object.fromEntries(
-		relevantTopics.map(topic => [topic.replaceAll('/', '#'), topic]),
-	);
-}
-
 const topicMenu = new MenuTemplate<MyContext>('Wähle das Topic…');
 
 addFilterButtons(topicMenu, 'notify-topic');
 
-topicMenu.select('p', topicOptions, {
+topicMenu.select('p', {
 	columns: 1,
+	choices(ctx) {
+		const filter = new RegExp(ctx.session.topicFilter ?? '.+', 'i');
+		const relevantTopics = history.getTopics().filter(o => filter.test(o));
+		return Object.fromEntries(
+			relevantTopics.map(topic => [topic.replaceAll('/', '#'), topic]),
+		);
+	},
 	isSet: (ctx, key) => ctx.session.notify?.topic === key.replaceAll('#', '/'),
 	set(ctx, key) {
 		const topic = key.replaceAll('#', '/');
@@ -87,16 +86,15 @@ topicMenu.select('p', topicOptions, {
 	},
 });
 
-topicMenu.navigate('🔙 zurück…', '..');
+topicMenu.navigate('..', {text: '🔙 zurück…'});
 
-addMenu.submenu(
-	ctx => topicButtonText(ctx.session.notify?.topic),
-	't',
-	topicMenu,
-);
+addMenu.submenu('t', topicMenu, {
+	text: ctx => topicButtonText(ctx.session.notify?.topic),
+});
 
-addMenu.select('change', CHANGE_TYPES, {
+addMenu.select('change', {
 	showFalseEmoji: true,
+	choices: CHANGE_TYPES,
 	hide: ctx => !ctx.session.notify?.topic,
 	isSet: (ctx, key) =>
 		(ctx.session.notify?.change ?? [])
@@ -121,7 +119,8 @@ addMenu.select('change', CHANGE_TYPES, {
 	},
 });
 
-addMenu.select('compare', {value: '🔢 Wert', topic: '📡 Topic'}, {
+addMenu.select('compare', {
+	choices: {value: '🔢 Wert', topic: '📡 Topic'},
 	hide: ctx => !ctx.session.notify?.topic,
 	isSet: (ctx, key) => ctx.session.notify?.compare === key,
 	set(ctx, key) {
@@ -134,28 +133,6 @@ addMenu.select('compare', {value: '🔢 Wert', topic: '📡 Topic'}, {
 		return true;
 	},
 });
-
-function possibleCompareToSensors(ctx: MyContext) {
-	const {topic} = ctx.session.notify ?? {};
-	if (!topic) {
-		return {};
-	}
-
-	const filter = new RegExp(ctx.session.topicFilter ?? '.+', 'i');
-	const relevantTopics = history.getTopics()
-		.filter(o => o !== ctx.session.notify?.topic)
-		.filter(o => filter.test(o));
-
-	return Object.fromEntries(
-		relevantTopics.map(topic => [topic.replaceAll('/', '#'), topic]),
-	);
-}
-
-function compareToValueButtonText(ctx: MyContext) {
-	const {compareTo} = ctx.session.notify ?? {};
-	const number = Number.isFinite(compareTo) ? Number(compareTo) : 42;
-	return `🔢 ${number}`;
-}
 
 const compareToValueQuestion = new StatelessQuestion<MyContext>(
 	'notify-cv',
@@ -177,7 +154,12 @@ const compareToValueQuestion = new StatelessQuestion<MyContext>(
 
 bot.use(compareToValueQuestion);
 
-addMenu.interact(compareToValueButtonText, 'cv', {
+addMenu.interact('cv', {
+	text(ctx) {
+		const {compareTo} = ctx.session.notify ?? {};
+		const number = Number.isFinite(compareTo) ? Number(compareTo) : 42;
+		return `🔢 ${number}`;
+	},
 	hide(ctx) {
 		const {topic, compare} = ctx.session.notify ?? {};
 		return !topic || compare !== 'value';
@@ -198,27 +180,35 @@ const compareTopicMenu = new MenuTemplate<MyContext>(
 
 addFilterButtons(compareTopicMenu, 'notify-compateTopic');
 
-function compareTopicMenuButtonText(ctx: MyContext): string {
-	return String(
-		ctx.session.notify?.compare === 'topic'
-			&& topicButtonText(ctx.session.notify.compareTo),
-	);
-}
-
-addMenu.submenu(
-	compareTopicMenuButtonText,
-	'cp',
-	compareTopicMenu,
-	{
-		hide(ctx) {
-			const {topic, compare} = ctx.session.notify ?? {};
-			return !topic || compare !== 'topic';
-		},
+addMenu.submenu('cp', compareTopicMenu, {
+	text: ctx =>
+		String(
+			ctx.session.notify?.compare === 'topic'
+				&& topicButtonText(ctx.session.notify.compareTo),
+		),
+	hide(ctx) {
+		const {topic, compare} = ctx.session.notify ?? {};
+		return !topic || compare !== 'topic';
 	},
-);
+});
 
-compareTopicMenu.select('p', possibleCompareToSensors, {
+compareTopicMenu.select('p', {
 	columns: 1,
+	choices(ctx) {
+		const {topic} = ctx.session.notify ?? {};
+		if (!topic) {
+			return {};
+		}
+
+		const filter = new RegExp(ctx.session.topicFilter ?? '.+', 'i');
+		const relevantTopics = history.getTopics()
+			.filter(o => o !== ctx.session.notify?.topic)
+			.filter(o => filter.test(o));
+
+		return Object.fromEntries(
+			relevantTopics.map(topic => [topic.replaceAll('/', '#'), topic]),
+		);
+	},
 	isSet(ctx, key) {
 		return ctx.session.notify?.compareTo === key.replaceAll('#', '/');
 	},
@@ -237,17 +227,16 @@ compareTopicMenu.select('p', possibleCompareToSensors, {
 	},
 });
 
-compareTopicMenu.navigate('🔙 zurück…', '..');
+compareTopicMenu.navigate('..', {text: '🔙 zurück…'});
 
-const stableSecondsOptions = {
-	0: 'instant',
-	60: '1 min',
-	300: '5 min',
-	900: '15 min',
-};
-
-addMenu.select('stableSeconds', stableSecondsOptions, {
+addMenu.select('stableSeconds', {
 	hide: ctx => !ctx.session.notify?.topic,
+	choices: {
+		0: 'instant',
+		60: '1 min',
+		300: '5 min',
+		900: '15 min',
+	},
 	isSet: (ctx, key) => ctx.session.notify?.stableSeconds === Number(key),
 	set(ctx, key) {
 		ctx.session.notify = {
@@ -258,7 +247,8 @@ addMenu.select('stableSeconds', stableSecondsOptions, {
 	},
 });
 
-addMenu.interact('Erstellen', 'addRule', {
+addMenu.interact('addRule', {
+	text: 'Erstellen',
 	hide(ctx) {
 		const {notify} = ctx.session;
 
@@ -289,25 +279,25 @@ addMenu.interact('Erstellen', 'addRule', {
 	},
 });
 
-addMenu.navigate('🔙 zurück…', '..');
+addMenu.navigate('..', {text: '🔙 zurück…'});
 
 const removeMenu = new MenuTemplate<MyContext>(
 	'Welche Regel möchtest du entfernen?',
 );
 
-menu.submenu('Regel entfernen…', 'r', removeMenu, {
+menu.submenu('r', removeMenu, {
+	text: 'Regel entfernen…',
 	hide: ctx => notifyRules.getByChat(ctx.chat!.id).length === 0,
 });
 
-function removeOptions(ctx: MyContext) {
-	const rules = notifyRules.getByChat(ctx.chat!.id);
-	return Object.fromEntries(
-		rules.map((rule, i) => [i, notifyRules.asString(rule, undefined)]),
-	);
-}
-
-removeMenu.choose('r', removeOptions, {
+removeMenu.choose('r', {
 	columns: 1,
+	choices(ctx) {
+		const rules = notifyRules.getByChat(ctx.chat!.id);
+		return Object.fromEntries(
+			rules.map((rule, i) => [i, notifyRules.asString(rule, undefined)]),
+		);
+	},
 	do(ctx, key) {
 		const rules = notifyRules.getByChat(ctx.chat!.id);
 		const ruleToRemove = rules[Number(key)];
@@ -323,4 +313,4 @@ removeMenu.choose('r', removeOptions, {
 	},
 });
 
-removeMenu.navigate('🔙 zurück…', '..');
+removeMenu.navigate('..', {text: '🔙 zurück…'});
