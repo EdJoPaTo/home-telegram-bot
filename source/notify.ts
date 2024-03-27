@@ -45,7 +45,7 @@ export const menu = new MenuTemplate<MyContext>(ctx => {
 
 const addMenu = new MenuTemplate<MyContext>('Spezifiziere die Regel…');
 
-menu.submenu('add', addMenu, {text: 'Regel hinzufügen…'});
+menu.submenu('a', addMenu, {text: 'Regel hinzufügen…'});
 
 function topicButtonText(topic: string | undefined) {
 	const prefix = '📡 ';

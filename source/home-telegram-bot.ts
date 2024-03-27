@@ -133,7 +133,7 @@ bot.command(
 );
 bot.use(connectedMiddleware);
 
-const notifyMiddleware = new MenuMiddleware('notify/', notifyMenu);
+const notifyMiddleware = new MenuMiddleware('n/', notifyMenu);
 bot.command('notify', async ctx => notifyMiddleware.replyToContext(ctx));
 bot.use(notifyMiddleware);
 bot.use(notifyBot);
