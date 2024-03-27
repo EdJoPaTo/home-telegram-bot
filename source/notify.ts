@@ -22,7 +22,7 @@ export const menu = new MenuTemplate<MyContext>(ctx => {
 		text += '\n\n';
 		text += format.bold('Deine Regeln');
 		text += '\n';
-		text += rules.map(rule => notifyRules.asHTML(rule)).sort().join('\n');
+		text += rules.map(rule => '- ' + notifyRules.asHTML(rule)).sort().join('\n');
 	}
 
 	return {text, parse_mode: format.parse_mode};
