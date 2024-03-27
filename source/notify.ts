@@ -12,32 +12,17 @@ const {DEFAULT_RULE, CHANGE_TYPES} = notifyRules;
 
 export const bot = new Composer<MyContext>();
 
-function myRuleList(ctx: MyContext) {
-	const rules = notifyRules.getByChat(ctx.chat!.id);
-	if (rules.length === 0) {
-		return;
-	}
-
-	let text = '';
-	text += format.bold('Deine Regeln');
-	text += '\n';
-	text += rules
-		.map(rule => notifyRules.asString(rule, format.parse_mode))
-		.sort()
-		.join('\n');
-
-	return text;
-}
-
 export const menu = new MenuTemplate<MyContext>(ctx => {
 	let text = format.bold('Benachrichtigungen');
 	text += '\n';
 	text += 'Du kannst benachrichtigt werden, wenn Geräte bestimmte Bedinungen erfüllen.';
 
-	const ruleList = myRuleList(ctx);
-	if (ruleList) {
+	const rules = notifyRules.getByChat(ctx.chat!.id);
+	if (rules.length > 0) {
 		text += '\n\n';
-		text += ruleList;
+		text += format.bold('Deine Regeln');
+		text += '\n';
+		text += rules.map(rule => notifyRules.asHTML(rule)).sort().join('\n');
 	}
 
 	return {text, parse_mode: format.parse_mode};
@@ -295,7 +280,7 @@ removeMenu.choose('r', {
 	choices(ctx) {
 		const rules = notifyRules.getByChat(ctx.chat!.id);
 		return Object.fromEntries(
-			rules.map((rule, i) => [i, notifyRules.asString(rule, undefined)]),
+			rules.map((rule, i) => [i, notifyRules.asString(rule)]),
 		);
 	},
 	do(ctx, key) {

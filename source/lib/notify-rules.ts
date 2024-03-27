@@ -96,26 +96,28 @@ export function remove(rule: Rule): void {
 	saveRules();
 }
 
-export function asString(rule: Rule, parse_mode: 'HTML' | undefined): string {
-	const {topic, change, stableSeconds} = rule;
+function getChangeSymbols(change: readonly Change[]): string {
+	return [...change].sort().map(o => CHANGE_TYPES[o]).join('');
+}
 
-	let text = '';
-	text += parse_mode === 'HTML' ? html.monospace(topic) : topic;
+function getHumanreadableStableSeconds(seconds: number): string {
+	const minutes = Math.round(seconds / 6) / 10;
+	return `>${minutes} min`;
+}
 
-	text += ' ';
+export function asString(rule: Rule): string {
+	const {topic, compareTo} = rule;
+	const changeSymbols = getChangeSymbols(rule.change);
+	const stable = getHumanreadableStableSeconds(rule.stableSeconds);
+	return `${topic} ${changeSymbols} ${compareTo} ${stable}`;
+}
 
-	const changeSymbols = [...change]
-		.sort()
-		.map(o => CHANGE_TYPES[o]);
-	text += changeSymbols.join('') + ' ';
-
-	text += (parse_mode === 'HTML' && rule.compare === 'topic')
+export function asHTML(rule: Rule): string {
+	const topic = html.monospace(rule.topic);
+	const changeSymbols = getChangeSymbols(rule.change);
+	const compareTo = rule.compare === 'topic'
 		? html.monospace(rule.compareTo)
 		: String(rule.compareTo);
-
-	text += ' ';
-	const stableMinutes = Math.round(stableSeconds / 6) / 10;
-	text += `>${stableMinutes} min`;
-
-	return text;
+	const stable = getHumanreadableStableSeconds(rule.stableSeconds);
+	return `${topic} ${changeSymbols} ${compareTo} ${stable}`;
 }
