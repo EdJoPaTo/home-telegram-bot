@@ -74,7 +74,7 @@ export function getByChat(chat: number) {
 export function add(rule: Rule): void {
 	const {topic} = rule;
 	rules[topic] ??= [];
-	rules[topic]!.push(rule);
+	rules[topic].push(rule);
 	saveRules();
 }
 
@@ -85,10 +85,10 @@ export function remove(rule: Rule): void {
 	}
 
 	const stringifiedRule = stringify(rule);
-	rules[topic] = rules[topic]!
+	rules[topic] = rules[topic]
 		.filter(o => stringify(o) !== stringifiedRule);
 
-	if (rules[topic]!.length === 0) {
+	if (rules[topic].length === 0) {
 		// eslint-disable-next-line @typescript-eslint/no-dynamic-delete
 		delete rules[topic];
 	}

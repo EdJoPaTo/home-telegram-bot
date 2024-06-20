@@ -118,7 +118,7 @@ async function initiateNotification(
 		{accumulate: true},
 	);
 
-	return debouncers[identifier]!({
+	return debouncers[identifier]({
 		currentValue,
 		compareTo,
 	});
