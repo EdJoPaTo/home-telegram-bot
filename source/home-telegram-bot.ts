@@ -111,7 +111,7 @@ if (config.telegramUserAllowlist.length > 0) {
 		text += 'Looks like you are not approved to use this bot.';
 
 		text += '\n\n';
-		text += 'Forward this message to the owner of the bot if you think you should be approved.';
+		text += 'Forward this message to the owner of the bot if you think you should be approved. This is neither logged nor any data stored about you until you are added manually by the admin via config.json.';
 		text += '\n';
 		text += 'Your Telegram user id: ';
 		text += format.monospace(String(ctx.from.id));
