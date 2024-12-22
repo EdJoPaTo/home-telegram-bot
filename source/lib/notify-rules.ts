@@ -50,7 +50,7 @@ function loadRules(): Record<Topic, Rule[]> {
 }
 
 function saveRules() {
-	const content = stringify(rules, {space: '\t'});
+	const content = stringify(rules, {space: '\t'})! + '\n';
 	writeFileSync(RULE_FILE, content, 'utf8');
 }
 
