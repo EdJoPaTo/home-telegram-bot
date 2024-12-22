@@ -17,19 +17,6 @@ import {bot as topicFilterMiddleware} from './topic-filter.js';
 
 const config = loadConfig();
 
-const bot = new Bot<MyContext>(config.telegramBotToken);
-bot.use(session({
-	getSessionKey: ctx => String(ctx.from?.id),
-	initial: (): Session => ({}),
-	storage: new FileAdapter({
-		dirName: 'persist/sessions',
-	}),
-}));
-
-bot.use(generateUpdateMiddleware());
-
-notify.init(bot.api);
-
 const retain = env['NODE_ENV'] === 'production';
 const mqttOptions: MQTT.IClientOptions = {
 	will: {
@@ -93,6 +80,12 @@ client.on('message', async (topic, payload, packet) => {
 	history.setLastValue(topic, packet.retain ? undefined : time, value);
 });
 
+const bot = new Bot<MyContext>(config.telegramBotToken);
+
+bot.use(generateUpdateMiddleware());
+
+notify.init(bot.api);
+
 if (config.telegramUserAllowlist.length > 0) {
 	bot.use(async (ctx, next) => {
 		if (!ctx.from) {
@@ -102,8 +95,7 @@ if (config.telegramUserAllowlist.length > 0) {
 
 		const isAllowed = config.telegramUserAllowlist.includes(ctx.from.id);
 		if (isAllowed) {
-			await next();
-			return;
+			return next();
 		}
 
 		let text = `Hey ${format.escape(ctx.from.first_name)}!`;
@@ -119,6 +111,14 @@ if (config.telegramUserAllowlist.length > 0) {
 		await ctx.reply(text, {parse_mode: format.parse_mode});
 	});
 }
+
+bot.use(session({
+	getSessionKey: ctx => String(ctx.from?.id),
+	initial: (): Session => ({}),
+	storage: new FileAdapter({
+		dirName: 'persist/sessions',
+	}),
+}));
 
 bot.use(topicFilterMiddleware);
 
