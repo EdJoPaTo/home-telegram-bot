@@ -19,7 +19,7 @@
 	},
 	"dependencies": {
 		"@grammyjs/stateless-question": "^4.0.0",
-		"@grammyjs/storage-file": "^2.0.0",
+		"@grammyjs/storage-file": "^2.5.1",
 		"async-mqtt": "^2.0.0",
 		"debounce-promise": "^3.1.0",
 		"grammy": "^1.32.0",
