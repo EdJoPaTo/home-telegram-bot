@@ -31,9 +31,7 @@ const client = MQTT.connect(config.mqttServer, mqttOptions);
 
 client.on('connect', async () => {
 	console.log('connected to mqtt server');
-	await Promise.all(
-		config.mqttTopics.map(async topic => client.subscribe(topic)),
-	);
+	await Promise.all(config.mqttTopics.map(async topic => client.subscribe(topic)));
 	await client.publish('home-telegram-bot/connected', '2', {retain});
 	console.log('subscribed to topics', config.mqttTopics);
 });
@@ -103,7 +101,8 @@ if (config.telegramUserAllowlist.length > 0) {
 		text += 'Looks like you are not approved to use this bot.';
 
 		text += '\n\n';
-		text += 'Forward this message to the owner of the bot if you think you should be approved. This is neither logged nor any data stored about you until you are added manually by the admin via config.json.';
+		text
+			+= 'Forward this message to the owner of the bot if you think you should be approved. This is neither logged nor any data stored about you until you are added manually by the admin via config.json.';
 		text += '\n';
 		text += 'Your Telegram user id: ';
 		text += format.monospace(String(ctx.from.id));
@@ -138,21 +137,19 @@ bot.command('notify', async ctx => notifyMiddleware.replyToContext(ctx));
 bot.use(notifyMiddleware);
 bot.use(notifyBot);
 
-bot.command(
-	'start',
-	async ctx =>
-		ctx.reply(
-			`Hey ${
-				ctx.from?.first_name ?? 'du'
-			}!\n\nWenn du den Status der aktuellen Sensoren sehen willst, nutze /status.\nWenn du eine Benachrichtigung haben möchtest, wenn es draußen wärmer wird als drinnen, nutze /notify.`,
-			{reply_markup: {remove_keyboard: true}},
-		),
-);
+bot.command('start', async ctx =>
+	ctx.reply(
+		`Hey ${
+			ctx.from?.first_name ?? 'du'
+		}!\n\nWenn du den Status der aktuellen Sensoren sehen willst, nutze /status.\nWenn du eine Benachrichtigung haben möchtest, wenn es draußen wärmer wird als drinnen, nutze /notify.`,
+		{reply_markup: {remove_keyboard: true}},
+	));
 
 // eslint-disable-next-line unicorn/prefer-top-level-await
 bot.catch(error => {
 	if (
-		error instanceof Error && error.message.includes('message is not modified')
+		error instanceof Error
+		&& error.message.includes('message is not modified')
 	) {
 		return;
 	}

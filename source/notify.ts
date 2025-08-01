@@ -15,14 +15,18 @@ export const bot = new Composer<MyContext>();
 export const menu = new MenuTemplate<MyContext>(ctx => {
 	let text = format.bold('Benachrichtigungen');
 	text += '\n';
-	text += 'Du kannst benachrichtigt werden, wenn Geräte bestimmte Bedinungen erfüllen.';
+	text
+		+= 'Du kannst benachrichtigt werden, wenn Geräte bestimmte Bedinungen erfüllen.';
 
 	const rules = notifyRules.getByChat(ctx.chat!.id);
 	if (rules.length > 0) {
 		text += '\n\n';
 		text += format.bold('Deine Regeln');
 		text += '\n';
-		text += rules.map(rule => '- ' + notifyRules.asHTML(rule)).sort().join('\n');
+		text += rules
+			.map(rule => '- ' + notifyRules.asHTML(rule))
+			.sort()
+			.join('\n');
 	}
 
 	return {text, parse_mode: format.parse_mode};
@@ -51,9 +55,7 @@ topicMenu.select('p', {
 	choices(ctx) {
 		const filter = new RegExp(ctx.session.topicFilter ?? '.+', 'i');
 		const relevantTopics = history.getTopics().filter(o => filter.test(o));
-		return Object.fromEntries(
-			relevantTopics.map(topic => [topic.replaceAll('/', '#'), topic]),
-		);
+		return Object.fromEntries(relevantTopics.map(topic => [topic.replaceAll('/', '#'), topic]));
 	},
 	isSet: (ctx, key) => ctx.session.notify?.topic === key.replaceAll('#', '/'),
 	set(ctx, key) {
@@ -82,8 +84,7 @@ addMenu.select('change', {
 	choices: CHANGE_TYPES,
 	hide: ctx => !ctx.session.notify?.topic,
 	isSet: (ctx, key) =>
-		(ctx.session.notify?.change ?? [])
-			.includes(key as notifyRules.Change),
+		(ctx.session.notify?.change ?? []).includes(key as notifyRules.Change),
 	set(ctx, key) {
 		ctx.session.notify = {
 			...ctx.session.notify,
@@ -123,9 +124,7 @@ const compareToValueQuestion = new StatelessQuestion<MyContext>(
 	'notify-cv',
 	async ctx => {
 		if (ctx.message.text) {
-			const justDigits = Number(
-				ctx.message.text.replaceAll(/[^\d,.-]/g, '').replace(',', '.'),
-			);
+			const justDigits = Number(ctx.message.text.replaceAll(/[^\d,.-]/g, '').replace(',', '.'));
 			ctx.session.notify = {
 				...ctx.session.notify,
 				compare: 'value',
@@ -159,18 +158,14 @@ addMenu.interact('cv', {
 	},
 });
 
-const compareTopicMenu = new MenuTemplate<MyContext>(
-	'Mit welchem Sensor willst du den Wert vergleichen?',
-);
+const compareTopicMenu = new MenuTemplate<MyContext>('Mit welchem Sensor willst du den Wert vergleichen?');
 
 addFilterButtons(compareTopicMenu, 'notify-compateTopic');
 
 addMenu.submenu('cp', compareTopicMenu, {
 	text: ctx =>
-		String(
-			ctx.session.notify?.compare === 'topic'
-				&& topicButtonText(ctx.session.notify.compareTo),
-		),
+		String(ctx.session.notify?.compare === 'topic'
+			&& topicButtonText(ctx.session.notify.compareTo)),
 	hide(ctx) {
 		const {topic, compare} = ctx.session.notify ?? {};
 		return !topic || compare !== 'topic';
@@ -186,13 +181,12 @@ compareTopicMenu.select('p', {
 		}
 
 		const filter = new RegExp(ctx.session.topicFilter ?? '.+', 'i');
-		const relevantTopics = history.getTopics()
+		const relevantTopics = history
+			.getTopics()
 			.filter(o => o !== ctx.session.notify?.topic)
 			.filter(o => filter.test(o));
 
-		return Object.fromEntries(
-			relevantTopics.map(topic => [topic.replaceAll('/', '#'), topic]),
-		);
+		return Object.fromEntries(relevantTopics.map(topic => [topic.replaceAll('/', '#'), topic]));
 	},
 	isSet(ctx, key) {
 		return ctx.session.notify?.compareTo === key.replaceAll('#', '/');
@@ -266,9 +260,7 @@ addMenu.interact('addRule', {
 
 addMenu.navigate('..', {text: '🔙 zurück…'});
 
-const removeMenu = new MenuTemplate<MyContext>(
-	'Welche Regel möchtest du entfernen?',
-);
+const removeMenu = new MenuTemplate<MyContext>('Welche Regel möchtest du entfernen?');
 
 menu.submenu('r', removeMenu, {
 	text: 'Regel entfernen…',
@@ -279,9 +271,7 @@ removeMenu.choose('r', {
 	columns: 1,
 	choices(ctx) {
 		const rules = notifyRules.getByChat(ctx.chat!.id);
-		return Object.fromEntries(
-			rules.map((rule, i) => [i, notifyRules.asString(rule)]),
-		);
+		return Object.fromEntries(rules.map((rule, i) => [i, notifyRules.asString(rule)]));
 	},
 	do(ctx, key) {
 		const rules = notifyRules.getByChat(ctx.chat!.id);

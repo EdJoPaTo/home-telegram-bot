@@ -11,10 +11,7 @@ export const menu = new MenuTemplate(() => {
 			const emoji = connectedLogic.fromTopic(topic, data.value)
 				?? connectedLogic.UNKNOWN;
 
-			const parts = [
-				emoji,
-				format.monospace(topic),
-			];
+			const parts = [emoji, format.monospace(topic)];
 
 			if (data.time) {
 				parts.push(timespan(Date.now() - data.time.getTime()));

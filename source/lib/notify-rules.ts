@@ -85,8 +85,7 @@ export function remove(rule: Rule): void {
 	}
 
 	const stringifiedRule = stringify(rule);
-	rules[topic] = rules[topic]
-		.filter(o => stringify(o) !== stringifiedRule);
+	rules[topic] = rules[topic].filter(o => stringify(o) !== stringifiedRule);
 
 	if (rules[topic].length === 0) {
 		// eslint-disable-next-line @typescript-eslint/no-dynamic-delete
@@ -97,7 +96,10 @@ export function remove(rule: Rule): void {
 }
 
 function getChangeSymbols(change: readonly Change[]): string {
-	return [...change].sort().map(o => CHANGE_TYPES[o]).join('');
+	return [...change]
+		.sort()
+		.map(o => CHANGE_TYPES[o])
+		.join('');
 }
 
 function getHumanreadableStableSeconds(seconds: number): string {
