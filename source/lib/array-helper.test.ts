@@ -1,6 +1,6 @@
 import {deepStrictEqual} from 'node:assert';
 import {test} from 'node:test';
-import {setKeyInArray, toggleKeyInArray} from './array-helper.js';
+import {setKeyInArray, toggleKeyInArray} from './array-helper.ts';
 
 await test('setKeyInArray true', () => {
 	const result = setKeyInArray(['a', 'b'], 'c', true);

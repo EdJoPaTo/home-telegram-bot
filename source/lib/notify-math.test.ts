@@ -1,6 +1,6 @@
 import {strictEqual} from 'node:assert';
 import {test} from 'node:test';
-import {isFalling, isRising, isUnequal} from './notify-math.js';
+import {isFalling, isRising, isUnequal} from './notify-math.ts';
 
 await test('isRising', async t => {
 	const macro = async (now: number, compareTo: number, expected: boolean) =>

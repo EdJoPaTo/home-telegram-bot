@@ -5,7 +5,7 @@ import {
 	type MenuTemplate,
 	replyMenuToContext,
 } from 'grammy-inline-menu';
-import type {MyContext} from './context.js';
+import type {MyContext} from './context.ts';
 
 export const bot = new Composer<MyContext>();
 

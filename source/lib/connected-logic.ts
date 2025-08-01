@@ -1,5 +1,5 @@
-import {getLastValue} from './mqtt-history.js';
-import {getTopicParts} from './mqtt-topic.js';
+import {getLastValue} from './mqtt-history.ts';
+import {getTopicParts} from './mqtt-topic.ts';
 
 const MQTT_SMARTHOME_END = '/connected';
 const ESP_HOME_END = '/status';

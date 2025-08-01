@@ -2,15 +2,15 @@ import debounce from 'debounce-promise';
 import type {Api as Telegram} from 'grammy';
 import stringify from 'json-stable-stringify';
 import {html as format} from 'telegram-format';
-import * as history from './mqtt-history.js';
-import {isFalling, isRising, isUnequal} from './notify-math.js';
+import * as history from './mqtt-history.ts';
+import {isFalling, isRising, isUnequal} from './notify-math.ts';
 import {
 	type Change,
 	CHANGE_TYPES,
 	getByCompareTo,
 	getByTopic,
 	type Rule,
-} from './notify-rules.js';
+} from './notify-rules.ts';
 
 let telegram: Telegram;
 

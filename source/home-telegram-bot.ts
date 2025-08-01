@@ -5,15 +5,15 @@ import {Bot, session} from 'grammy';
 import {MenuMiddleware} from 'grammy-inline-menu';
 import {generateUpdateMiddleware} from 'telegraf-middleware-console-time';
 import {html as format} from 'telegram-format';
-import {menu as connectedMenu} from './connected.js';
-import type {MyContext, Session} from './context.js';
-import {loadConfig} from './lib/config.js';
-import * as history from './lib/mqtt-history.js';
-import * as notify from './lib/notify.js';
-import {payloadToNumber} from './lib/payload.js';
-import {bot as notifyBot, menu as notifyMenu} from './notify.js';
-import {menu as statusMenu} from './status.js';
-import {bot as topicFilterMiddleware} from './topic-filter.js';
+import {menu as connectedMenu} from './connected.ts';
+import type {MyContext, Session} from './context.ts';
+import {loadConfig} from './lib/config.ts';
+import * as history from './lib/mqtt-history.ts';
+import * as notify from './lib/notify.ts';
+import {payloadToNumber} from './lib/payload.ts';
+import {bot as notifyBot, menu as notifyMenu} from './notify.ts';
+import {menu as statusMenu} from './status.ts';
+import {bot as topicFilterMiddleware} from './topic-filter.ts';
 
 const config = loadConfig();
 

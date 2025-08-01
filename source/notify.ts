@@ -2,11 +2,11 @@ import {StatelessQuestion} from '@grammyjs/stateless-question';
 import {Composer} from 'grammy';
 import {MenuTemplate, replyMenuToContext} from 'grammy-inline-menu';
 import {html as format} from 'telegram-format';
-import type {MyContext} from './context.js';
-import {toggleKeyInArray} from './lib/array-helper.js';
-import * as history from './lib/mqtt-history.js';
-import * as notifyRules from './lib/notify-rules.js';
-import {addFilterButtons} from './topic-filter.js';
+import type {MyContext} from './context.ts';
+import {toggleKeyInArray} from './lib/array-helper.ts';
+import * as history from './lib/mqtt-history.ts';
+import * as notifyRules from './lib/notify-rules.ts';
+import {addFilterButtons} from './topic-filter.ts';
 
 const {DEFAULT_RULE, CHANGE_TYPES} = notifyRules;
 
