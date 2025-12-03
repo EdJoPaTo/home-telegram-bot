@@ -10,12 +10,17 @@
 		"url": "https://edjopato.de"
 	},
 	"scripts": {
-		"start": "tsc && node --enable-source-maps dist/home-telegram-bot.js",
+		"start": "node --enable-source-maps source/home-telegram-bot.ts",
 		"test": "tsc && xo && node --enable-source-maps --test"
 	},
 	"type": "module",
 	"engines": {
-		"node": ">=22"
+		"node": ">=24"
+	},
+	"devEngines": {
+		"packageManager": {
+			"name": "npm"
+		}
 	},
 	"dependencies": {
 		"@grammyjs/stateless-question": "^4.0.0",
@@ -30,7 +35,7 @@
 	},
 	"devDependencies": {
 		"@types/debounce-promise": "^3.1.3",
-		"@types/node": "^22.15.34",
+		"@types/node": "^24.10.1",
 		"typescript": "^5.9.2",
 		"xo": "^1.2.1"
 	},
