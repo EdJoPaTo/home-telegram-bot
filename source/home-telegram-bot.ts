@@ -20,8 +20,8 @@ const config = loadConfig();
 const retain = env['NODE_ENV'] === 'production';
 const mqttOptions: MQTT.IClientOptions = {
 	will: {
-		topic: 'home-telegram-bot/connected',
-		payload: '0',
+		topic: 'home-telegram-bot/status',
+		payload: 'offline',
 		qos: 1,
 		retain,
 	},
@@ -32,7 +32,7 @@ const client = MQTT.connect(config.mqttServer, mqttOptions);
 client.on('connect', async () => {
 	console.log('connected to mqtt server');
 	await Promise.all(config.mqttTopics.map(async topic => client.subscribe(topic)));
-	await client.publish('home-telegram-bot/connected', '2', {retain});
+	await client.publish('home-telegram-bot/status', 'online', {retain});
 	console.log('subscribed to topics', config.mqttTopics);
 });
 client.on('error', error => {
@@ -59,7 +59,7 @@ client.on('message', async (topic, payload, packet) => {
 		return;
 	}
 
-	if (topic === 'home-telegram-bot/connected') {
+	if (topic === 'home-telegram-bot/status') {
 		// Thats my own connection status. Ignore it.
 		return;
 	}
