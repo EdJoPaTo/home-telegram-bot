@@ -21,6 +21,7 @@ const DEFAULT_CONFIG: Config = {
 		'+/status',
 		'+/+/+/state',
 
+		// First Geneneration Shellies
 		'shellies/+/input/+',
 		'shellies/+/online',
 		'shellies/+/relay/#',
