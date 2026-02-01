@@ -13,6 +13,8 @@ type Config = {
 const DEFAULT_CONFIG: Config = {
 	mqttServer: 'tcp://localhost:1883',
 	mqttTopics: [
+		'+/online',
+
 		// MQTT Smarthome
 		'+/connected',
 		'+/status/#',

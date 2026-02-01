@@ -1,6 +1,7 @@
 import {getLastValue} from './mqtt-history.ts';
 import {getTopicParts} from './mqtt-topic.ts';
 
+const GENERIC_ONLINE_END = '/online';
 const MQTT_SMARTHOME_END = '/connected';
 const ESP_HOME_END = '/status';
 
@@ -38,7 +39,9 @@ function espHomePart(value: number | undefined) {
 }
 
 export function isRelevantTopic(topic: string): boolean {
-	return topic.endsWith(MQTT_SMARTHOME_END) || topic.endsWith(ESP_HOME_END);
+	return topic.endsWith(GENERIC_ONLINE_END)
+		|| topic.endsWith(MQTT_SMARTHOME_END)
+		|| topic.endsWith(ESP_HOME_END);
 }
 
 export function fromTopic(topic: string, value: number | undefined) {
@@ -46,7 +49,7 @@ export function fromTopic(topic: string, value: number | undefined) {
 		return mqttSmarthomePart(value);
 	}
 
-	if (topic.endsWith(ESP_HOME_END)) {
+	if (topic.endsWith(GENERIC_ONLINE_END) || topic.endsWith(ESP_HOME_END)) {
 		return espHomePart(value);
 	}
 

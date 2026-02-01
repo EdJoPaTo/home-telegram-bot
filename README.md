@@ -30,6 +30,7 @@ Edit it to fit your needs.
 {
 	"mqttServer": "tcp://localhost:1883",
 	"mqttTopics": [
+		"+/online",
 		"+/connected",
 		"+/status/#"
 	],
