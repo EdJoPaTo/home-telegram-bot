@@ -1,5 +1,6 @@
 import {env} from 'node:process';
 import {FileAdapter} from '@grammyjs/storage-file';
+import {arrayFilterUnique} from 'array-filter-unique';
 import * as MQTT from 'async-mqtt';
 import {Bot, session} from 'grammy';
 import {MenuMiddleware} from 'grammy-inline-menu';
@@ -8,12 +9,13 @@ import {html as format} from 'telegram-format';
 import {menu as connectedMenu} from './connected.ts';
 import type {MyContext, Session} from './context.ts';
 import {loadConfig} from './lib/config.ts';
+import {CONNECTED_SUBSCRIPTION_TOPICS} from './lib/connected-logic.ts';
+import * as hass from './lib/home-assistant-topics.ts';
 import * as history from './lib/mqtt-history.ts';
 import * as notify from './lib/notify.ts';
 import {payloadToNumber} from './lib/payload.ts';
 import {bot as notifyBot, menu as notifyMenu} from './notify.ts';
 import {menu as statusMenu} from './status.ts';
-import {bot as topicFilterMiddleware} from './topic-filter.ts';
 
 const config = loadConfig();
 
@@ -31,9 +33,15 @@ const client = MQTT.connect(config.mqttServer, mqttOptions);
 
 client.on('connect', async () => {
 	console.log('connected to mqtt server');
-	await Promise.all(config.mqttTopics.map(async topic => client.subscribe(topic)));
+	const subscribeTopics = [
+		...CONNECTED_SUBSCRIPTION_TOPICS,
+		...hass.getAllSubscribeTopics(),
+	];
+	await Promise.all(subscribeTopics
+		.filter(arrayFilterUnique())
+		.map(async topic => client.subscribe(topic)));
 	await client.publish('home-telegram-bot/status', 'online', {retain});
-	console.log('subscribed to topics', config.mqttTopics);
+	console.log('subscribed to topics', subscribeTopics);
 });
 client.on('error', error => {
 	console.error('Error MQTT', error);
@@ -42,6 +50,17 @@ client.on('error', error => {
 client.on('message', async (topic, payload, packet) => {
 	if (packet.cmd !== 'publish') {
 		// Only handle publish packages
+		return;
+	}
+
+	if (topic === 'home-telegram-bot/status') {
+		// Thats my own connection status. Ignore it.
+		return;
+	}
+
+	if (topic.startsWith(hass.TOPIC_STARTS_WITH)) {
+		const topics = hass.updateConfig(topic, payload.toString());
+		await Promise.all(topics.map(async topic => client.subscribe(topic)));
 		return;
 	}
 
@@ -56,11 +75,6 @@ client.on('message', async (topic, payload, packet) => {
 	if (payload.byteLength > 40) {
 		// Debug
 		// console.log('dropping large payload', payload.byteLength, topic);
-		return;
-	}
-
-	if (topic === 'home-telegram-bot/status') {
-		// Thats my own connection status. Ignore it.
 		return;
 	}
 
@@ -118,8 +132,6 @@ bot.use(session({
 		dirName: 'persist/sessions',
 	}),
 }));
-
-bot.use(topicFilterMiddleware);
 
 const statusMiddleware = new MenuMiddleware('status/', statusMenu);
 bot.command('status', async ctx => statusMiddleware.replyToContext(ctx));

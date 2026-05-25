@@ -1,6 +1,12 @@
 import {getLastValue} from './mqtt-history.ts';
 import {getTopicParts} from './mqtt-topic.ts';
 
+export const CONNECTED_SUBSCRIPTION_TOPICS = [
+	'+/online',
+	'+/connected',
+	'+/status',
+] as const;
+
 const GENERIC_ONLINE_END = '/online';
 const MQTT_SMARTHOME_END = '/connected';
 const ESP_HOME_END = '/status';
@@ -56,7 +62,11 @@ export function fromTopic(topic: string, value: number | undefined) {
 	return UNKNOWN;
 }
 
-export function getRelatedConnectionStatus(topic: string) {
+export function getRelatedConnectionStatus(topic: string | undefined) {
+	if (!topic) {
+		return UNKNOWN;
+	}
+
 	const base = getTopicParts(topic)[0];
 
 	{

@@ -3,17 +3,17 @@ import {html as format} from 'telegram-format';
 import type {MyContext} from './context.ts';
 import {getRelatedConnectionStatus} from './lib/connected-logic.ts';
 import {timespan} from './lib/format.ts';
-import {getAll} from './lib/mqtt-history.ts';
-import {addFilterButtons} from './topic-filter.ts';
+import * as hass from './lib/home-assistant-topics.ts';
+import * as history from './lib/mqtt-history.ts';
 
 const MIN_AGE_MILLISECONDS = 1000 * 60 * 60 * 48;
-const PER_PAGE = 50;
 
-function getAllContent(ctx: MyContext) {
-	const filter = new RegExp(ctx.session.topicFilter ?? '.+', 'i');
-	const relevantData = getAll()
-		.filter(([topic, _data]) => filter.test(topic))
-		.filter(([_topic, data]) => {
+function getLines(configs: readonly hass.HomeassistantConfig[]) {
+	return configs
+		.map(config =>
+			[config, history.getLastValue(config.state_topic)!] as const)
+		.filter(([_config, data]) => Boolean(data))
+		.filter(([_config, data]) => {
 			if (!data.time) {
 				// Retained
 				return true;
@@ -21,51 +21,59 @@ function getAllContent(ctx: MyContext) {
 
 			const age = Date.now() - data.time.getTime();
 			return age < MIN_AGE_MILLISECONDS;
-		});
-
-	return relevantData;
-}
-
-export const menu = new MenuTemplate<MyContext>(async ctx => {
-	const all = getAllContent(ctx);
-	if (all.length === 0) {
-		return 'no topics match your filter 😔';
-	}
-
-	const totalPages = Math.ceil(all.length / PER_PAGE);
-	const pageIndex = Math.max(
-		0,
-		Math.min(totalPages, ctx.session.page ?? 1) - 1,
-	);
-
-	const lines = all
-		.slice(pageIndex * PER_PAGE, (pageIndex + 1) * PER_PAGE)
-		.map(([topic, data]) => {
+		})
+		.sort(([aConfig, _aData], [bConfig, _bData]) =>
+			hass.prettyName(aConfig).localeCompare(hass.prettyName(bConfig)))
+		.map(([config, data]) => {
 			const parts: string[] = [
-				getRelatedConnectionStatus(topic),
-				format.monospace(topic),
-				String(data.value),
+				getRelatedConnectionStatus(config.availability_topic),
+				hass.prettyName(config),
+				format.bold(String(data.value)),
 			];
 
+			if (config.unit_of_measurement) {
+				parts.push(config.unit_of_measurement);
+			}
+
 			if (data.time) {
-				parts.push(timespan(Date.now() - data.time.getTime()));
+				parts.push(format.italic(timespan(Date.now() - data.time.getTime())));
 			}
 
 			return parts.join(' ');
 		});
+}
 
-	const text = lines.join('\n');
+export const menu = new MenuTemplate<MyContext>(async ctx => {
+	const deviceClass = ctx.session.deviceClass ?? 'temperature';
+
+	const areas = hass.getAreas();
+	let text = '';
+
+	for (const area of areas) {
+		const configs = hass.getConfigs(config =>
+			config.device_class === deviceClass
+			&& config.device.suggested_area === area);
+		const lines = getLines(configs);
+		if (lines.length === 0) {
+			continue;
+		}
+
+		text += '\n\n' + area + '\n' + lines.join('\n');
+	}
+
+	if (!text) {
+		return 'no devices with this device class 😔';
+	}
+
 	return {text, parse_mode: format.parse_mode};
 });
 
-menu.navigate('.', {text: 'Update'});
-
-addFilterButtons(menu, 'status-filter');
-
-menu.pagination('page', {
-	getCurrentPage: ctx => ctx.session.page,
-	getTotalPages: ctx => getAllContent(ctx).length / PER_PAGE,
-	setPage(ctx, page) {
-		ctx.session.page = page;
+menu.select('deviceClass', {
+	columns: 3,
+	choices: () => hass.getDeviceClasses(),
+	isSet: (ctx, key) => ctx.session.deviceClass === key,
+	set(ctx, key) {
+		ctx.session.deviceClass = key;
+		return true;
 	},
 });

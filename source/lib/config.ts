@@ -5,31 +5,12 @@ const CONFIG_FILE = 'persist/config.json';
 
 type Config = {
 	readonly mqttServer: string;
-	readonly mqttTopics: readonly string[];
 	readonly telegramBotToken: string;
 	readonly telegramUserAllowlist: readonly number[];
 };
 
 const DEFAULT_CONFIG: Config = {
 	mqttServer: 'tcp://localhost:1883',
-	mqttTopics: [
-		'+/online',
-
-		// MQTT Smarthome
-		'+/connected',
-		'+/status/#',
-
-		// ESPHome
-		'+/status',
-		'+/+/+/state',
-
-		// First Geneneration Shellies
-		'shellies/+/input/+',
-		'shellies/+/online',
-		'shellies/+/relay/#',
-		'shellies/+/temperature',
-		'shellies/+/voltage',
-	],
 	telegramBotToken: '123:abc',
 	telegramUserAllowlist: [],
 } as const;

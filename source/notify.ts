@@ -4,9 +4,9 @@ import {MenuTemplate, replyMenuToContext} from 'grammy-inline-menu';
 import {html as format} from 'telegram-format';
 import type {MyContext} from './context.ts';
 import {toggleKeyInArray} from './lib/array-helper.ts';
+import * as hass from './lib/home-assistant-topics.ts';
 import * as history from './lib/mqtt-history.ts';
 import * as notifyRules from './lib/notify-rules.ts';
-import {addFilterButtons} from './topic-filter.ts';
 
 const {DEFAULT_RULE, CHANGE_TYPES} = notifyRules;
 
@@ -36,6 +36,21 @@ const addMenu = new MenuTemplate<MyContext>('Spezifiziere die Regel…');
 
 menu.submenu('a', addMenu, {text: 'Regel hinzufügen…'});
 
+const deviceClassMenu = new MenuTemplate<MyContext>('Wähle die device_class');
+deviceClassMenu.select('', {
+	columns: 2,
+	choices: () => hass.getDeviceClasses(),
+	isSet: (ctx, key) => ctx.session.deviceClass === key,
+	set(ctx, key) {
+		ctx.session.deviceClass = key;
+		return '..';
+	},
+});
+deviceClassMenu.navigate('..', {text: '🔙 zurück…'});
+addMenu.submenu('device_class', deviceClassMenu, {
+	text: ctx => '📟 ' + (ctx.session.deviceClass ?? 'device_class'),
+});
+
 function topicButtonText(topic: string | undefined) {
 	const prefix = '📡 ';
 	const exists = Boolean(topic && history.getLastValue(topic));
@@ -48,14 +63,18 @@ function topicButtonText(topic: string | undefined) {
 
 const topicMenu = new MenuTemplate<MyContext>('Wähle das Topic…');
 
-addFilterButtons(topicMenu, 'notify-topic');
-
 topicMenu.select('p', {
 	columns: 1,
+	hide: ctx => !ctx.session.deviceClass,
 	choices(ctx) {
-		const filter = new RegExp(ctx.session.topicFilter ?? '.+', 'i');
-		const relevantTopics = history.getTopics().filter(o => filter.test(o));
-		return Object.fromEntries(relevantTopics.map(topic => [topic.replaceAll('/', '#'), topic]));
+		return Object.fromEntries(hass
+			.getConfigs(config => config.device_class === ctx.session.deviceClass)
+			.toSorted((a, b) =>
+				hass.prettyName(a).localeCompare(hass.prettyName(b)))
+			.map(config => [
+				config.state_topic.replaceAll('/', '#'),
+				hass.prettyName(config),
+			]));
 	},
 	isSet: (ctx, key) => ctx.session.notify?.topic === key.replaceAll('#', '/'),
 	set(ctx, key) {
@@ -160,8 +179,6 @@ addMenu.interact('cv', {
 
 const compareTopicMenu = new MenuTemplate<MyContext>('Mit welchem Sensor willst du den Wert vergleichen?');
 
-addFilterButtons(compareTopicMenu, 'notify-compateTopic');
-
 addMenu.submenu('cp', compareTopicMenu, {
 	text: ctx =>
 		String(ctx.session.notify?.compare === 'topic'
@@ -180,13 +197,15 @@ compareTopicMenu.select('p', {
 			return {};
 		}
 
-		const filter = new RegExp(ctx.session.topicFilter ?? '.+', 'i');
-		const relevantTopics = history
-			.getTopics()
-			.filter(o => o !== ctx.session.notify?.topic)
-			.filter(o => filter.test(o));
-
-		return Object.fromEntries(relevantTopics.map(topic => [topic.replaceAll('/', '#'), topic]));
+		return Object.fromEntries(hass
+			.getConfigs(config => config.device_class === ctx.session.deviceClass)
+			.filter(config => config.state_topic !== topic)
+			.toSorted((a, b) =>
+				hass.prettyName(a).localeCompare(hass.prettyName(b)))
+			.map(config => [
+				config.state_topic.replaceAll('/', '#'),
+				hass.prettyName(config),
+			]));
 	},
 	isSet(ctx, key) {
 		return ctx.session.notify?.compareTo === key.replaceAll('#', '/');

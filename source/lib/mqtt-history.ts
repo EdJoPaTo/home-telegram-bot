@@ -1,6 +1,6 @@
 type Topic = string;
 
-type Datapoint = {
+export type Datapoint = {
 	readonly time: Date | undefined;
 	readonly value: number;
 };
