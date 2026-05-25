@@ -5,10 +5,10 @@ const GENERIC_ONLINE_END = '/online';
 const MQTT_SMARTHOME_END = '/connected';
 const ESP_HOME_END = '/status';
 
-export const UNKNOWN = '❓';
-export const OFFLINE = '😴';
-export const FAULTY = '😨';
-export const CONNECTED = '✅';
+const UNKNOWN = '❓';
+const OFFLINE = '😴';
+const FAULTY = '😨';
+const CONNECTED = '✅';
 
 function mqttSmarthomePart(value: number | undefined) {
 	if (value === 0) {
@@ -53,7 +53,7 @@ export function fromTopic(topic: string, value: number | undefined) {
 		return espHomePart(value);
 	}
 
-	return undefined;
+	return UNKNOWN;
 }
 
 export function getRelatedConnectionStatus(topic: string) {

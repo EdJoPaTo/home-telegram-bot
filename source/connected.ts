@@ -8,9 +8,7 @@ export const menu = new MenuTemplate(() => {
 	const lines = getAll()
 		.filter(([topic]) => connectedLogic.isRelevantTopic(topic))
 		.map(([topic, data]) => {
-			const emoji = connectedLogic.fromTopic(topic, data.value)
-				?? connectedLogic.UNKNOWN;
-
+			const emoji = connectedLogic.fromTopic(topic, data.value);
 			const parts = [emoji, format.monospace(topic)];
 
 			if (data.time) {
