@@ -25,15 +25,14 @@ function getLines(configs: readonly hass.HomeassistantConfig[]) {
 		.sort(([aConfig, _aData], [bConfig, _bData]) =>
 			hass.prettyName(aConfig).localeCompare(hass.prettyName(bConfig)))
 		.map(([config, data]) => {
+			const unit = config.unit_of_measurement
+				? '\u00A0' + config.unit_of_measurement
+				: '';
 			const parts: string[] = [
 				getRelatedConnectionStatus(config.availability_topic),
 				hass.prettyName(config),
-				format.bold(String(data.value)),
+				format.bold(String(data.value)) + unit,
 			];
-
-			if (config.unit_of_measurement) {
-				parts.push(config.unit_of_measurement);
-			}
 
 			if (data.time) {
 				parts.push(format.italic(timespan(Date.now() - data.time.getTime())));
@@ -50,9 +49,10 @@ export const menu = new MenuTemplate<MyContext>(async ctx => {
 	let text = '';
 
 	for (const area of areas) {
-		const configs = hass.getConfigs(config =>
-			config.device_class === deviceClass
-			&& config.device.suggested_area === area);
+		const configs = hass
+			.getConfigs()
+			.filter(config => config.device_class === deviceClass)
+			.filter(config => config.device.suggested_area === area);
 		const lines = getLines(configs);
 		if (lines.length === 0) {
 			continue;

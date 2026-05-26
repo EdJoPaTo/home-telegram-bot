@@ -2,6 +2,7 @@ import debounce from 'debounce-promise';
 import type {Api as Telegram} from 'grammy';
 import stringify from 'json-stable-stringify';
 import {html as format} from 'telegram-format';
+import * as hass from './home-assistant-topics.ts';
 import * as history from './mqtt-history.ts';
 import {isFalling, isRising, isUnequal} from './notify-math.ts';
 import {
@@ -148,22 +149,38 @@ async function initiateNotificationDebounced(
 	let text = '';
 
 	if (rule.compare === 'topic') {
-		text += format.monospace(rule.compareTo);
+		text += prettyTopic(rule.compareTo);
 		text += ' ';
 		text += CHANGE_TYPES[change];
 		text += ' ';
 	}
 
-	text += format.monospace(rule.topic);
+	text += prettyTopic(rule.topic);
 	text += '\n';
 	text += String(compareTo);
+	text += potentialUnit(rule.compare === 'topic' ? rule.compareTo : rule.topic);
 	text += ' ';
 	text += CHANGE_TYPES[change];
 	text += ' ';
 	text += String(currentValue);
+	text += potentialUnit(rule.topic);
 
 	await telegram.sendMessage(rule.chat, text, {
 		parse_mode: format.parse_mode,
 		reply_markup: {remove_keyboard: true},
 	});
+}
+
+function prettyTopic(topic: string): string {
+	const config = hass.getConfigByStateTopic(topic);
+	if (config) {
+		return hass.prettyName(config);
+	}
+
+	return format.monospace(topic);
+}
+
+function potentialUnit(topic: string): string {
+	const unit = hass.getConfigByStateTopic(topic)?.unit_of_measurement;
+	return unit ? '\u00A0' + unit : '';
 }

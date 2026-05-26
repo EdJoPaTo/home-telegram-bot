@@ -72,7 +72,8 @@ topicMenu.select('p', {
 	hide: ctx => !ctx.session.deviceClass,
 	choices(ctx) {
 		return Object.fromEntries(hass
-			.getConfigs(config => config.device_class === ctx.session.deviceClass)
+			.getConfigs()
+			.filter(config => config.device_class === ctx.session.deviceClass)
 			.toSorted((a, b) =>
 				hass.prettyName(a).localeCompare(hass.prettyName(b)))
 			.map(config => [
@@ -203,7 +204,8 @@ compareTopicMenu.select('p', {
 		}
 
 		return Object.fromEntries(hass
-			.getConfigs(config => config.device_class === ctx.session.deviceClass)
+			.getConfigs()
+			.filter(config => config.device_class === ctx.session.deviceClass)
 			.filter(config => config.state_topic !== topic)
 			.toSorted((a, b) =>
 				hass.prettyName(a).localeCompare(hass.prettyName(b)))

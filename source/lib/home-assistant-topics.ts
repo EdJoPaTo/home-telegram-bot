@@ -98,8 +98,12 @@ export function getAllSubscribeTopics(): string[] {
 	return [...SUBSCRIBE_TOPICS, ...list];
 }
 
-export function getConfigs(filter: (config: HomeassistantConfig) => boolean): readonly HomeassistantConfig[] {
-	return Object.values(configs).filter(config => filter(config));
+export function getConfigs(): readonly HomeassistantConfig[] {
+	return Object.values(configs);
+}
+
+export function getConfigByStateTopic(topic: string): HomeassistantConfig | undefined {
+	return getConfigs().find(config => config.state_topic === topic);
 }
 
 export function getDeviceClasses(): readonly string[] {
