@@ -1,6 +1,10 @@
 import {StatelessQuestion} from '@grammyjs/stateless-question';
 import {Composer} from 'grammy';
-import {MenuTemplate, replyMenuToContext} from 'grammy-inline-menu';
+import {
+	getMenuOfPath,
+	MenuTemplate,
+	replyMenuToContext,
+} from 'grammy-inline-menu';
 import {html as format} from 'telegram-format';
 import type {MyContext} from './context.ts';
 import {toggleKeyInArray} from './lib/array-helper.ts';
@@ -141,7 +145,7 @@ addMenu.select('compare', {
 
 const compareToValueQuestion = new StatelessQuestion<MyContext>(
 	'notify-cv',
-	async ctx => {
+	async (ctx, path) => {
 		if (ctx.message.text) {
 			const justDigits = Number(ctx.message.text.replaceAll(/[^\d,.-]/g, '').replace(',', '.'));
 			ctx.session.notify = {
@@ -151,7 +155,7 @@ const compareToValueQuestion = new StatelessQuestion<MyContext>(
 			};
 		}
 
-		await replyMenuToContext(addMenu, ctx, 'notify/add/');
+		await replyMenuToContext(addMenu, ctx, path);
 	},
 );
 
@@ -167,10 +171,11 @@ addMenu.interact('cv', {
 		const {topic, compare} = ctx.session.notify ?? {};
 		return !topic || compare !== 'value';
 	},
-	async do(ctx) {
+	async do(ctx, path) {
 		await compareToValueQuestion.replyWithHTML(
 			ctx,
 			'Mit welchem Wert soll verglichen werden?',
+			getMenuOfPath(path),
 		);
 		await ctx.answerCallbackQuery();
 		return false;
