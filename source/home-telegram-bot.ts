@@ -58,7 +58,7 @@ client.on('message', async (topic, payload, packet) => {
 		return;
 	}
 
-	if (topic.startsWith(hass.TOPIC_STARTS_WITH)) {
+	if (hass.isHomeassistantConfigTopic(topic)) {
 		const topics = hass.updateConfig(topic, payload.toString());
 		await Promise.all(topics.map(async topic => client.subscribe(topic)));
 		return;

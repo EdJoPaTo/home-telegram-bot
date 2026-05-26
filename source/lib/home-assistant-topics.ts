@@ -1,7 +1,9 @@
 import {arrayFilterUnique} from 'array-filter-unique';
 
-const SUBSCRIBE_TOPIC = 'homeassistant/sensor/+/+/config' as const;
-export const TOPIC_STARTS_WITH = 'homeassistant/sensor/' as const;
+const SUBSCRIBE_TOPICS = [
+	'homeassistant/sensor/+/+/config',
+	'homeassistant/sensor/+/config',
+] as const;
 
 type Topic = string;
 
@@ -34,6 +36,10 @@ function isHomeassistantConfig(config: unknown): config is HomeassistantConfig {
 		&& isNonEmptyString(assumed.device.name)
 		&& isNonEmptyString(assumed.device_class)
 		&& isNonEmptyString(assumed.state_topic);
+}
+
+export function isHomeassistantConfigTopic(topic: string): boolean {
+	return topic.startsWith('homeassistant/') && topic.endsWith('/config');
 }
 
 /** Update the config and returns topics to subscribe to */
@@ -86,10 +92,10 @@ export function updateConfig(topic: string, payload: string): string[] {
 
 export function getAllSubscribeTopics(): string[] {
 	const list = Object.values(configs)
-		.flatMap(entry => [entry.availability_topic ?? '', entry.state_topic])
-		.filter(Boolean)
+		.flatMap(entry => [entry.availability_topic, entry.state_topic])
+		.filter(topic => isNonEmptyString(topic))
 		.filter(arrayFilterUnique());
-	return [SUBSCRIBE_TOPIC, ...list];
+	return [...SUBSCRIBE_TOPICS, ...list];
 }
 
 export function getConfigs(filter: (config: HomeassistantConfig) => boolean): readonly HomeassistantConfig[] {
