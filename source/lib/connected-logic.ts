@@ -1,5 +1,4 @@
 import {getLastValue} from './mqtt-history.ts';
-import {getTopicParts} from './mqtt-topic.ts';
 
 export const CONNECTED_SUBSCRIPTION_TOPICS = [
 	'+/online',
@@ -52,11 +51,11 @@ export function isRelevantTopic(topic: string): boolean {
 
 export function fromTopic(topic: string, value: number | undefined) {
 	if (topic.endsWith(MQTT_SMARTHOME_END)) {
-		return mqttSmarthomePart(value);
+		return mqttSmarthomePart(value) ?? UNKNOWN;
 	}
 
 	if (topic.endsWith(GENERIC_ONLINE_END) || topic.endsWith(ESP_HOME_END)) {
-		return espHomePart(value);
+		return espHomePart(value) ?? UNKNOWN;
 	}
 
 	return UNKNOWN;
@@ -67,23 +66,6 @@ export function getRelatedConnectionStatus(topic: string | undefined) {
 		return UNKNOWN;
 	}
 
-	const base = getTopicParts(topic)[0];
-
-	{
-		const data = getLastValue(base + MQTT_SMARTHOME_END);
-		const status = mqttSmarthomePart(data?.value);
-		if (status) {
-			return status;
-		}
-	}
-
-	{
-		const data = getLastValue(base + ESP_HOME_END);
-		const status = espHomePart(data?.value);
-		if (status) {
-			return status;
-		}
-	}
-
-	return UNKNOWN;
+	const data = getLastValue(topic);
+	return fromTopic(topic, data?.value);
 }
