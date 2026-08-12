@@ -1,17 +1,17 @@
-import debounce from 'debounce-promise';
-import type {Api as Telegram} from 'grammy';
-import stringify from 'json-stable-stringify';
-import {html as format} from 'telegram-format';
-import * as hass from './home-assistant-topics.ts';
-import * as history from './mqtt-history.ts';
-import {isFalling, isRising, isUnequal} from './notify-math.ts';
+import debounce from "debounce-promise";
+import type { Api as Telegram } from "grammy";
+import stringify from "json-stable-stringify";
+import { html as format } from "telegram-format";
+import * as hass from "./home-assistant-topics.ts";
+import * as history from "./mqtt-history.ts";
+import { isFalling, isRising, isUnequal } from "./notify-math.ts";
 import {
 	type Change,
 	CHANGE_TYPES,
 	getByCompareTo,
 	getByTopic,
 	type Rule,
-} from './notify-rules.ts';
+} from "./notify-rules.ts";
 
 let telegram: Telegram;
 
@@ -20,19 +20,19 @@ export function init(tg: Telegram): void {
 }
 
 function getChangeCheckFunction(change: Change) {
-	if (change === 'rising') {
+	if (change === "rising") {
 		return isRising;
 	}
 
-	if (change === 'falling') {
+	if (change === "falling") {
 		return isFalling;
 	}
 
-	if (change === 'unequal') {
+	if (change === "unequal") {
 		return isUnequal;
 	}
 
-	throw new TypeError('unknown change: ' + String(change));
+	throw new TypeError("unknown change: " + String(change));
 }
 
 export function check(topic: string, value: number) {
@@ -54,7 +54,7 @@ export function check(topic: string, value: number) {
 }
 
 function checkRuleTopic(rule: Rule, currentValue: number, lastValue: number) {
-	const compareTo = rule.compare === 'value'
+	const compareTo = rule.compare === "value"
 		? rule.compareTo
 		: history.getLastValue(rule.compareTo)?.value;
 
@@ -101,7 +101,7 @@ type Arguments = {
 
 type ArgumentArrayArray = ReadonlyArray<readonly Arguments[]>;
 const debouncers: Record<string, (a: Arguments) => Promise<unknown[]>> = {};
-async function initiateNotification(
+function initiateNotification(
 	rule: Rule,
 	change: Change,
 	currentValue: number,
@@ -116,10 +116,10 @@ async function initiateNotification(
 			return argsArray.map(() => null);
 		},
 		rule.stableSeconds * 1000,
-		{accumulate: true},
+		{ accumulate: true },
 	);
 
-	return debouncers[identifier]({
+	return debouncers[identifier]!({
 		currentValue,
 		compareTo,
 	});
@@ -135,7 +135,7 @@ async function initiateNotificationDebounced(
 	const values = argsArray.flat();
 	const first = values[0]!;
 	const last = values.at(-1)!;
-	const {currentValue, compareTo} = last;
+	const { currentValue, compareTo } = last;
 
 	const checkFunction = getChangeCheckFunction(change);
 	const isFirst = checkFunction(first.currentValue, first.compareTo);
@@ -146,28 +146,28 @@ async function initiateNotificationDebounced(
 		return;
 	}
 
-	let text = '';
+	let text = "";
 
-	if (rule.compare === 'topic') {
+	if (rule.compare === "topic") {
 		text += prettyTopic(rule.compareTo);
-		text += ' ';
+		text += " ";
 		text += CHANGE_TYPES[change];
-		text += ' ';
+		text += " ";
 	}
 
 	text += prettyTopic(rule.topic);
-	text += '\n';
+	text += "\n";
 	text += String(compareTo);
-	text += potentialUnit(rule.compare === 'topic' ? rule.compareTo : rule.topic);
-	text += ' ';
+	text += potentialUnit(rule.compare === "topic" ? rule.compareTo : rule.topic);
+	text += " ";
 	text += CHANGE_TYPES[change];
-	text += ' ';
+	text += " ";
 	text += String(currentValue);
 	text += potentialUnit(rule.topic);
 
 	await telegram.sendMessage(rule.chat, text, {
 		parse_mode: format.parse_mode,
-		reply_markup: {remove_keyboard: true},
+		reply_markup: { remove_keyboard: true },
 	});
 }
 
@@ -182,5 +182,5 @@ function prettyTopic(topic: string): string {
 
 function potentialUnit(topic: string): string {
 	const unit = hass.getConfigByStateTopic(topic)?.unit_of_measurement;
-	return unit ? '\u00A0' + unit : '';
+	return unit ? "\u00A0" + unit : "";
 }

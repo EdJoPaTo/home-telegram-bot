@@ -1,19 +1,19 @@
-import {getLastValue} from './mqtt-history.ts';
+import { getLastValue } from "./mqtt-history.ts";
 
 export const CONNECTED_SUBSCRIPTION_TOPICS = [
-	'+/online',
-	'+/connected',
-	'+/status',
+	"+/online",
+	"+/connected",
+	"+/status",
 ] as const;
 
-const GENERIC_ONLINE_END = '/online';
-const MQTT_SMARTHOME_END = '/connected';
-const ESP_HOME_END = '/status';
+const GENERIC_ONLINE_END = "/online";
+const MQTT_SMARTHOME_END = "/connected";
+const ESP_HOME_END = "/status";
 
-const UNKNOWN = '❓';
-const OFFLINE = '😴';
-const FAULTY = '😨';
-const CONNECTED = '✅';
+const UNKNOWN = "❓";
+const OFFLINE = "😴";
+const FAULTY = "😨";
+const CONNECTED = "✅";
 
 function mqttSmarthomePart(value: number | undefined) {
 	if (value === 0) {
@@ -44,9 +44,9 @@ function espHomePart(value: number | undefined) {
 }
 
 export function isRelevantTopic(topic: string): boolean {
-	return topic.endsWith(GENERIC_ONLINE_END)
-		|| topic.endsWith(MQTT_SMARTHOME_END)
-		|| topic.endsWith(ESP_HOME_END);
+	return topic.endsWith(GENERIC_ONLINE_END) ||
+		topic.endsWith(MQTT_SMARTHOME_END) ||
+		topic.endsWith(ESP_HOME_END);
 }
 
 export function fromTopic(topic: string, value: number | undefined) {

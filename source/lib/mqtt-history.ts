@@ -12,7 +12,7 @@ export function setLastValue(
 	time: Date | undefined,
 	value: number,
 ): void {
-	last[topic] = {time, value};
+	last[topic] = { time, value };
 }
 
 export function removeLastValue(topic: Topic): void {

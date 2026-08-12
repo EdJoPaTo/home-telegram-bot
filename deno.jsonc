@@ -1,0 +1,65 @@
+{
+	// https://deno.land/manual/getting_started/configuration_file
+	"license": "MIT",
+	// https://deno.land/manual/advanced/typescript/configuration
+	// https://www.typescriptlang.org/tsconfig/
+	"compilerOptions": {
+		"noImplicitOverride": true,
+		"noImplicitReturns": true,
+		"noPropertyAccessFromIndexSignature": true,
+		"noUncheckedIndexedAccess": true,
+		"useUnknownInCatchVariables": true
+	},
+	"exclude": [
+		"./coverage/",
+		"./docs/",
+		"./node_modules/"
+	],
+	"fmt": {
+		"proseWrap": "preserve",
+		"useTabs": true
+	},
+	"lint": {
+		"rules": {
+			// https://lint.deno.land/?all=on
+			"tags": [
+				"recommended",
+				"workspace"
+			],
+			"include": [
+				"camelcase",
+				"default-param-last",
+				"eqeqeq",
+				"no-await-in-loop",
+				"no-eval",
+				"no-inferrable-types",
+				"no-node-globals",
+				"no-non-null-asserted-optional-chain",
+				"no-process-global",
+				"no-self-compare",
+				"no-slow-types",
+				"no-sparse-arrays",
+				"no-sync-fn-in-async-fn",
+				"no-undef",
+				"no-useless-rename",
+				"single-var-declarator",
+				"triple-slash-reference",
+				"verbatim-module-syntax"
+			]
+		}
+	},
+	"imports": {
+		"@grammyjs/stateless-question": "npm:@grammyjs/stateless-question@^4",
+		"@grammyjs/storage-file": "npm:@grammyjs/storage-file@^2",
+		"array-filter-unique": "jsr:@edjopato/array-filter-unique@^3",
+		"async-mqtt": "npm:async-mqtt@^2",
+		"debounce-promise": "npm:debounce-promise@^3",
+		"grammy": "npm:grammy@^1",
+		"grammy-inline-menu": "npm:grammy-inline-menu@^9",
+		"json-stable-stringify": "npm:json-stable-stringify@^1",
+		"telegraf-middleware-console-time": "npm:telegraf-middleware-console-time@^3",
+		"telegram-format": "npm:telegram-format@^3"
+	},
+	"tasks": {
+	}
+}

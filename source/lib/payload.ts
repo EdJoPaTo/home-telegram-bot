@@ -6,11 +6,11 @@ export function payloadToNumber(payload: string): number | undefined {
 
 	const l = payload.toLowerCase();
 
-	if (l === 'on' || l === 'online' || l === 'true') {
+	if (l === "on" || l === "online" || l === "true") {
 		return 1;
 	}
 
-	if (l === 'off' || l === 'offline' || l === 'false') {
+	if (l === "off" || l === "offline" || l === "false") {
 		return 0;
 	}
 

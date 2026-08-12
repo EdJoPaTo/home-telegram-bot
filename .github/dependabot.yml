@@ -3,23 +3,6 @@
 
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
-    open-pull-requests-limit: 30
-    versioning-strategy: increase
-    schedule:
-      interval: "monthly"
-      day: "saturday"
-      time: "02:42" # UTC
-    commit-message:
-      prefix: "build(npm):"
-    groups:
-      patches:
-        update-types: ["patch"]
-    ignore:
-      - dependency-name: "@types/node"
-        update-types: ["version-update:semver-major"]
-
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

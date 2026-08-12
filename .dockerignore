@@ -2,11 +2,10 @@
 *.md
 **/*.test.*
 **/test.*
-dist
+coverage
 Dockerfile
+docs
 node_modules
-test
-tsconfig.json
 
 botfather-settings
 

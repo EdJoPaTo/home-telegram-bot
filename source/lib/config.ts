@@ -1,7 +1,7 @@
-import {existsSync, readFileSync, writeFileSync} from 'node:fs';
-import {exit} from 'node:process';
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { exit } from "node:process";
 
-const CONFIG_FILE = 'persist/config.json';
+const CONFIG_FILE = "persist/config.json";
 
 type Config = {
 	readonly mqttServer: string;
@@ -10,8 +10,8 @@ type Config = {
 };
 
 const DEFAULT_CONFIG: Config = {
-	mqttServer: 'tcp://localhost:1883',
-	telegramBotToken: '123:abc',
+	mqttServer: "tcp://localhost:1883",
+	telegramBotToken: "123:abc",
 	telegramUserAllowlist: [],
 } as const;
 
@@ -19,15 +19,15 @@ export function loadConfig(): Config {
 	if (!existsSync(CONFIG_FILE)) {
 		saveConfig(DEFAULT_CONFIG);
 		console.error(
-			'No config file found. Created one. Edit',
+			"No config file found. Created one. Edit",
 			CONFIG_FILE,
-			'to your needs and restart the bot.',
+			"to your needs and restart the bot.",
 		);
 
 		exit(1);
 	}
 
-	const content = readFileSync(CONFIG_FILE, 'utf8');
+	const content = readFileSync(CONFIG_FILE, "utf8");
 	const config = JSON.parse(content) as Config;
 	const withDefaults = {
 		...DEFAULT_CONFIG,
@@ -41,6 +41,6 @@ export function loadConfig(): Config {
 }
 
 function saveConfig(config: Config): void {
-	const content = JSON.stringify(config, null, '\t') + '\n';
-	writeFileSync(CONFIG_FILE, content, 'utf8');
+	const content = JSON.stringify(config, null, "\t") + "\n";
+	writeFileSync(CONFIG_FILE, content, "utf8");
 }

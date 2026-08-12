@@ -1,9 +1,9 @@
-import {strictEqual} from 'node:assert';
-import {test} from 'node:test';
-import {isFalling, isRising, isUnequal} from './notify-math.ts';
+import { strictEqual } from "node:assert";
+import { test } from "node:test";
+import { isFalling, isRising, isUnequal } from "./notify-math.ts";
 
-await test('isRising', async t => {
-	const macro = async (now: number, compareTo: number, expected: boolean) =>
+await test("isRising", async (t) => {
+	const macro = (now: number, compareTo: number, expected: boolean) =>
 		t.test(`${now} ${compareTo}`, () => {
 			strictEqual(isRising(now, compareTo), expected);
 		});
@@ -12,8 +12,8 @@ await test('isRising', async t => {
 	await macro(3, 2, true);
 });
 
-await test('isFalling', async t => {
-	const macro = async (now: number, compareTo: number, expected: boolean) =>
+await test("isFalling", async (t) => {
+	const macro = (now: number, compareTo: number, expected: boolean) =>
 		t.test(`${now} ${compareTo}`, () => {
 			strictEqual(isFalling(now, compareTo), expected);
 		});
@@ -22,8 +22,8 @@ await test('isFalling', async t => {
 	await macro(1, 2, true);
 });
 
-await test('isUnequal', async t => {
-	const macro = async (now: number, compareTo: number, expected: boolean) =>
+await test("isUnequal", async (t) => {
+	const macro = (now: number, compareTo: number, expected: boolean) =>
 		t.test(`${now} ${compareTo}`, () => {
 			strictEqual(isUnequal(now, compareTo), expected);
 		});

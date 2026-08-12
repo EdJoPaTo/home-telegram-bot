@@ -7,7 +7,7 @@ export function setKeyInArray<T>(
 		return [...array, key];
 	}
 
-	return array.filter(o => o !== key);
+	return array.filter((o) => o !== key);
 }
 
 export function toggleKeyInArray<T>(array: readonly T[], key: T): T[] {

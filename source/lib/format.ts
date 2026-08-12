@@ -10,7 +10,7 @@ export function timespan(totalMs: number): string {
 function pad(number: number, size: number): string {
 	let s = String(number);
 	while (s.length < size) {
-		s = '0' + s;
+		s = "0" + s;
 	}
 
 	return s;
