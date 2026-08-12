@@ -65,7 +65,7 @@ export function getByCompareTo(topic: Topic) {
 		.filter(o => o.compareTo === topic);
 }
 
-export function getByChat(chat: number) {
+export function getByChat(chat: number | undefined) {
 	return Object.values(rules)
 		.flat()
 		.filter(o => o.chat === chat);

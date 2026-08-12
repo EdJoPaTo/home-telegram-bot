@@ -22,7 +22,7 @@ export const menu = new MenuTemplate<MyContext>(ctx => {
 	text
 		+= 'Du kannst benachrichtigt werden, wenn Geräte bestimmte Bedinungen erfüllen.';
 
-	const rules = notifyRules.getByChat(ctx.chat!.id);
+	const rules = notifyRules.getByChat(ctx.chatId);
 	if (rules.length > 0) {
 		text += '\n\n';
 		text += format.bold('Deine Regeln');
@@ -276,7 +276,7 @@ addMenu.interact('addRule', {
 		// @ts-expect-error type check done in hide function
 		notifyRules.add({
 			...ctx.session.notify,
-			chat: ctx.chat!.id,
+			chat: ctx.chatId!,
 		});
 		delete ctx.session.notify;
 		await ctx.answerCallbackQuery('👍');
@@ -290,17 +290,17 @@ const removeMenu = new MenuTemplate<MyContext>('Welche Regel möchtest du entfer
 
 menu.submenu('r', removeMenu, {
 	text: 'Regel entfernen…',
-	hide: ctx => notifyRules.getByChat(ctx.chat!.id).length === 0,
+	hide: ctx => notifyRules.getByChat(ctx.chatId).length === 0,
 });
 
 removeMenu.choose('r', {
 	columns: 1,
 	choices(ctx) {
-		const rules = notifyRules.getByChat(ctx.chat!.id);
+		const rules = notifyRules.getByChat(ctx.chatId);
 		return Object.fromEntries(rules.map((rule, i) => [i, notifyRules.asString(rule)]));
 	},
 	do(ctx, key) {
-		const rules = notifyRules.getByChat(ctx.chat!.id);
+		const rules = notifyRules.getByChat(ctx.chatId);
 		const ruleToRemove = rules[Number(key)];
 		if (ruleToRemove) {
 			notifyRules.remove(ruleToRemove);
