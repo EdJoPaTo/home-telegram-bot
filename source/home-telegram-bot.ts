@@ -1,4 +1,3 @@
-import { env } from "node:process";
 import { FileAdapter } from "@grammyjs/storage-file";
 import { arrayFilterUnique } from "array-filter-unique";
 import * as MQTT from "async-mqtt";
@@ -19,13 +18,12 @@ import { menu as statusMenu } from "./status.ts";
 
 const config = loadConfig();
 
-const retain = env["NODE_ENV"] === "production";
 const mqttOptions: MQTT.IClientOptions = {
 	will: {
 		topic: "home-telegram-bot/status",
 		payload: "offline",
 		qos: 1,
-		retain,
+		retain: true,
 	},
 };
 console.log("MQTT connecting to", config.mqttServer, mqttOptions);
@@ -42,7 +40,7 @@ client.on("connect", async () => {
 			.filter(arrayFilterUnique())
 			.map((topic) => client.subscribe(topic)),
 	);
-	await client.publish("home-telegram-bot/status", "online", { retain });
+	await client.publish("home-telegram-bot/status", "online", { retain: true });
 	console.log("subscribed to topics", subscribeTopics);
 });
 client.on("error", (error) => {
