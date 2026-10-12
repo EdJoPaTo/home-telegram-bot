@@ -1,0 +1,31 @@
+{
+	"$schema": "./node_modules/oxlint/configuration_schema.json",
+	"plugins": ["import", "node", "oxc", "promise", "typescript", "unicorn"],
+	"categories": {
+		"correctness": "error",
+		"suspicious": "error",
+		"pedantic": "error",
+		"perf": "error"
+	},
+	"rules": {
+		"func-style": ["warn", "declaration"],
+		"import/max-dependencies": "allow",
+		"max-lines": "allow",
+		"no-inline-comments": "allow",
+		"no-warning-comments": "warn",
+		"typescript/no-misused-promises": "allow",
+		"typescript/no-unsafe-type-assertion": "allow",
+		"typescript/prefer-nullish-coalescing": ["error", { "ignorePrimitives": { "string": true } }],
+		"typescript/prefer-readonly-parameter-types": ["error", { "ignoreInferredTypes": true }],
+		"typescript/strict-boolean-expressions": ["error", { "allowNullableString": true }],
+		"typescript/strict-void-return": "allow",
+		"unicorn/no-array-callback-reference": "allow"
+	},
+	"env": {
+		"builtin": true
+	},
+	"options": {
+		"reportUnusedDisableDirectives": "error",
+		"typeAware": true
+	}
+}

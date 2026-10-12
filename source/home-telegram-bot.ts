@@ -5,6 +5,7 @@ import { Bot, session } from "grammy";
 import { MenuMiddleware } from "grammy-inline-menu";
 import { generateUpdateMiddleware } from "telegraf-middleware-console-time";
 import { html as format } from "telegram-format";
+
 import { menu as connectedMenu } from "./connected.ts";
 import type { MyContext, Session } from "./context.ts";
 import { loadConfig } from "./lib/config.ts";
@@ -34,12 +35,8 @@ client.on("connect", async () => {
 	const subscribeTopics = [
 		...CONNECTED_SUBSCRIPTION_TOPICS,
 		...hass.getAllSubscribeTopics(),
-	];
-	await Promise.all(
-		subscribeTopics
-			.filter(arrayFilterUnique())
-			.map((topic) => client.subscribe(topic)),
-	);
+	].filter(arrayFilterUnique());
+	await Promise.all(subscribeTopics.map((topic) => client.subscribe(topic)));
 	await client.publish("home-telegram-bot/status", "online", { retain: true });
 	console.log("subscribed to topics", subscribeTopics);
 });
@@ -59,8 +56,8 @@ client.on("message", async (topic, payload, packet) => {
 	}
 
 	if (hass.isHomeassistantConfigTopic(topic)) {
-		const topics = hass.updateConfig(topic, payload.toString());
-		await Promise.all(topics.map((topic) => client.subscribe(topic)));
+		const subscribeTopics = hass.updateConfig(topic, payload.toString());
+		await Promise.all(subscribeTopics.map((st) => client.subscribe(st)));
 		return;
 	}
 
@@ -125,23 +122,22 @@ if (config.telegramUserAllowlist.length > 0) {
 	});
 }
 
-bot.use(session({
-	getSessionKey: (ctx) => String(ctx.from?.id),
-	initial: (): Session => ({}),
-	storage: new FileAdapter({
-		dirName: "persist/sessions",
+bot.use(
+	session({
+		getSessionKey: (ctx) => String(ctx.from?.id),
+		initial: (): Session => ({}),
+		storage: new FileAdapter({
+			dirName: "persist/sessions",
+		}),
 	}),
-}));
+);
 
 const statusMiddleware = new MenuMiddleware("status/", statusMenu);
 bot.command("status", (ctx) => statusMiddleware.replyToContext(ctx));
 bot.use(statusMiddleware);
 
 const connectedMiddleware = new MenuMiddleware("connected/", connectedMenu);
-bot.command(
-	"connected",
-	(ctx) => connectedMiddleware.replyToContext(ctx),
-);
+bot.command("connected", (ctx) => connectedMiddleware.replyToContext(ctx));
 bot.use(connectedMiddleware);
 
 const notifyMiddleware = new MenuMiddleware("n/", notifyMenu);
@@ -155,14 +151,12 @@ bot.command("start", (ctx) =>
 			ctx.from?.first_name ?? "du"
 		}!\n\nWenn du den Status der aktuellen Sensoren sehen willst, nutze /status.\nWenn du eine Benachrichtigung haben möchtest, wenn es draußen wärmer wird als drinnen, nutze /notify.`,
 		{ reply_markup: { remove_keyboard: true } },
-	));
+	),
+);
 
 // eslint-disable-next-line unicorn/prefer-top-level-await
 bot.catch((error) => {
-	if (
-		error instanceof Error &&
-		error.message.includes("message is not modified")
-	) {
+	if (error instanceof Error && error.message.includes("message is not modified")) {
 		return;
 	}
 

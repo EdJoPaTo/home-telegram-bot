@@ -1,27 +1,25 @@
-FROM docker.io/denoland/deno:latest AS builder
-RUN apt-get update \
-	&& apt-get upgrade -y
-WORKDIR /app
-COPY . ./
-RUN deno compile \
-	--allow-env \
-	--allow-net \
-	--allow-read=persist \
-	--allow-write=persist \
-	source/home-telegram-bot.ts
+FROM docker.io/library/alpine:3.24 AS packages
+RUN apk upgrade --no-cache \
+	&& apk add --no-cache npm
+WORKDIR /build
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund --no-update-notifier --omit=dev
 
 
-FROM docker.io/library/debian:trixie-slim AS final
-RUN apt-get update \
-	&& apt-get upgrade -y \
-	&& apt-get clean \
-	&& groupadd --system --gid 923 runner \
-	&& useradd --system --uid 923 --gid 923 --create-home runner \
-	&& rm -rf /etc/*- /var/lib/apt/lists/* /var/cache/* /var/log/*
+FROM docker.io/library/alpine:3.24 AS final
+RUN apk upgrade --no-cache \
+	&& apk add --no-cache nodejs \
+	&& addgroup -S -g 923 runner \
+	&& adduser -S -D -u 923 -G runner runner \
+	&& rm -f -- /etc/*-
 
 WORKDIR /app
+VOLUME /app/persist
 
-COPY --from=builder /app/home-telegram-bot /usr/local/bin/
+COPY package.json ./
+COPY --from=packages /build/node_modules ./node_modules
+COPY source ./
 
 USER runner
-CMD ["home-telegram-bot"]
+ENTRYPOINT ["node", "--enable-source-maps"]
+CMD ["home-telegram-bot.ts"]

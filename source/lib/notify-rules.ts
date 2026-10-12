@@ -1,4 +1,5 @@
 import { readFileSync, writeFileSync } from "node:fs";
+
 import stringify from "json-stable-stringify";
 import { html } from "telegram-format";
 
@@ -88,7 +89,6 @@ export function remove(rule: Rule): void {
 	rules[topic] = rules[topic].filter((o) => stringify(o) !== stringifiedRule);
 
 	if (rules[topic].length === 0) {
-		// eslint-disable-next-line @typescript-eslint/no-dynamic-delete
 		delete rules[topic];
 	}
 
@@ -96,8 +96,8 @@ export function remove(rule: Rule): void {
 }
 
 function getChangeSymbols(change: readonly Change[]): string {
-	return [...change]
-		.sort()
+	return change
+		.toSorted()
 		.map((o) => CHANGE_TYPES[o])
 		.join("");
 }
@@ -117,9 +117,8 @@ export function asString(rule: Rule): string {
 export function asHTML(rule: Rule): string {
 	const topic = html.monospace(rule.topic);
 	const changeSymbols = getChangeSymbols(rule.change);
-	const compareTo = rule.compare === "topic"
-		? html.monospace(rule.compareTo)
-		: String(rule.compareTo);
+	const compareTo =
+		rule.compare === "topic" ? html.monospace(rule.compareTo) : String(rule.compareTo);
 	const stable = getHumanreadableStableSeconds(rule.stableSeconds);
 	return `${topic} ${changeSymbols} ${compareTo} ${stable}`;
 }

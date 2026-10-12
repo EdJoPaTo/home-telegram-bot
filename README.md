@@ -29,11 +29,7 @@ Edit it to fit your needs.
 ```json
 {
 	"mqttServer": "tcp://localhost:1883",
-	"mqttTopics": [
-		"+/online",
-		"+/connected",
-		"+/status/#"
-	],
+	"mqttTopics": ["+/online", "+/connected", "+/status/#"],
 	"name": "home-telegram-bot",
 	"telegramBotToken": "123:abc",
 	"telegramUserAllowlist": []

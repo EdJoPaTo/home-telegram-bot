@@ -1,5 +1,6 @@
 import { MenuTemplate } from "grammy-inline-menu";
 import { html as format } from "telegram-format";
+
 import type { MyContext } from "./context.ts";
 import { getRelatedConnectionStatus } from "./lib/connected-logic.ts";
 import { timespan } from "./lib/format.ts";
@@ -10,9 +11,7 @@ const MIN_AGE_MILLISECONDS = 1000 * 60 * 60 * 48;
 
 function getLines(configs: readonly hass.HomeassistantConfig[]) {
 	return configs
-		.map((config) =>
-			[config, history.getLastValue(config.state_topic)!] as const
-		)
+		.map((config) => [config, history.getLastValue(config.state_topic)!] as const)
 		.filter(([_config, data]) => Boolean(data))
 		.filter(([_config, data]) => {
 			if (!data.time) {
@@ -23,13 +22,11 @@ function getLines(configs: readonly hass.HomeassistantConfig[]) {
 			const age = Date.now() - data.time.getTime();
 			return age < MIN_AGE_MILLISECONDS;
 		})
-		.sort(([aConfig, _aData], [bConfig, _bData]) =>
-			hass.prettyName(aConfig).localeCompare(hass.prettyName(bConfig))
+		.toSorted(([aConfig, _aData], [bConfig, _bData]) =>
+			hass.prettyName(aConfig).localeCompare(hass.prettyName(bConfig)),
 		)
 		.map(([config, data]) => {
-			const unit = config.unit_of_measurement
-				? "\u00A0" + config.unit_of_measurement
-				: "";
+			const unit = config.unit_of_measurement ? "\u00A0" + config.unit_of_measurement : "";
 			const parts: string[] = [
 				getRelatedConnectionStatus(config.availability_topic),
 				hass.prettyName(config),

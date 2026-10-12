@@ -36,11 +36,13 @@ function isHomeassistantConfig(config: unknown): config is HomeassistantConfig {
 	}
 
 	const assumed = config as HomeassistantConfig;
-	return typeof assumed.device === "object" &&
+	return (
+		typeof assumed.device === "object" &&
 		assumed.device !== null &&
 		isNonEmptyString(assumed.device.name) &&
 		isNonEmptyString(assumed.device_class) &&
-		isNonEmptyString(assumed.state_topic);
+		isNonEmptyString(assumed.state_topic)
+	);
 }
 
 export function isHomeassistantConfigTopic(topic: string): boolean {
@@ -50,7 +52,6 @@ export function isHomeassistantConfigTopic(topic: string): boolean {
 /** Update the config and returns topics to subscribe to */
 export function updateConfig(topic: string, payload: string): string[] {
 	if (!payload) {
-		// eslint-disable-next-line @typescript-eslint/no-dynamic-delete
 		delete configs[topic];
 		return [];
 	}
@@ -58,11 +59,7 @@ export function updateConfig(topic: string, payload: string): string[] {
 	try {
 		const config = JSON.parse(payload) as unknown;
 		if (!isHomeassistantConfig(config)) {
-			console.log(
-				"does not seem like a homeassistant mqtt sensor config",
-				topic,
-				config,
-			);
+			console.log("does not seem like a homeassistant mqtt sensor config", topic, config);
 			return [];
 		}
 
@@ -72,10 +69,7 @@ export function updateConfig(topic: string, payload: string): string[] {
 
 		const subscribeList: string[] = [];
 
-		if (
-			config.availability_topic &&
-			!allExisting.has(config.availability_topic)
-		) {
+		if (config.availability_topic && !allExisting.has(config.availability_topic)) {
 			subscribeList.push(config.availability_topic);
 		}
 
@@ -85,12 +79,7 @@ export function updateConfig(topic: string, payload: string): string[] {
 
 		return subscribeList;
 	} catch (error: unknown) {
-		console.error(
-			"homeassistant sensor config is not valid JSON",
-			topic,
-			payload,
-			error,
-		);
+		console.error("homeassistant sensor config is not valid JSON", topic, payload, error);
 		return [];
 	}
 }
@@ -107,9 +96,7 @@ export function getConfigs(): readonly HomeassistantConfig[] {
 	return Object.values(configs);
 }
 
-export function getConfigByStateTopic(
-	topic: string,
-): HomeassistantConfig | undefined {
+export function getConfigByStateTopic(topic: string): HomeassistantConfig | undefined {
 	return getConfigs().find((config) => config.state_topic === topic);
 }
 
@@ -117,14 +104,14 @@ export function getDeviceClasses(): readonly string[] {
 	return Object.values(configs)
 		.map((config) => config.device_class)
 		.filter(arrayFilterUnique())
-		.sort((a, b) => (a ?? "").localeCompare(b ?? ""));
+		.toSorted((a, b) => (a ?? "").localeCompare(b ?? ""));
 }
 
 export function getAreas(): ReadonlyArray<string | undefined> {
 	return Object.values(configs)
 		.map((config) => config.device.suggested_area)
 		.filter(arrayFilterUnique())
-		.sort((a, b) => (a ?? "").localeCompare(b ?? ""));
+		.toSorted((a, b) => (a ?? "").localeCompare(b ?? ""));
 }
 
 export function prettyName(config: HomeassistantConfig): string {

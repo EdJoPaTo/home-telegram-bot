@@ -2,6 +2,7 @@ import debounce from "debounce-promise";
 import type { Api as Telegram } from "grammy";
 import stringify from "json-stable-stringify";
 import { html as format } from "telegram-format";
+
 import * as hass from "./home-assistant-topics.ts";
 import * as history from "./mqtt-history.ts";
 import { isFalling, isRising, isUnequal } from "./notify-math.ts";
@@ -15,6 +16,7 @@ import {
 
 let telegram: Telegram;
 
+// eslint-disable-next-line prefer-readonly-parameter-types
 export function init(tg: Telegram): void {
 	telegram = tg;
 }
@@ -54,9 +56,8 @@ export function check(topic: string, value: number) {
 }
 
 function checkRuleTopic(rule: Rule, currentValue: number, lastValue: number) {
-	const compareTo = rule.compare === "value"
-		? rule.compareTo
-		: history.getLastValue(rule.compareTo)?.value;
+	const compareTo =
+		rule.compare === "value" ? rule.compareTo : history.getLastValue(rule.compareTo)?.value;
 
 	if (compareTo === undefined) {
 		return;
@@ -73,11 +74,7 @@ function checkRuleTopic(rule: Rule, currentValue: number, lastValue: number) {
 	}
 }
 
-function checkRuleCompareTo(
-	rule: Rule,
-	currentValue: number,
-	lastValue: number,
-) {
+function checkRuleCompareTo(rule: Rule, currentValue: number, lastValue: number) {
 	const topicLastValue = history.getLastValue(rule.topic)?.value;
 	if (topicLastValue === undefined) {
 		return;
@@ -101,12 +98,7 @@ type Arguments = {
 
 type ArgumentArrayArray = ReadonlyArray<readonly Arguments[]>;
 const debouncers: Record<string, (a: Arguments) => Promise<unknown[]>> = {};
-function initiateNotification(
-	rule: Rule,
-	change: Change,
-	currentValue: number,
-	compareTo: number,
-) {
+function initiateNotification(rule: Rule, change: Change, currentValue: number, compareTo: number) {
 	const identifier = `${stringify(rule)}${change}`;
 	debouncers[identifier] ??= debounce(
 		async (argsArray: ArgumentArrayArray) => {
@@ -119,7 +111,7 @@ function initiateNotification(
 		{ accumulate: true },
 	);
 
-	return debouncers[identifier]!({
+	return debouncers[identifier]({
 		currentValue,
 		compareTo,
 	});

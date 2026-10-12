@@ -1,11 +1,8 @@
 import { StatelessQuestion } from "@grammyjs/stateless-question";
 import { Composer } from "grammy";
-import {
-	getMenuOfPath,
-	MenuTemplate,
-	replyMenuToContext,
-} from "grammy-inline-menu";
+import { getMenuOfPath, MenuTemplate, replyMenuToContext } from "grammy-inline-menu";
 import { html as format } from "telegram-format";
+
 import type { MyContext } from "./context.ts";
 import { toggleKeyInArray } from "./lib/array-helper.ts";
 import * as hass from "./lib/home-assistant-topics.ts";
@@ -19,8 +16,7 @@ export const bot = new Composer<MyContext>();
 export const menu = new MenuTemplate<MyContext>((ctx) => {
 	let text = format.bold("Benachrichtigungen");
 	text += "\n";
-	text +=
-		"Du kannst benachrichtigt werden, wenn Geräte bestimmte Bedinungen erfüllen.";
+	text += "Du kannst benachrichtigt werden, wenn Geräte bestimmte Bedinungen erfüllen.";
 
 	const rules = notifyRules.getByChat(ctx.chatId);
 	if (rules.length > 0) {
@@ -29,7 +25,7 @@ export const menu = new MenuTemplate<MyContext>((ctx) => {
 		text += "\n";
 		text += rules
 			.map((rule) => "- " + notifyRules.asHTML(rule))
-			.sort()
+			.toSorted()
 			.join("\n");
 	}
 
@@ -75,13 +71,8 @@ topicMenu.select("p", {
 			hass
 				.getConfigs()
 				.filter((config) => config.device_class === ctx.session.deviceClass)
-				.toSorted((a, b) =>
-					hass.prettyName(a).localeCompare(hass.prettyName(b))
-				)
-				.map((config) => [
-					config.state_topic.replaceAll("/", "#"),
-					hass.prettyName(config),
-				]),
+				.toSorted((a, b) => hass.prettyName(a).localeCompare(hass.prettyName(b)))
+				.map((config) => [config.state_topic.replaceAll("/", "#"), hass.prettyName(config)]),
 		);
 	},
 	isSet: (ctx, key) => ctx.session.notify?.topic === key.replaceAll("#", "/"),
@@ -110,15 +101,11 @@ addMenu.select("change", {
 	showFalseEmoji: true,
 	choices: CHANGE_TYPES,
 	hide: (ctx) => !ctx.session.notify?.topic,
-	isSet: (ctx, key) =>
-		(ctx.session.notify?.change ?? []).includes(key as notifyRules.Change),
+	isSet: (ctx, key) => (ctx.session.notify?.change ?? []).includes(key as notifyRules.Change),
 	set(ctx, key) {
 		ctx.session.notify = {
 			...ctx.session.notify,
-			change: toggleKeyInArray(
-				ctx.session.notify?.change ?? [],
-				key as notifyRules.Change,
-			),
+			change: toggleKeyInArray(ctx.session.notify?.change ?? [], key as notifyRules.Change),
 		};
 
 		if (ctx.session.notify.change!.length === 0) {
@@ -147,23 +134,18 @@ addMenu.select("compare", {
 	},
 });
 
-const compareToValueQuestion = new StatelessQuestion<MyContext>(
-	"notify-cv",
-	async (ctx, path) => {
-		if (ctx.message.text) {
-			const justDigits = Number(
-				ctx.message.text.replaceAll(/[^\d,.-]/g, "").replace(",", "."),
-			);
-			ctx.session.notify = {
-				...ctx.session.notify,
-				compare: "value",
-				compareTo: Number.isFinite(justDigits) ? justDigits : 42,
-			};
-		}
+const compareToValueQuestion = new StatelessQuestion<MyContext>("notify-cv", async (ctx, path) => {
+	if (ctx.message.text) {
+		const justDigits = Number(ctx.message.text.replaceAll(/[^\d,.-]/gu, "").replace(",", "."));
+		ctx.session.notify = {
+			...ctx.session.notify,
+			compare: "value",
+			compareTo: Number.isFinite(justDigits) ? justDigits : 42,
+		};
+	}
 
-		await replyMenuToContext(addMenu, ctx, path);
-	},
-);
+	await replyMenuToContext(addMenu, ctx, path);
+});
 
 bot.use(compareToValueQuestion);
 
@@ -195,8 +177,7 @@ const compareTopicMenu = new MenuTemplate<MyContext>(
 addMenu.submenu("cp", compareTopicMenu, {
 	text: (ctx) =>
 		String(
-			ctx.session.notify?.compare === "topic" &&
-				topicButtonText(ctx.session.notify.compareTo),
+			ctx.session.notify?.compare === "topic" && topicButtonText(ctx.session.notify.compareTo),
 		),
 	hide(ctx) {
 		const { topic, compare } = ctx.session.notify ?? {};
@@ -217,13 +198,8 @@ compareTopicMenu.select("p", {
 				.getConfigs()
 				.filter((config) => config.device_class === ctx.session.deviceClass)
 				.filter((config) => config.state_topic !== topic)
-				.toSorted((a, b) =>
-					hass.prettyName(a).localeCompare(hass.prettyName(b))
-				)
-				.map((config) => [
-					config.state_topic.replaceAll("/", "#"),
-					hass.prettyName(config),
-				]),
+				.toSorted((a, b) => hass.prettyName(a).localeCompare(hass.prettyName(b)))
+				.map((config) => [config.state_topic.replaceAll("/", "#"), hass.prettyName(config)]),
 		);
 	},
 	isSet(ctx, key) {
@@ -298,9 +274,7 @@ addMenu.interact("addRule", {
 
 addMenu.navigate("..", { text: "🔙 zurück…" });
 
-const removeMenu = new MenuTemplate<MyContext>(
-	"Welche Regel möchtest du entfernen?",
-);
+const removeMenu = new MenuTemplate<MyContext>("Welche Regel möchtest du entfernen?");
 
 menu.submenu("r", removeMenu, {
 	text: "Regel entfernen…",
@@ -311,9 +285,7 @@ removeMenu.choose("r", {
 	columns: 1,
 	choices(ctx) {
 		const rules = notifyRules.getByChat(ctx.chatId);
-		return Object.fromEntries(
-			rules.map((rule, i) => [i, notifyRules.asString(rule)]),
-		);
+		return Object.fromEntries(rules.map((rule, i) => [i, notifyRules.asString(rule)]));
 	},
 	do(ctx, key) {
 		const rules = notifyRules.getByChat(ctx.chatId);
