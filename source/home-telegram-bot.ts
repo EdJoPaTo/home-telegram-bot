@@ -30,6 +30,7 @@ const mqttOptions: MQTT.IClientOptions = {
 console.log("MQTT connecting to", config.mqttServer, mqttOptions);
 const client = MQTT.connect(config.mqttServer, mqttOptions);
 
+// oxlint-disable-next-line typescript/strict-void-return, typescript/no-misused-promises
 client.on("connect", async () => {
 	console.log("connected to mqtt server");
 	const subscribeTopics = [
@@ -44,6 +45,7 @@ client.on("error", (error) => {
 	console.error("Error MQTT", error);
 });
 
+// oxlint-disable-next-line typescript/strict-void-return, typescript/no-misused-promises
 client.on("message", async (topic, payload, packet) => {
 	if (packet.cmd !== "publish") {
 		// Only handle publish packages
@@ -126,9 +128,7 @@ bot.use(
 	session({
 		getSessionKey: (ctx) => String(ctx.from?.id),
 		initial: (): Session => ({}),
-		storage: new FileAdapter({
-			dirName: "persist/sessions",
-		}),
+		storage: new FileAdapter({ dirName: "persist/sessions" }),
 	}),
 );
 
@@ -164,15 +164,9 @@ bot.catch((error) => {
 });
 
 await bot.api.setMyCommands([
-	{
-		command: "status",
-		description: "betrachte die aktuellen Werte von MQTT Topics",
-	},
+	{ command: "status", description: "betrachte die aktuellen Werte von MQTT Topics" },
 	{ command: "connected", description: "zeige den Verbindungsstatus" },
-	{
-		command: "notify",
-		description: "ändere zu welchen Sensoren du benachrichtigt werden willst",
-	},
+	{ command: "notify", description: "ändere zu welchen Sensoren du benachrichtigt werden willst" },
 ]);
 
 await bot.start({
