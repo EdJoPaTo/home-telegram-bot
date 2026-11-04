@@ -29,8 +29,8 @@ function getLines(configs: readonly hass.HomeassistantConfig[]) {
 			const unit = config.unit_of_measurement ? "\u00A0" + config.unit_of_measurement : "";
 			const parts: string[] = [
 				getRelatedConnectionStatus(config.availability_topic),
-				hass.prettyName(config),
-				format.bold(String(data.value)) + unit,
+				format.escape(hass.prettyName(config)),
+				format.bold(String(data.value)) + format.escape(unit),
 			];
 
 			if (data.time) {
