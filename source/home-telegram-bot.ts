@@ -15,6 +15,7 @@ import * as history from "./lib/mqtt-history.ts";
 import * as notify from "./lib/notify.ts";
 import { payloadToNumber } from "./lib/payload.ts";
 import { bot as notifyBot, menu as notifyMenu } from "./notify.ts";
+import * as publish from "./publish.ts";
 import { menu as statusMenu } from "./status.ts";
 
 const config = loadConfig();
@@ -145,6 +146,14 @@ bot.command("notify", (ctx) => notifyMiddleware.replyToContext(ctx));
 bot.use(notifyMiddleware);
 bot.use(notifyBot);
 
+publish.init(config.mqttPublish, (topic, payload, retain) =>
+	client.publish(topic, payload, { retain }),
+);
+const publishMiddleware = new MenuMiddleware("p/", publish.menu);
+bot.command("publish", (ctx) => publishMiddleware.replyToContext(ctx));
+bot.use(publishMiddleware);
+bot.use(publish.bot);
+
 bot.command("start", (ctx) =>
 	ctx.reply(
 		`Hey ${
@@ -167,6 +176,7 @@ await bot.api.setMyCommands([
 	{ command: "status", description: "betrachte die aktuellen Werte von MQTT Topics" },
 	{ command: "connected", description: "zeige den Verbindungsstatus" },
 	{ command: "notify", description: "ändere zu welchen Sensoren du benachrichtigt werden willst" },
+	{ command: "publish", description: "sende Payloads ins MQTT" },
 ]);
 
 await bot.start({

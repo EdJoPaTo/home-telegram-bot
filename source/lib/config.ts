@@ -3,13 +3,22 @@ import { exit } from "node:process";
 
 const CONFIG_FILE = "persist/config.json";
 
+export type PublishConfig = {
+	label?: string;
+	topic: string;
+	retain?: boolean;
+	payload?: string;
+};
+
 type Config = {
+	readonly mqttPublish: ReadonlyArray<Readonly<PublishConfig>>;
 	readonly mqttServer: string;
 	readonly telegramBotToken: string;
 	readonly telegramUserAllowlist: readonly number[];
 };
 
 const DEFAULT_CONFIG: Config = {
+	mqttPublish: [{ topic: "hello/world", retain: false }],
 	mqttServer: "tcp://localhost:1883",
 	telegramBotToken: "123:abc",
 	telegramUserAllowlist: [],
