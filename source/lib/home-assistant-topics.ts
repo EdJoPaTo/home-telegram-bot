@@ -16,7 +16,7 @@ export type HomeassistantConfig = {
 		readonly suggested_area?: string;
 	};
 	// deno-lint-ignore camelcase -- defined by Home Assistant
-	readonly device_class: string;
+	readonly device_class?: string;
 	readonly name?: string;
 	// deno-lint-ignore camelcase -- defined by Home Assistant
 	readonly state_topic: string;
@@ -40,7 +40,6 @@ function isHomeassistantConfig(config: unknown): config is HomeassistantConfig {
 		typeof assumed.device === "object" &&
 		assumed.device !== null &&
 		isNonEmptyString(assumed.device.name) &&
-		isNonEmptyString(assumed.device_class) &&
 		isNonEmptyString(assumed.state_topic)
 	);
 }
@@ -103,6 +102,7 @@ export function getConfigByStateTopic(topic: string): HomeassistantConfig | unde
 export function getDeviceClasses(): readonly string[] {
 	return Object.values(configs)
 		.map((config) => config.device_class)
+		.filter((o) => typeof o === "string")
 		.filter(arrayFilterUnique())
 		.toSorted((a, b) => (a ?? "").localeCompare(b ?? ""));
 }
@@ -119,7 +119,7 @@ export function prettyName(config: HomeassistantConfig): string {
 
 	pretty += config.device.name;
 
-	if (config.name && !config.device_class.includes(config.name.toLowerCase())) {
+	if (config.name && !config.device_class?.includes(config.name.toLowerCase())) {
 		pretty += " " + config.name;
 	}
 

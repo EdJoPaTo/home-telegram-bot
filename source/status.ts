@@ -42,15 +42,13 @@ function getLines(configs: readonly hass.HomeassistantConfig[]) {
 }
 
 export const menu = new MenuTemplate<MyContext>((ctx) => {
-	const deviceClass = ctx.session.deviceClass ?? "temperature";
-
 	const areas = hass.getAreas();
 	let text = "";
 
 	for (const area of areas) {
 		const configs = hass
 			.getConfigs()
-			.filter((config) => config.device_class === deviceClass)
+			.filter((config) => config.device_class === ctx.session.deviceClass)
 			.filter((config) => config.device.suggested_area === area);
 		const lines = getLines(configs);
 		if (lines.length === 0) {
@@ -73,6 +71,16 @@ menu.select("deviceClass", {
 	isSet: (ctx, key) => ctx.session.deviceClass === key,
 	set(ctx, key) {
 		ctx.session.deviceClass = key;
+		return true;
+	},
+});
+
+menu.toggle("noDeviceClass", {
+	text: "without device_class",
+	hide: () => !hass.getConfigs().some((config) => !config.device_class),
+	isSet: (ctx) => !ctx.session.deviceClass,
+	set(ctx, _value) {
+		delete ctx.session.deviceClass;
 		return true;
 	},
 });
