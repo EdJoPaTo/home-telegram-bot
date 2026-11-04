@@ -157,7 +157,10 @@ menu.interact("send", {
 		let text = format.monospace(topic);
 		text += `\nRetain: ${retain}\nPayload:\n`;
 		text += format.monospaceBlock(payload);
-		await ctx.reply(text, { parse_mode: format.parse_mode });
+		await ctx.reply(text, {
+			parse_mode: format.parse_mode,
+			reply_markup: { remove_keyboard: true },
+		});
 
 		delete ctx.session.publish;
 		try {
