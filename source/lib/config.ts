@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { exit } from "node:process";
 
 const CONFIG_FILE = "persist/config.json";
@@ -17,6 +17,7 @@ const DEFAULT_CONFIG: Config = {
 
 export function loadConfig(): Config {
 	if (!existsSync(CONFIG_FILE)) {
+		mkdirSync("persist", { recursive: true });
 		saveConfig(DEFAULT_CONFIG);
 		console.error(
 			"No config file found. Created one. Edit",
