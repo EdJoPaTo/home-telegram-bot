@@ -8,19 +8,14 @@ const SUBSCRIBE_TOPICS = [
 type Topic = string;
 
 export type HomeassistantConfig = {
-	// deno-lint-ignore camelcase -- defined by Home Assistant
 	readonly availability_topic?: string;
 	readonly device: {
 		readonly name: string;
-		// deno-lint-ignore camelcase -- defined by Home Assistant
 		readonly suggested_area?: string;
 	};
-	// deno-lint-ignore camelcase -- defined by Home Assistant
 	readonly device_class?: string;
 	readonly name?: string;
-	// deno-lint-ignore camelcase -- defined by Home Assistant
 	readonly state_topic: string;
-	// deno-lint-ignore camelcase -- defined by Home Assistant
 	readonly unit_of_measurement?: string;
 };
 
