@@ -129,6 +129,7 @@ menu.interact("payload", {
 });
 
 menu.interact("cancel", {
+	style: "danger",
 	text: "Abbrechen & Zurücksetzen",
 	hide: (ctx) => !ctx.session.publish,
 	do(ctx) {
@@ -139,6 +140,7 @@ menu.interact("cancel", {
 
 menu.interact("send", {
 	joinLastRow: true,
+	style: "primary",
 	text: "Senden",
 	hide: (ctx) => !ctx.session.publish?.topic || !ctx.session.publish.payload,
 	async do(ctx) {
