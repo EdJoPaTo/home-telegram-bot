@@ -156,8 +156,9 @@ menu.interact("send", {
 
 		await publish(topic, payload, retain);
 
-		let text = format.monospace(topic);
-		text += `\nRetain: ${retain}\nPayload:\n`;
+		let text = `Versendet (retain: ${retain}) auf Topic:\n`;
+		text += format.monospace(topic);
+		text += `\nPayload:\n`;
 		text += format.monospaceBlock(payload);
 		await ctx.reply(text, {
 			parse_mode: format.parse_mode,
