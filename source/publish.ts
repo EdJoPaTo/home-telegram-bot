@@ -104,8 +104,8 @@ const payloadQuestion = new StatelessQuestion<MyContext>("publishPayload", async
 	}
 
 	ctx.session.publish = {
-		payload: text,
 		...ctx.session.publish,
+		payload: text,
 	};
 	await replyMenuToContext(menu, ctx, path);
 });
