@@ -1,8 +1,8 @@
 import { FileAdapter } from "@grammyjs/storage-file";
 import { arrayFilterUnique } from "array-filter-unique";
-import * as MQTT from "async-mqtt";
 import { Bot, session } from "grammy";
 import { MenuMiddleware } from "grammy-inline-menu";
+import * as mqtt from "mqtt";
 import { generateUpdateMiddleware } from "telegraf-middleware-console-time";
 import { html as format } from "telegram-format";
 
@@ -20,7 +20,7 @@ import { menu as statusMenu } from "./status.ts";
 
 const config = loadConfig();
 
-const mqttOptions: MQTT.IClientOptions = {
+const mqttOptions: mqtt.IClientOptions = {
 	will: {
 		topic: "home-telegram-bot/status",
 		payload: "offline",
@@ -29,7 +29,7 @@ const mqttOptions: MQTT.IClientOptions = {
 	},
 };
 console.log("MQTT connecting to", config.mqttServer, mqttOptions);
-const client = MQTT.connect(config.mqttServer, mqttOptions);
+const client = mqtt.connect(config.mqttServer, mqttOptions);
 
 // oxlint-disable-next-line typescript/strict-void-return, typescript/no-misused-promises
 client.on("connect", async () => {
@@ -38,8 +38,8 @@ client.on("connect", async () => {
 		...CONNECTED_SUBSCRIPTION_TOPICS,
 		...hass.getAllSubscribeTopics(),
 	].filter(arrayFilterUnique());
-	await Promise.all(subscribeTopics.map((topic) => client.subscribe(topic)));
-	await client.publish("home-telegram-bot/status", "online", { retain: true });
+	await Promise.all(subscribeTopics.map((topic) => client.subscribeAsync(topic)));
+	await client.publishAsync("home-telegram-bot/status", "online", { retain: true });
 	console.log("subscribed to topics", subscribeTopics);
 });
 client.on("error", (error) => {
@@ -60,7 +60,7 @@ client.on("message", async (topic, payload, packet) => {
 
 	if (hass.isHomeassistantConfigTopic(topic)) {
 		const subscribeTopics = hass.updateConfig(topic, payload.toString());
-		await Promise.all(subscribeTopics.map((st) => client.subscribe(st)));
+		await Promise.all(subscribeTopics.map((st) => client.subscribeAsync(st)));
 		return;
 	}
 
@@ -146,9 +146,9 @@ bot.command("notify", (ctx) => notifyMiddleware.replyToContext(ctx));
 bot.use(notifyMiddleware);
 bot.use(notifyBot);
 
-publish.init(config.mqttPublish, (topic, payload, retain) =>
-	client.publish(topic, payload, { retain }),
-);
+publish.init(config.mqttPublish, async (topic, payload, retain) => {
+	await client.publishAsync(topic, payload, { retain });
+});
 const publishMiddleware = new MenuMiddleware("p/", publish.menu);
 bot.command("publish", (ctx) => publishMiddleware.replyToContext(ctx));
 bot.use(publishMiddleware);
